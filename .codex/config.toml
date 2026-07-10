@@ -1,8 +1,0 @@
-[mcp_servers.supabase]
-url = "https://mcp.supabase.com/mcp?project_ref=mbscfzccmomwqdybnlbq&features=docs%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cstorage"
-startup_timeout_sec = 60
-
-
-[mcp_servers.cloudflare-api]
-url = "https://mcp.cloudflare.com/mcp"
-startup_timeout_sec = 60

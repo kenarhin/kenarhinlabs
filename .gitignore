@@ -45,3 +45,4 @@ build/
 opencode.jsonc
 .agents/mcp_config.json
 skills-lock.json
+.codex/
