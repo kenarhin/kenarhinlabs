@@ -1,0 +1,11 @@
+{
+  "name": "@labs/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared domain logic and framework-independent business rules for Ken Arhin Labs.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

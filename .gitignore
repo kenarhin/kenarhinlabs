@@ -1,2 +1,47 @@
+# System Files
+.DS_Store
+Thumbs.db
+
+# Dependencies
+node_modules/
+.pnpm-debug.log*
+
+# Build and Temp Directories
+dist/
+.astro/
+.open-next/
+.turbo/
+out/
+build/
+.svelte-kit/
+.vercel/
+.next/
+
+# Environments and Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# Wrangler/Cloudflare Local Files
+.wrangler/
+.devvars
+
+# Local IDE/Editor Configs
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/launch.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Project-specific logs and custom tooling files
 opencode.jsonc
 .agents/mcp_config.json
+skills-lock.json

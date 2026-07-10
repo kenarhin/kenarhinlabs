@@ -1,21 +1,30 @@
 {
   "name": "kenarhinlabs",
+  "version": "0.0.1",
   "private": true,
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "Ken Arhin Labs monorepo for the public site, admin app, API, shared packages, and project documentation.",
+  "type": "module",
+  "engines": {
+    "node": ">=24.15.0",
+    "pnpm": "^11.5.0"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "^11.10.0",
-      "onFail": "download"
+      "version": "^11.5.0",
+      "onFail": "error"
     }
   },
-  "type": "module"
+  "scripts": {
+    "check": "pnpm format:check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "list:workspaces": "pnpm --recursive list --depth -1"
+  },
+  "devDependencies": {
+    "prettier": "catalog:"
+  },
+  "dependencies": {
+    "eslint-config-prettier": "^10.1.8"
+  }
 }

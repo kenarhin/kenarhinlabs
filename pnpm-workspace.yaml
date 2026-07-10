@@ -1,9 +1,17 @@
 packages:
   - "apps/*"
   - "packages/*"
+  - "tooling/*"
+  - "!**/dist/**"
+  - "!**/build/**"
+  - "!**/.wrangler/**"
 
 catalog:
-  typescript: ^5.8.0
-  eslint: ^9.0.0
-  prettier: ^3.0.0
-  react: ^19.0.0
+  prettier: ^3.9.5
+  eslint: ^10.6.0
+
+minimumReleaseAgeExclude:
+  - prettier@3.9.5
+
+# pnpm 11 reads project-level pnpm settings from this file.
+# Keep dependency versions centralized through catalogs as the repo grows.
