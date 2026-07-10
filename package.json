@@ -22,7 +22,8 @@
     "list:workspaces": "pnpm --recursive list --depth -1"
   },
   "devDependencies": {
-    "prettier": "catalog:"
+    "prettier": "catalog:",
+    "wrangler": "^4.110.0"
   },
   "dependencies": {
     "eslint-config-prettier": "^10.1.8"

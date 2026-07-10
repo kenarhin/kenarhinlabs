@@ -6,6 +6,12 @@ packages:
   - "!**/build/**"
   - "!**/.wrangler/**"
 
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: false
+  workerd: true
+
 catalog:
   prettier: ^3.9.5
   eslint: ^10.6.0
