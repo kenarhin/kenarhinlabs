@@ -6,12 +6,12 @@
   "type": "module",
   "engines": {
     "node": ">=24.15.0",
-    "pnpm": "^11.5.0"
+    "pnpm": "^11.10.0"
   },
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "^11.5.0",
+      "version": "^11.10.0",
       "onFail": "error"
     }
   },
