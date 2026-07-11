@@ -1,11 +1,21 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+/**
+ * index.astro — public site home page.
+ *
+ * SEO title is keyword-rich as recommended for homepage discoverability.
+ * The meta description is supplied explicitly. The tagline itself ("Digital
+ * systems, built around people.") lives in the hero H1, not the <title>.
+ *
+ * Open Graph title uses the tagline for social sharing — more memorable
+ * and human than the SEO-optimised browser title.
+ */
+import Welcome from "../components/Welcome.astro";
+import Layout from "../layouts/Layout.astro";
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+  title="Ken Arhin Labs | Web Development, AI & Managed Hosting"
+  description="Ken Arhin Labs designs, builds, hosts, and operates websites, web applications, AI workflows, and connected digital systems for modern businesses."
+>
+  <Welcome />
 </Layout>

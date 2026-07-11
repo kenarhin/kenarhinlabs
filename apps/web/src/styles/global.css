@@ -1,0 +1,14 @@
+/*
+ * Global stylesheet for apps/web (public site).
+ *
+ * Import order:
+ *   1. tailwindcss — injects the v4 CSS engine (base reset, utilities, variants).
+ *      The @tailwindcss/vite plugin handles file scanning automatically.
+ *   2. @labs/design — injects fonts, semantic theme tokens, type scale, motion
+ *      vocabulary, base document styles, and the owned typeset layer.
+ *
+ * The application owns this entry point. The @labs/design package contributes
+ * the shared theme and foundations but never configures Tailwind itself.
+ */
+@import "tailwindcss";
+@import "@labs/design/styles.css";

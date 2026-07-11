@@ -41,13 +41,17 @@ The homepage hero uses HTML, SVG, Tailwind CSS, and GSAP. It does not depend on 
 
 ### Message
 
-Recommended positioning:
+Brand/category label:
 
-> We build the systems behind modern businesses.
+> INDEPENDENT DIGITAL SYSTEMS LAB
+
+Hero headline (H1):
+
+> Digital systems, built around people.
 
 Supporting copy:
 
-> Websites, applications, AI workflows, content and infrastructure—designed to work together.
+> Ken Arhin Labs designs, builds, hosts, and operates websites, applications, AI workflows, and digital infrastructure that work together.
 
 Primary action:
 

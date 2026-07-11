@@ -339,9 +339,19 @@ Do not use generic robots, glowing brains, floating network spheres, anonymous g
 
 The voice is direct, intelligent and concrete. Explain what was built, why it matters and how the parts work together.
 
+Brand tagline:
+
+> Digital systems, built around people.
+
+Hero headline + supporting copy:
+
+> Digital systems, built around people.
+>
+> Ken Arhin Labs designs, builds, hosts, and operates websites, applications, AI workflows, and digital infrastructure that work together.
+
 Prefer:
 
-> We build the systems behind modern businesses.
+> Digital systems, built around people.
 
 Avoid:
 
