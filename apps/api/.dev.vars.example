@@ -1,0 +1,9 @@
+# Copy to .dev.vars for local development. Never commit real secret values.
+ALLOWED_ORIGINS=https://kenarhinlabs.com,https://admin.kenarhinlabs.com
+CLOUDFLARE_EMAIL_WEBHOOK_SECRET=replace-with-at-least-32-random-characters
+ENVIRONMENT=development
+HEALTH_CHECK_TIMEOUT_MS=2000
+INTERNAL_QUEUE_WEBHOOK_SECRET=replace-with-at-least-32-random-characters
+SUPABASE_JWT_AUDIENCE=authenticated
+SUPABASE_URL=https://project-ref.supabase.co
+SUPABASE_WEBHOOK_SECRET=replace-with-at-least-32-random-characters

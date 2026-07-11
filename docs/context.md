@@ -4,17 +4,21 @@ _Last updated: 2026-07-10_
 
 ## 1. Project identity
 
-**Ken Arhin Labs** is a registered sole proprietorship and the main brand behind a growing digital ecosystem. The public domain is:
+**Ken Arhin Labs** is a registered sole proprietorship and the main brand behind a growing digital
+ecosystem. The public domain is:
 
 ```txt
 kenarhinlabs.com
 ```
 
-The project should not be treated as a simple portfolio website. The agreed direction is to build Ken Arhin Labs as a **global-facing AI-native digital systems lab** that builds, documents, recommends, and manages modern digital systems.
+The project should not be treated as a simple portfolio website. The agreed direction is to build
+Ken Arhin Labs as a **global-facing AI-native digital systems lab** that builds, documents,
+recommends, and manages modern digital systems.
 
 Recommended positioning:
 
-> Ken Arhin Labs designs, builds, and documents AI-ready digital systems for brands, startups, creators, and modern businesses.
+> Ken Arhin Labs designs, builds, and documents AI-ready digital systems for brands, startups,
+> creators, and modern businesses.
 
 Alternative short positioning:
 
@@ -37,7 +41,8 @@ It should combine:
 - Future client portal
 - Future product ecosystem
 
-The site should be built with the **final target architecture from day one**, while features are delivered in phases. The goal is to avoid choosing a throwaway stack that must be migrated later.
+The site should be built with the **final target architecture from day one**, while features are
+delivered in phases. The goal is to avoid choosing a throwaway stack that must be migrated later.
 
 ## 3. Audience strategy
 
@@ -47,9 +52,11 @@ Agreed direction:
 
 > Build globally, prove locally.
 
-This means the brand can target global customers, while case studies and early traction can come from Ghana/Africa-based work.
+This means the brand can target global customers, while case studies and early traction can come
+from Ghana/Africa-based work.
 
-The site should not market to only one narrow audience. Instead, it should organize by **problems and needs**:
+The site should not market to only one narrow audience. Instead, it should organize by **problems
+and needs**:
 
 - I need a website
 - I need hosting/domain/email setup
@@ -69,7 +76,8 @@ Ken Arhin Labs has already built or contributed to ecosystem-style projects, inc
 - `233shops`
 - DailyVrs, a planned React Native project
 
-These should be presented as **case studies** or **labs/projects**, not only as portfolio screenshots.
+These should be presented as **case studies** or **labs/projects**, not only as portfolio
+screenshots.
 
 Each case study should explain:
 
@@ -88,7 +96,8 @@ Ken Arhin Labs should not be only a blog, portfolio, domain store, or deals dire
 
 The agreed concept is:
 
-> A digital stack and AI systems lab where people can discover tools, read guides, study real builds, request implementation, and eventually use products built by Ken Arhin Labs.
+> A digital stack and AI systems lab where people can discover tools, read guides, study real
+> builds, request implementation, and eventually use products built by Ken Arhin Labs.
 
 Key public sections:
 
@@ -132,7 +141,8 @@ Content types:
 - Service/product pages
 - Product updates
 
-AdSense can be added later, but the primary monetization should be services, productized packages, affiliate/tool-stack recommendations, templates, and eventually products.
+AdSense can be added later, but the primary monetization should be services, productized packages,
+affiliate/tool-stack recommendations, templates, and eventually products.
 
 ## 7. Admin/business OS decision
 
@@ -179,7 +189,8 @@ Admin editor
 
 ## 8. Content publishing model
 
-The admin should be able to write and publish blog posts, case studies, stack guides, tool pages, and lab notes.
+The admin should be able to write and publish blog posts, case studies, stack guides, tool pages,
+and lab notes.
 
 Recommended storage strategy:
 
@@ -189,7 +200,8 @@ Recommended storage strategy:
 - Content body format: Markdown or structured JSON blocks
 - Rich editor: Plate editor or a similar React editor
 
-Avoid unrestricted user/admin-written MDX execution from the CMS. If rich components are needed inside articles, use a controlled allowlist such as:
+Avoid unrestricted user/admin-written MDX execution from the CMS. If rich components are needed
+inside articles, use a controlled allowlist such as:
 
 ```txt
 <Callout />
@@ -246,7 +258,8 @@ Admin PWA goals:
 
 Admin PWA caution:
 
-Do not blindly cache sensitive private data such as full client records, email contents, private notes, or auth/session responses.
+Do not blindly cache sensitive private data such as full client records, email contents, private
+notes, or auth/session responses.
 
 ## 10. Database decision
 
@@ -268,18 +281,22 @@ Why this model:
 
 Rule:
 
-> Important business data is written to Supabase first. D1 receives public, non-sensitive, read-optimized copies.
+> Important business data is written to Supabase first. D1 receives public, non-sensitive,
+> read-optimized copies.
 
 ## 11. Email decision
 
-Supabase Auth email flows exist, but Supabase's default email sender is not production-ready. Production auth emails should use a custom SMTP provider.
+Supabase Auth email flows exist, but Supabase's default email sender is not production-ready.
+Production auth emails should use a custom SMTP provider.
 
 Agreed email direction:
 
 - Use Supabase Auth for identity/auth.
-- Configure Supabase Auth custom SMTP using Cloudflare Email Service if deliverability and limits are acceptable.
+- Configure Supabase Auth custom SMTP using Cloudflare Email Service if deliverability and limits
+  are acceptable.
 - Use Cloudflare Email Service from Hono/Workers for transactional business emails.
-- Keep a future fallback option such as Resend, Postmark, Brevo, or AWS SES if Cloudflare Email Service limits/deliverability become a problem.
+- Keep a future fallback option such as Resend, Postmark, Brevo, or AWS SES if Cloudflare Email
+  Service limits/deliverability become a problem.
 
 Auth-related email examples:
 
@@ -442,6 +459,14 @@ ken-arhin-labs/
 │   │   ├── tsconfig.json
 │   │   └── package.json
 │   │
+│   ├── auth/                        # Supabase JWT verification and RBAC helpers
+│   │   ├── src/
+│   │   └── package.json
+│   │
+│   ├── validators/                  # Shared backend request/response Zod schemas
+│   │   ├── src/
+│   │   └── package.json
+│   │
 │   ├── ui/                          # Shared UI primitives if needed
 │   │   ├── src/
 │   │   └── package.json
@@ -458,28 +483,45 @@ ken-arhin-labs/
 │   │   │   └── index.ts
 │   │   └── package.json
 │   │
-│   └── db/                          # Supabase SQL, migrations, seed scripts, generated types
-│       ├── supabase/
-│       │   ├── migrations/
-│       │   ├── seed.sql
-│       │   └── config.toml
+│   ├── storage/                     # Typed R2 helpers and media job contracts
+│   │   ├── src/
+│   │   └── package.json
+│   │
+│   ├── sync/                        # Transactional outbox to D1 projection logic
+│   │   ├── src/
+│   │   └── package.json
+│   │
+│   └── db/                          # Drizzle schemas, clients, D1 migrations, database validation
 │       ├── src/
-│       │   ├── generated.types.ts
-│       │   ├── tables.ts
+│       │   ├── schema/
+│       │   ├── d1-schema/
+│       │   ├── client/
+│       │   ├── queries/
 │       │   └── index.ts
+│       ├── d1/migrations/
+│       ├── scripts/
 │       └── package.json
+│
+├── supabase/                        # Canonical Postgres migrations, seed, config, and SQL tests
+│   ├── migrations/
+│   ├── tests/database/
+│   ├── config.toml
+│   └── seed.sql
 │
 ├── docs/                            # Project docs and planning files
 │   ├── context.md                   # This file
 │   ├── tech-stack.md                # Stack decisions and architecture
+│   ├── backend-architecture.md
+│   ├── database-schema.md
+│   ├── backend-platform-provisioning.md
 │   ├── tasks/
-│   │   ├── 000-roadmap.md
-│   │   ├── 001-monorepo-setup.md
-│   │   ├── 002-public-site.md
-│   │   ├── 003-admin-app.md
-│   │   ├── 004-api.md
-│   │   ├── 005-content-system.md
-│   │   └── 006-pwa.md
+│   │   ├── backend/
+│   │   │   ├── backend.md           # Overall backend program and verification gates
+│   │   │   ├── 01-monorepo-foundation.md
+│   │   │   ├── 02-full-database.md
+│   │   │   ├── 03-api-runtime.md
+│   │   │   └── 04-platform-and-docs.md
+│   │   └── README.md                # Discipline/task-folder conventions
 │   ├── architecture/
 │   │   ├── data-flow.md
 │   │   ├── auth.md
@@ -504,10 +546,8 @@ ken-arhin-labs/
 │
 ├── package.json
 ├── pnpm-workspace.yaml
-├── turbo.json                    # optional, if using Turborepo
-├── tsconfig.base.json
-├── eslint.config.js
-├── prettier.config.js
+├── eslint.config.mjs
+├── prettier.config.mjs
 ├── .gitignore
 └── README.md
 ```

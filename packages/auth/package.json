@@ -1,0 +1,25 @@
+{
+  "name": "@labs/auth",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Supabase JWT verification and database-backed RBAC ports for Ken Arhin Labs.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run src",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@labs/core": "workspace:^",
+    "jose": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

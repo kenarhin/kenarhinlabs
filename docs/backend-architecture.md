@@ -1,6 +1,7 @@
 # Ken Arhin Labs Backend Architecture
 
-This document defines the long-term backend architecture for Ken Arhin Labs. It covers the full system we are designing, not only the first launch version.
+This document defines the long-term backend architecture for Ken Arhin Labs. It covers the full
+system we are designing, not only the first launch version.
 
 ## Architecture Summary
 
@@ -23,7 +24,8 @@ Shared business:     packages/core
 
 ## Main Principle
 
-Ken Arhin Labs should not become a random collection of Cloudflare and Supabase features. The backend should follow a clear division of responsibility.
+Ken Arhin Labs should not become a random collection of Cloudflare and Supabase features. The
+backend should follow a clear division of responsibility.
 
 ```txt
 Hono API
@@ -50,7 +52,9 @@ Cloudflare Queues/Workflows
 
 ## Why Hyperdrive Is Required
 
-Cloudflare Workers run globally and can create pressure on traditional database connection limits if each request connects directly to Postgres. Hyperdrive sits between Workers and Supabase Postgres and handles connection setup, connection pooling, and query caching across Cloudflare’s network.
+Cloudflare Workers run globally and can create pressure on traditional database connection limits if
+each request connects directly to Postgres. Hyperdrive sits between Workers and Supabase Postgres
+and handles connection setup, connection pooling, and query caching across Cloudflare’s network.
 
 Runtime path:
 
@@ -69,7 +73,8 @@ Do not use Supabase pooler behind Hyperdrive because Hyperdrive itself is the po
 
 ## Why Use Drizzle
 
-Drizzle gives the project a typed database layer, schema-as-code, migrations, and reusable queries. It keeps the database design inside the monorepo instead of relying on manual dashboard changes.
+Drizzle gives the project a typed database layer, schema-as-code, migrations, and reusable queries.
+It keeps the database design inside the monorepo instead of relying on manual dashboard changes.
 
 Use Drizzle in two modes:
 
@@ -193,7 +198,8 @@ POST /public/leads
 POST /public/contact
 ```
 
-Public routes should read from D1 where possible and fall back to Supabase through the API only when necessary.
+Public routes should read from D1 where possible and fall back to Supabase through the API only when
+necessary.
 
 ### Admin routes
 
@@ -270,7 +276,8 @@ system.manage
 
 ## Supabase Auth Email Strategy
 
-Supabase has Auth email templates/flows, but the default Supabase sender is not the production email strategy. Configure custom SMTP.
+Supabase has Auth email templates/flows, but the default Supabase sender is not the production email
+strategy. Configure custom SMTP.
 
 Use Cloudflare Email Service SMTP for Supabase Auth emails:
 
@@ -577,7 +584,8 @@ admin actions
 
 ## Backend Build Order
 
-This is not a separate MVP architecture. It is the order for building the permanent architecture safely.
+This is not a separate MVP architecture. It is the order for building the permanent architecture
+safely.
 
 ```txt
 1. packages/config and TypeScript foundation
@@ -596,17 +604,23 @@ This is not a separate MVP architecture. It is the order for building the perman
 ## References
 
 - Hono on Cloudflare Workers: https://hono.dev/docs/getting-started/cloudflare-workers
-- Cloudflare Workers Hono guide: https://developers.cloudflare.com/workers/framework-guides/web-apps/more-web-frameworks/hono/
-- Cloudflare Hyperdrive with Supabase: https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-database-providers/supabase/
-- Cloudflare Hyperdrive with Drizzle: https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/drizzle-orm/
+- Cloudflare Workers Hono guide:
+  https://developers.cloudflare.com/workers/framework-guides/web-apps/more-web-frameworks/hono/
+- Cloudflare Hyperdrive with Supabase:
+  https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-database-providers/supabase/
+- Cloudflare Hyperdrive with Drizzle:
+  https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-drivers-and-libraries/drizzle-orm/
 - Supabase Drizzle guide: https://supabase.com/docs/guides/database/drizzle
 - Drizzle with Supabase: https://orm.drizzle.team/docs/tutorials/drizzle-with-supabase
 - Supabase API security: https://supabase.com/docs/guides/api/securing-your-api
 - Supabase RLS: https://supabase.com/docs/guides/database/postgres/row-level-security
 - Cloudflare D1 pricing: https://developers.cloudflare.com/d1/platform/pricing/
 - Cloudflare D1 limits: https://developers.cloudflare.com/d1/platform/limits/
-- Cloudflare D1 read replication: https://developers.cloudflare.com/d1/best-practices/read-replication/
+- Cloudflare D1 read replication:
+  https://developers.cloudflare.com/d1/best-practices/read-replication/
 - Cloudflare R2 pricing: https://developers.cloudflare.com/r2/pricing/
-- Cloudflare Email Service Workers API: https://developers.cloudflare.com/email-service/api/send-emails/workers-api/
-- Cloudflare Email Service SMTP: https://developers.cloudflare.com/email-service/api/send-emails/smtp/
+- Cloudflare Email Service Workers API:
+  https://developers.cloudflare.com/email-service/api/send-emails/workers-api/
+- Cloudflare Email Service SMTP:
+  https://developers.cloudflare.com/email-service/api/send-emails/smtp/
 - Cloudflare Workflows: https://developers.cloudflare.com/workflows/

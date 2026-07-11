@@ -1,0 +1,38 @@
+{
+  "name": "@labs/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "description": "Typed Postgres and D1 database layer for Ken Arhin Labs.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema/index.ts",
+    "./d1-schema": "./src/d1-schema/index.ts",
+    "./client/node": "./src/client/node.ts",
+    "./client/worker": "./src/client/worker.ts",
+    "./client/d1": "./src/client/d1.ts",
+    "./queries/*": "./src/queries/*.ts"
+  },
+  "scripts": {
+    "check": "pnpm typecheck && pnpm db:check && pnpm postgres:validate && pnpm d1:validate",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate --config=drizzle.config.ts",
+    "db:check": "drizzle-kit check --config=drizzle.config.ts",
+    "db:studio": "drizzle-kit studio --config=drizzle.config.ts",
+    "postgres:validate": "node ./scripts/validate-postgres.mjs",
+    "d1:generate": "drizzle-kit generate --config=drizzle.d1.config.ts",
+    "d1:validate": "node ./scripts/validate-d1.mjs"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "@types/node": "catalog:",
+    "@types/pg": "catalog:",
+    "dotenv": "catalog:",
+    "drizzle-kit": "catalog:",
+    "typescript": "catalog:"
+  }
+}

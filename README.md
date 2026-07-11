@@ -1,238 +1,226 @@
 # Ken Arhin Labs
 
-Ken Arhin Labs is a global-facing digital systems lab for building AI-ready websites, platforms, admin systems, automations, content engines, and business infrastructure.
+Ken Arhin Labs is an AI-native digital systems lab building websites, platforms, automations,
+content engines, and the operating infrastructure behind modern businesses. This repository is the
+long-term product and business platform for `kenarhinlabs.com`, not a standalone portfolio template.
 
-The goal of this repository is not to become a basic portfolio site. It is the foundation for a full Ken Arhin Labs operating system: the public website, admin/business dashboard, backend API, shared packages, project documentation, and future product surfaces.
+The monorepo contains the public website, internal admin application, official backend API,
+canonical database layer, Cloudflare integration packages, and architecture/task documentation used
+to build the system.
 
-## Project direction
+## Architecture
 
-Ken Arhin Labs is being designed as a long-term digital ecosystem with these major parts:
+```txt
+Astro public site / TanStack Start admin / future clients
+                         |
+                  Hono API on Workers
+                         |
+        +----------------+----------------+
+        |                |                |
+Supabase Postgres   Cloudflare R2   Email Service
+ source of truth      media/files   transactional mail
+        |
+transactional outbox -> Queues / Workflows -> D1 public read model
+```
 
-- **Public website** — a content-heavy Astro site for services, case studies, stack guides, tool listings, field notes, lab updates, and public brand pages.
-- **Admin app** — a TanStack Start admin system for managing content, clients, leads, offers, tools, files, email workflows, and internal business operations.
-- **API layer** — a Hono API on Cloudflare Workers that acts as the official backend API for the whole project.
-- **Primary backend** — Supabase Postgres and Supabase Auth for source-of-truth business data and identity.
-- **Cloudflare platform** — Workers, Hyperdrive, D1, R2, Email Service, Queues, Workflows, Turnstile, Access, and cache features where they make sense.
-- **Shared packages** — reusable code, configuration, validators, database logic, email helpers, storage helpers, and core business rules.
-- **Documentation** — project context, stack decisions, tasks, architecture notes, and implementation plans inside `docs/`.
+Key rules:
 
-## Current scaffold scope
+- Supabase Postgres is authoritative for business, identity-linked, draft, and private data.
+- Cloudflare D1 contains rebuildable, public, non-sensitive projections only.
+- Cloudflare R2 stores object bodies; Postgres stores their metadata and ownership.
+- The Hono Worker is the official API and authorization boundary.
+- Queue consumers are idempotent because Cloudflare Queues uses at-least-once delivery.
+- The workspace uses pnpm directly and does not use Turborepo.
 
-This scaffold is only the **pnpm monorepo foundation**. It intentionally does not create the applications yet.
+See [project context](docs/context.md), [technical decisions](docs/tech-stack.md),
+[backend architecture](docs/backend-architecture.md), and [database model](docs/database-schema.md)
+for the complete design.
 
-The apps will be scaffolded later:
+## Repository layout
 
 ```txt
 apps/
-  web/      # Astro public site; not created yet
-  admin/    # TanStack Start admin app; not created yet
-  api/      # Hono Cloudflare Workers API; not created yet
+  web/          Astro public site
+  admin/        TanStack Start business/admin application
+  api/          Hono API and Cloudflare Worker entrypoint
+
+packages/
+  auth/         Supabase JWT, webhook verification, and RBAC helpers
+  config/       Shared TypeScript, ESLint, and Prettier configuration
+  core/         Framework-independent domain rules and errors
+  db/           Drizzle schemas, Postgres/D1 clients, migrations, and queries
+  email/        Transactional templates, Email Service transport, queue consumer
+  storage/      Typed R2 helpers and media job contracts
+  sync/         Transactional outbox to D1 projectors and consumers
+  validators/   Shared Zod request/response contracts
+  ui/           Shared frontend UI package
+
+docs/
+  tasks/backend/               Backend plan and lane work logs
+  backend-platform-provisioning.md
 ```
 
-The current foundation includes:
+Applications are deployable surfaces. Reusable business and infrastructure logic belongs in a
+focused `@labs/*` package so it can be tested independently and shared without copying runtime code.
 
-```txt
-.
-├── .agents/                 # Existing local agent skills; not managed by this scaffold
-├── .codex/                  # Existing Codex/tooling config; not managed by this scaffold
-├── docs/                    # Existing project documentation folder
-│   ├── context.md
-│   └── tech-stack.md
-├── packages/
-│   ├── config/              # Shared monorepo configuration package
-│   └── core/                # Shared framework-independent business/domain logic
-├── .gitignore
-├── .node-version
-├── .npmrc
-├── .nvmrc
-├── .prettierignore
-├── package.json
-├── pnpm-workspace.yaml
-├── prettier.config.mjs
-├── opencode.jsonc           # Existing tool config; not managed by this scaffold
-└── README.md
+## Prerequisites
+
+- Node.js `24.15.0` (recorded in `.node-version` and `.nvmrc`)
+- pnpm `11.10.0` (enforced by the root manifest)
+- Git
+- Docker for disposable local Postgres/database validation where required
+- Access to the Ken Arhin Labs Supabase project through the configured Supabase MCP connector
+- A Cloudflare account and Wrangler authentication only for remote integration or deployment
+
+Confirm the local toolchain before installing:
+
+```sh
+# Both versions must satisfy the root package policy.
+node --version
+pnpm --version
 ```
 
-## Package naming
-
-The root package uses:
-
-```txt
-kenarhinlabs
-```
-
-Internal workspace packages use the `@labs` scope:
-
-```txt
-@labs/core
-@labs/config
-```
-
-This keeps internal imports clean while avoiding the overly common `@repo/*` pattern.
-
-## Required local tools
-
-This repo is configured around:
-
-```txt
-Node.js: 24.15.0
-pnpm:    11.10.0
-```
-
-The local Node version is recorded in both `.node-version` and `.nvmrc`.
-
-## Install
+## First-time setup
 
 From the repository root:
 
 ```sh
-pnpm install
+# Install the single workspace from the root lockfile.
+pnpm install --frozen-lockfile
+
+# Create API development values; replace placeholders locally.
+cp apps/api/.dev.vars.example apps/api/.dev.vars
+
+# Verify package discovery and the backend baseline.
+pnpm list:workspaces
+pnpm check
 ```
 
-## Useful commands
+Never commit `.dev.vars`, `.env` files, API tokens, service-role keys, database passwords, or
+production resource IDs. Browser applications may use a Supabase publishable/anonymous key;
+`SUPABASE_SERVICE_ROLE_KEY` is backend-only.
+
+## Development commands
+
+Run applications from their existing scaffold directories:
 
 ```sh
-pnpm format
-pnpm format:check
-pnpm check
-pnpm list:workspaces
+# Public website.
+pnpm --dir apps/web dev
+
+# Admin application.
+pnpm --dir apps/admin dev
+
+# Hono API with Wrangler's local bindings.
+pnpm --dir apps/api dev
 ```
 
-## Workspace layout
+Repository-wide checks:
 
-The workspace currently supports these package locations:
+| Command                  | Purpose                                            |
+| ------------------------ | -------------------------------------------------- |
+| `pnpm format`            | Format tracked project files                       |
+| `pnpm format:check`      | Verify formatting without changing files           |
+| `pnpm lint:backend`      | Lint backend apps and packages                     |
+| `pnpm typecheck:backend` | Type-check backend workspaces                      |
+| `pnpm test:backend`      | Run backend tests                                  |
+| `pnpm build:backend`     | Build backend-owned workspaces that define a build |
+| `pnpm check`             | Run the complete backend quality gate              |
+| `pnpm list:workspaces`   | Show the pnpm workspace graph                      |
 
-```txt
-apps/*
-packages/*
-tooling/*
+Filter one package while iterating:
+
+```sh
+# Examples: focused storage, email, sync, and database validation.
+pnpm --filter @labs/storage test
+pnpm --filter @labs/email typecheck
+pnpm --filter @labs/sync test
+pnpm --filter @labs/db check
 ```
 
-`apps/*` is reserved for the public site, admin app, and API. `packages/*` is for shared internal packages. `tooling/*` is reserved for future repo-level tooling packages if needed.
+## Database workflow
 
-## Current packages
+The permanent database model is implemented as code in `packages/db`:
 
-### `@labs/core`
+- Supabase Postgres schemas and migrations own canonical application data.
+- Drizzle provides typed schema and query contracts.
+- Workers connect to Supabase through Hyperdrive.
+- D1 migrations define the public read model separately.
+- `projection_receipts` makes outbox projection retries and replay ordering observable.
 
-Shared, framework-independent business logic.
+Use a direct Supabase Postgres connection for migration tooling. The Worker runtime uses the
+Hyperdrive binding instead of embedding a database URL.
 
-This package should eventually hold domain services and business rules such as:
+```sh
+# Check Drizzle schema consistency and the local D1 migration contract.
+pnpm --filter @labs/db db:check
+pnpm --filter @labs/db d1:validate
 
-- content publishing logic
-- project/client workflows
-- permission helpers
-- offer/tool publishing rules
-- shared business constants
-- reusable backend-safe utilities
-
-### `@labs/config`
-
-Shared project configuration.
-
-Current export:
-
-```txt
-@labs/config/prettier
+# Generate migration artifacts only after reviewing the schema diff.
+pnpm --filter @labs/db db:generate
+pnpm --filter @labs/db d1:generate
 ```
 
-Future config exports may include:
+Database migrations are reviewed repository artifacts. Do not make untracked production schema
+changes through a dashboard.
 
-- TypeScript base configs
-- ESLint configs
-- app/package conventions
-- build presets
-- testing conventions
+All Supabase inspection and mutation for this repository must use the Supabase MCP connector; do not
+use the Supabase CLI. Before any remote query or migration, retrieve the connector's project URL and
+confirm it is the intended Ken Arhin Labs project. Stop if the target is missing, ambiguous, or
+belongs to another project. Apply a reviewed repository migration through MCP only after that target
+check and an explicit decision to mutate the selected environment.
 
-## Formatting
+## Cloudflare resources and environments
 
-Prettier is installed at the root and versioned through the pnpm catalog in `pnpm-workspace.yaml`.
+Local Wrangler storage is the default for development. Preview and production must use separate
+Hyperdrive, D1, R2, Queue, Workflow, and Email Service resources. The complete binding contract,
+naming convention, provisioning order, and validation commands are in
+[Backend Platform Provisioning](docs/backend-platform-provisioning.md).
 
-The root `prettier.config.mjs` re-exports the shared config from:
+Important deployment boundaries:
 
-```txt
-packages/config/prettier.config.mjs
-```
+- Setup and tests do not provision or deploy cloud resources.
+- `wrangler.jsonc` is the Worker configuration source of truth.
+- Generate Worker binding types after every binding change.
+- Use Wrangler secrets for deployed credentials and `.dev.vars` for local credentials.
+- Run a Wrangler dry run before deployment.
+- Apply D1 migrations locally before applying them to a selected remote database.
 
-The `.prettierignore` file intentionally ignores generated files, dependency folders, build outputs, and existing root tooling folders such as `.agents/` and `.codex/`.
+## Backend task workflow
 
-## Documentation
+Backend implementation is tracked in [docs/tasks/backend/backend.md](docs/tasks/backend/backend.md).
+Each lane owns a separate append-only task log containing research, decisions, files changed,
+commands, verification, blockers, and handoff notes.
 
-Project documentation belongs in `docs/`.
+When contributing:
 
-Current agreed docs:
+1. Read the four authoritative project documents linked above.
+2. Choose the owning backend lane before editing shared code.
+3. Verify current official documentation for external APIs and tools.
+4. Keep public, private, and deployment concerns in their designated packages.
+5. Add tests for behavior and failure/retry paths.
+6. Run focused checks, then `pnpm check` before handoff.
+7. Update the owning task log with reproducible evidence.
 
-```txt
-docs/context.md
-docs/tech-stack.md
-```
+Frontend tasks belong in their own discipline folder and must not be mixed into backend lane logs.
 
-Future docs may include:
+## Security and operations
 
-```txt
-docs/backend-database.md
-docs/frontend-architecture.md
-docs/content-system.md
-docs/tasks/
-```
+- Cloudflare Access protects the admin perimeter; Supabase Auth identifies users; Hono and Postgres
+  permissions authorize actions.
+- RLS and explicit grants are required for Supabase-exposed relations.
+- Webhooks require signature or shared-secret verification and idempotency.
+- Private R2 objects are served through controlled Worker routes or time-limited signed access.
+- Logs use structured identifiers and must omit secrets, email bodies, private records, and raw
+  binding objects.
+- Email Service is reserved for transactional mail; marketing campaigns require a dedicated
+  bulk-email system.
 
-Do not scatter planning files randomly across the repo root. Keep project docs in `docs/` unless a tool specifically requires a root-level config file.
+## Project status and support
 
-## Planned architecture summary
+The platform is in active early development. Source code, migrations, and the backend task logs are
+authoritative; this README explains how to enter and work in the repository rather than duplicating
+a volatile feature checklist.
 
-The long-term project architecture is:
-
-```txt
-Public site:
-  Astro + Cloudflare Workers + PWA support
-
-Admin app:
-  TanStack Start + shadcn/ui + TanStack Query + PWA support
-
-API:
-  Hono on Cloudflare Workers
-
-Primary database/auth:
-  Supabase Postgres + Supabase Auth
-
-Database access from Workers:
-  Cloudflare Hyperdrive + Drizzle ORM
-
-Edge/public read layer:
-  Cloudflare D1
-
-Files/media:
-  Cloudflare R2
-
-Email:
-  Cloudflare Email Service
-
-Async/background:
-  Cloudflare Queues + Workflows
-```
-
-## Development principle
-
-The repo should be built as the real long-term architecture from the beginning, but implemented in controlled phases.
-
-That means:
-
-- no throwaway stack
-- no random package sprawl
-- no app scaffolding until the foundation is clean
-- no duplicate backend sources of truth
-- shared logic should move into packages instead of being copied between apps
-- project decisions should be documented in `docs/`
-
-## Next implementation direction
-
-After this pnpm foundation, the next steps should be:
-
-1. Add TypeScript and shared TypeScript config.
-2. Add linting/code-quality config.
-3. Add Drizzle/Supabase database package structure.
-4. Add Cloudflare environment/config conventions.
-5. Scaffold the Hono API.
-6. Scaffold the Astro public site.
-7. Scaffold the TanStack Start admin app.
-
-The apps are intentionally not included in this setup step.
+For architecture questions or onboarding gaps, open an issue with the relevant document, command,
+and error output. Ken Arhin Labs maintains this private workspace.

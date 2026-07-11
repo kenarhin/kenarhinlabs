@@ -1,0 +1,74 @@
+# Agent, assistant, and local tool metadata
+AGENTS.md
+.agents/
+.codex/
+.claude/
+.cursor/
+.idea/
+.vscode/
+opencode.jsonc
+skills-lock.json
+
+# Frontend workspaces are outside the backend program's formatting scope
+apps/admin/
+apps/web/
+packages/ui/
+
+# Dependencies and package-manager state
+**/node_modules/
+.pnpm-store/
+.yarn/
+.pnp.*
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+bun.lock
+bun.lockb
+
+# Build output and framework caches
+**/dist/
+**/build/
+**/out/
+**/coverage/
+**/.cache/
+**/.astro/
+**/.next/
+**/.open-next/
+**/.output/
+**/.svelte-kit/
+**/.tanstack/
+**/.turbo/
+**/.vercel/
+**/.vinxi/
+**/.vite/
+**/.wrangler/
+
+# Generated source and database metadata
+**/routeTree.gen.ts
+**/worker-configuration.d.ts
+packages/db/drizzle/**/meta/
+packages/db/drizzle/**/schema.ts
+packages/db/drizzle/**/relations.ts
+supabase/.branches/
+supabase/.temp/
+
+# Local secrets, certificates, and logs
+**/.env
+**/.env.*
+**/.dev.vars
+**/.dev.vars.*
+**/.devvars
+**/*.pem
+**/*.key
+**/*.cert
+**/*.log
+**/npm-debug.log*
+**/pnpm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+
+# Generated or vendored assets
+**/*.min.css
+**/*.min.js
+**/*.map
+**/vendor/

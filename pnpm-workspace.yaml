@@ -6,18 +6,53 @@ packages:
   - "!**/build/**"
   - "!**/.wrangler/**"
 
+# Keep one deterministic workspace graph and one root lockfile. Internal
+# dependencies must opt into local resolution with the workspace: protocol.
+sharedWorkspaceLockfile: true
+linkWorkspacePackages: false
+saveWorkspaceProtocol: rolling
+disallowWorkspaceCycles: true
+pmOnFail: error
+nodeVersion: 24.15.0
+engineStrict: true
+
+# pnpm v11 blocks dependency lifecycle scripts unless they are reviewed here.
 allowBuilds:
   esbuild: true
+  lightningcss: true
   sharp: true
   unrs-resolver: false
   workerd: true
 
 catalog:
+  "@cloudflare/workers-types": ^5.20260711.1
+  "@cloudflare/vitest-pool-workers": ^0.18.4
+  "@eslint/js": ^10.0.1
+  "@types/node": ^26.1.1
+  "@types/pg": ^8.20.0
+  dotenv: ^17.4.2
+  drizzle-kit: ^0.31.10
+  drizzle-orm: ^0.45.2
+  eslint: ^10.7.0
+  eslint-config-prettier: ^10.1.8
+  globals: ^17.7.0
+  hono: ^4.12.29
+  jose: ^6.2.3
+  pg: ^8.22.0
   prettier: ^3.9.5
-  eslint: ^10.6.0
+  typescript: ~6.0.2
+  typescript-eslint: ^8.63.0
+  vitest: ^4.1.10
+  wrangler: ^4.110.0
+  zod: ^4.4.3
 
+minimumReleaseAge: 1440
+minimumReleaseAgeStrict: true
 minimumReleaseAgeExclude:
-  - prettier@3.9.5
+  # These exact latest-stable releases were registry-verified for this setup.
+  - "@cloudflare/workers-types@5.20260711.1"
+  - "eslint@10.7.0"
+  - "hono@4.12.29"
 
 # pnpm 11 reads project-level pnpm settings from this file.
 # Keep dependency versions centralized through catalogs as the repo grows.

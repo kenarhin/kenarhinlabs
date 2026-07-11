@@ -6,6 +6,20 @@
   "type": "module",
   "sideEffects": false,
   "exports": {
-    "./prettier": "./prettier.config.mjs"
+    "./eslint": "./eslint.config.mjs",
+    "./prettier": "./prettier.config.mjs",
+    "./typescript/base": "./tsconfig.base.json",
+    "./typescript/package": "./tsconfig.package.json",
+    "./typescript/worker": "./tsconfig.worker.json"
+  },
+  "dependencies": {
+    "@eslint/js": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "globals": "catalog:",
+    "typescript-eslint": "catalog:"
+  },
+  "peerDependencies": {
+    "eslint": "^10.0.0",
+    "typescript": ">=6.0.0 <6.1.0"
   }
 }

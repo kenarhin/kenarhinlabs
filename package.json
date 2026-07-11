@@ -4,28 +4,45 @@
   "private": true,
   "description": "Ken Arhin Labs monorepo for the public site, admin app, API, shared packages, and project documentation.",
   "type": "module",
+  "packageManager": "pnpm@11.10.0",
   "engines": {
     "node": ">=24.15.0",
-    "pnpm": "^11.10.0"
+    "pnpm": ">=11.10.0 <12.0.0"
   },
   "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^24.15.0",
+      "onFail": "error"
+    },
     "packageManager": {
       "name": "pnpm",
-      "version": "^11.10.0",
+      "version": "11.10.0",
       "onFail": "error"
     }
   },
   "scripts": {
-    "check": "pnpm format:check",
+    "build": "pnpm --recursive --if-present run build",
+    "build:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!./packages/ui' --recursive --if-present run build",
+    "check": "pnpm format:check && pnpm lint:backend && pnpm typecheck:backend && pnpm test:backend && pnpm build:backend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "list:workspaces": "pnpm --recursive list --depth -1"
+    "lint": "pnpm --recursive --if-present run lint",
+    "lint:backend": "eslint apps/api packages --ignore-pattern packages/ui --max-warnings=0",
+    "list:workspaces": "pnpm --recursive list --depth -1",
+    "test": "pnpm --recursive --if-present run test",
+    "test:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!./packages/ui' --recursive --if-present run test",
+    "typecheck": "pnpm --recursive --if-present run typecheck",
+    "typecheck:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!./packages/ui' --recursive --if-present run typecheck"
   },
   "devDependencies": {
+    "@eslint/js": "catalog:",
+    "eslint": "catalog:",
+    "eslint-config-prettier": "catalog:",
+    "globals": "catalog:",
     "prettier": "catalog:",
-    "wrangler": "^4.110.0"
-  },
-  "dependencies": {
-    "eslint-config-prettier": "^10.1.8"
+    "typescript": "catalog:",
+    "typescript-eslint": "catalog:",
+    "wrangler": "catalog:"
   }
 }

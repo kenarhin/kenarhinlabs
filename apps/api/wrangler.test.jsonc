@@ -1,0 +1,7 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "kenarhinlabs-api-tests",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-11",
+  "compatibility_flags": ["nodejs_compat"],
+}

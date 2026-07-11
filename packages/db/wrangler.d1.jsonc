@@ -1,0 +1,14 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "kenarhinlabs-d1-schema-validation",
+  "compatibility_date": "2026-07-11",
+  "d1_databases": [
+    {
+      "binding": "D1_PUBLIC",
+      "database_name": "kenarhinlabs-public",
+      // Local validation does not contact Cloudflare, so a sentinel UUID is sufficient.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "d1/migrations",
+    },
+  ],
+}

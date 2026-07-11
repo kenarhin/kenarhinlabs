@@ -1,38 +1,92 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "api",
+  "name": "kenarhinlabs-api",
   "main": "src/index.ts",
-  "compatibility_date": "2026-07-10"
-  // "compatibility_flags": [
-  //   "nodejs_compat"
-  // ],
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
-  // "r2_buckets": [
-  //   {
-  //     "binding": "MY_BUCKET",
-  //     "bucket_name": "my-bucket"
-  //   }
-  // ],
-  // "d1_databases": [
-  //   {
-  //     "binding": "MY_DB",
-  //     "database_name": "my-database",
-  //     "database_id": ""
-  //   }
-  // ],
-  // "ai": {
-  //   "binding": "AI"
-  // },
-  // "observability": {
-  //   "enabled": true,
-  //   "head_sampling_rate": 1
-  // }
+  "compatibility_date": "2026-07-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      // Provisioning replaces this non-secret sentinel with each environment's configuration ID.
+      "id": "00000000000000000000000000000000",
+    },
+  ],
+  "d1_databases": [
+    {
+      "binding": "D1_PUBLIC",
+      "database_name": "kenarhinlabs-public",
+      // Provisioning replaces this sentinel with the environment's D1 UUID.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "../../packages/db/d1/migrations",
+    },
+  ],
+  "r2_buckets": [{ "binding": "R2_MEDIA", "bucket_name": "kenarhinlabs-media" }],
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "allowed_sender_addresses": [
+        "no-reply@kenarhinlabs.com",
+        "hello@kenarhinlabs.com",
+        "projects@kenarhinlabs.com",
+        "support@kenarhinlabs.com",
+      ],
+    },
+  ],
+  "queues": {
+    "producers": [
+      { "binding": "CONTENT_QUEUE", "queue": "kenarhinlabs-content" },
+      { "binding": "EMAIL_QUEUE", "queue": "kenarhinlabs-email" },
+      { "binding": "MEDIA_QUEUE", "queue": "kenarhinlabs-media" },
+    ],
+    "consumers": [
+      {
+        "queue": "kenarhinlabs-content",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 8,
+        "retry_delay": 15,
+        "dead_letter_queue": "kenarhinlabs-content-dlq",
+      },
+      {
+        "queue": "kenarhinlabs-email",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 8,
+        "retry_delay": 30,
+        "dead_letter_queue": "kenarhinlabs-email-dlq",
+      },
+      {
+        "queue": "kenarhinlabs-media",
+        "max_batch_size": 5,
+        "max_batch_timeout": 10,
+        "max_retries": 5,
+        "retry_delay": 30,
+        "dead_letter_queue": "kenarhinlabs-media-dlq",
+      },
+    ],
+  },
+  "workflows": [
+    {
+      "binding": "SYNC_WORKFLOW",
+      "name": "kenarhinlabs-sync",
+      "class_name": "SyncWorkflow",
+    },
+  ],
+  "ratelimits": [
+    {
+      "name": "PUBLIC_RATE_LIMITER",
+      "namespace_id": "31001",
+      "simple": { "limit": 20, "period": 60 },
+    },
+    {
+      "name": "WEBHOOK_RATE_LIMITER",
+      "namespace_id": "31002",
+      "simple": { "limit": 300, "period": 60 },
+    },
+  ],
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.01 },
+  },
 }

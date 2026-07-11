@@ -28,6 +28,10 @@ build/
 # Wrangler/Cloudflare Local Files
 .wrangler/
 .devvars
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+!**/.dev.vars.example
 
 # Local IDE/Editor Configs
 .vscode/*

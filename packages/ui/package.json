@@ -1,14 +1,7 @@
 {
-  "name": "ui",
+  "name": "@labs/ui",
   "private": true,
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "version": "0.0.0",
+  "description": "Shared user-interface package reserved for Ken Arhin Labs applications.",
   "type": "module"
 }

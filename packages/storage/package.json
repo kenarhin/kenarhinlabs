@@ -1,0 +1,20 @@
+{
+  "name": "@labs/storage",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Typed Cloudflare R2 storage primitives for Ken Arhin Labs backend services.",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

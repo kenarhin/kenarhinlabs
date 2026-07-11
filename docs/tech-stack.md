@@ -20,7 +20,8 @@ Async jobs:        Cloudflare Queues + Workflows
 Security:          Supabase Auth + Cloudflare Access + Turnstile + RLS
 ```
 
-The stack should be treated as the long-term architecture, not a temporary v1 stack. Features can be phased, but the technical foundation should not be throwaway.
+The stack should be treated as the long-term architecture, not a temporary v1 stack. Features can be
+phased, but the technical foundation should not be throwaway.
 
 ## 2. Public site
 
@@ -67,7 +68,8 @@ Why Astro:
 - Astro is designed for content-heavy websites such as blogs, docs, and stores.
 - Astro ships minimal client-side JavaScript by default.
 - It supports islands of interactivity only where needed.
-- It can run on Cloudflare Workers and use Cloudflare bindings when configured for server/on-demand rendering.
+- It can run on Cloudflare Workers and use Cloudflare bindings when configured for server/on-demand
+  rendering.
 
 Use Astro for:
 
@@ -81,7 +83,8 @@ Use Astro for:
 - SEO/AEO-friendly content
 - Public PWA shell
 
-Avoid turning the whole public site into a React-heavy app. Use React/shadcn islands only where they improve UX.
+Avoid turning the whole public site into a React-heavy app. Use React/shadcn islands only where they
+improve UX.
 
 ## 3. Admin app
 
@@ -189,7 +192,8 @@ API responsibilities:
 - Webhooks
 - Audit logging
 
-Use TanStack Start server functions only for admin-specific local needs. Shared business logic should live in Hono and/or `packages/core`.
+Use TanStack Start server functions only for admin-specific local needs. Shared business logic
+should live in Hono and/or `packages/core`.
 
 ## 5. Supabase role
 
@@ -206,14 +210,17 @@ Generated database types
 Optional Realtime later
 ```
 
-Do not use Supabase Edge Functions as the main runtime. Cloudflare Workers + Hono is the chosen runtime/API layer.
+Do not use Supabase Edge Functions as the main runtime. Cloudflare Workers + Hono is the chosen
+runtime/API layer.
 
 Supabase Data API note:
 
 - Supabase provides an auto-generated REST API over Postgres.
-- The frontend should generally call the Hono API instead of directly calling tables from everywhere.
+- The frontend should generally call the Hono API instead of directly calling tables from
+  everywhere.
 - Hono may use Supabase APIs/server clients where appropriate.
-- Migrations must include explicit grants and RLS policies for any tables exposed through Supabase's Data API.
+- Migrations must include explicit grants and RLS policies for any tables exposed through Supabase's
+  Data API.
 
 Important Supabase security rule:
 
@@ -249,7 +256,8 @@ Auth use cases:
 
 Auth emails:
 
-Supabase supports email-based auth flows, but the default Supabase email sender is for testing/demo use and is not production-ready. Configure custom SMTP for production.
+Supabase supports email-based auth flows, but the default Supabase email sender is for testing/demo
+use and is not production-ready. Configure custom SMTP for production.
 
 Use custom SMTP for:
 
@@ -328,7 +336,8 @@ Cloudflare R2
 
 Rule:
 
-> Supabase stores authoritative business data. D1 stores read-optimized public copies. R2 stores files/media.
+> Supabase stores authoritative business data. D1 stores read-optimized public copies. R2 stores
+> files/media.
 
 ## 9. Supabase + D1 architecture
 
@@ -622,16 +631,17 @@ Purpose:
 Primary migration path:
 
 ```txt
-Supabase CLI migrations
+Reviewed repository SQL migrations + Drizzle schema
+Remote inspection/application through the Supabase MCP connector only
 ```
 
-Possible optional addition:
+Do not use the Supabase CLI for this project. Before any remote query or migration, retrieve and
+verify the MCP connector's project URL against the intended Ken Arhin Labs Supabase project. Stop
+when the connector targets a different or ambiguous project.
 
-```txt
-Drizzle only if we later decide we need a typed SQL query builder or schema layer.
-```
-
-Do not add Drizzle just for complexity if Supabase migrations and generated types are enough.
+Drizzle is the selected typed schema/query layer and is already part of the permanent backend
+architecture. Reviewed SQL migrations under the root `supabase/` directory remain the canonical,
+auditable database-change artifacts; Drizzle schema and query code must stay consistent with them.
 
 ## 18. Security stack
 
@@ -744,13 +754,17 @@ Never expose service role keys to the browser.
 
 Official docs checked while preparing this stack:
 
-- Cloudflare Workers Astro guide: https://developers.cloudflare.com/workers/framework-guides/web-apps/astro/
-- Cloudflare Workers TanStack Start guide: https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/
-- Cloudflare Workers Hono guide: https://developers.cloudflare.com/workers/framework-guides/web-apps/more-web-frameworks/hono/
+- Cloudflare Workers Astro guide:
+  https://developers.cloudflare.com/workers/framework-guides/web-apps/astro/
+- Cloudflare Workers TanStack Start guide:
+  https://developers.cloudflare.com/workers/framework-guides/web-apps/tanstack-start/
+- Cloudflare Workers Hono guide:
+  https://developers.cloudflare.com/workers/framework-guides/web-apps/more-web-frameworks/hono/
 - Supabase API docs: https://supabase.com/docs/guides/api
 - Supabase changelog: https://supabase.com/changelog
 - Supabase custom SMTP docs: https://supabase.com/docs/guides/auth/auth-smtp
-- Cloudflare Email Service SMTP docs: https://developers.cloudflare.com/email-service/api/send-emails/smtp/
+- Cloudflare Email Service SMTP docs:
+  https://developers.cloudflare.com/email-service/api/send-emails/smtp/
 - Vite PWA Astro integration: https://vite-pwa-org.netlify.app/frameworks/astro
 - Vite PWA docs: https://vite-pwa-org.netlify.app/
 - GSAP docs: https://gsap.com/docs/v3/
