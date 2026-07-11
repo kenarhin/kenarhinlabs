@@ -12,7 +12,10 @@ skills-lock.json
 # Frontend workspaces are outside the backend program's formatting scope
 apps/admin/
 apps/web/
+packages/design/
 packages/ui/
+DESIGN.md
+docs/frontend-*.md
 
 # Dependencies and package-manager state
 **/node_modules/

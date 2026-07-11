@@ -93,6 +93,7 @@ by source and verified before JSON parsing or idempotency claims.
   not claimed end to end. Lead/contact intake, admin mutations, webhook storage, media upload
   issuance, email delivery state, and the outbox source adapter still use fail-closed ports until
   their persistence contracts are implemented and integration-tested.
-- No live Worker deployment occurred. `wrangler.jsonc` contains reviewed binding contracts and safe
-  placeholders; actual Cloudflare resource IDs and secrets must be provisioned per the platform
-  runbook.
+- The API Worker is now deployed at `https://api.kenarhinlabs.com`. Liveness and dependency
+  readiness pass against the live Supabase Auth, Hyperdrive/Postgres, and rate-limit bindings.
+  Persistence ports listed above remain intentionally fail-closed and are still implementation work;
+  deployment does not change their status.

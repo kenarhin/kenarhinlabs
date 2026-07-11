@@ -72,6 +72,38 @@ foundations are not equivalent to an end-to-end publishing path.
   resource set was created because Hyperdrive credentials and the final projection source adapter
   are not ready.
 
+### 2026-07-11 — Authorized Cloudflare provisioning
+
+- After explicit user authorization, created the production D1 database, private R2 media bucket,
+  three primary Queues, and three dead-letter Queues through the Cloudflare API MCP.
+- Applied and verified the D1 public-read-model migration remotely. Wrangler now contains the real
+  D1 UUID instead of the provisioning sentinel.
+- Verified Cloudflare Email Sending was already enabled for `kenarhinlabs.com`; no duplicate domain
+  onboarding or email test was performed.
+- Attempted to create the Workflow resource directly, but Cloudflare requires the owning Worker
+  script/version. It will be created with the first deployment after Hyperdrive is configured.
+- Confirmed Hyperdrive cannot be created from the Supabase MCP project URL or publishable key. It
+  requires the direct Postgres password, which is not present in the environment or `.dev.vars`.
+- Reviewed Supabase's current API-key documentation. Project configuration now uses
+  `SUPABASE_PUBLISHABLE_KEY` and `SUPABASE_SECRET_KEY`; SQL retains the built-in `anon`,
+  `authenticated`, and `service_role` Postgres roles as required.
+
+### 2026-07-11 — Hyperdrive integration and API deployment
+
+- Retrieved the user-created `kenarhinlabs-supabase` Hyperdrive configuration through the Cloudflare
+  API MCP and replaced the final Wrangler sentinel with its live ID.
+- Added production-safe runtime variables and declared the three webhook secrets as required.
+  Generated independent random secrets and stored them only as encrypted Worker secrets.
+- Deployed `kenarhinlabs-api` and attached `api.kenarhinlabs.com` as a Custom Domain. The API's own
+  hostname was correctly not added as a CORS caller origin; production CORS accepts the public and
+  admin application origins.
+- Cloudflare created the `kenarhinlabs-sync` Workflow version and registered all three Queue
+  consumers with their configured batch, retry, and dead-letter settings.
+- Live `/health` and `/ready` requests returned HTTP 200. Readiness confirmed Supabase Auth,
+  Hyperdrive/Postgres, and both rate-limit bindings.
+- Resolved the D1 Wrangler editor diagnostics by using the version-pinned SchemaStore URL and a
+  targeted Prettier override that preserves strict JSONC without trailing commas.
+
 ## Documentation and decisions
 
 ### Current official sources
@@ -98,6 +130,9 @@ foundations are not equivalent to an end-to-end publishing path.
   <https://developers.cloudflare.com/hyperdrive/examples/connect-to-postgres/postgres-database-providers/supabase/>
 - Workers observability: <https://developers.cloudflare.com/workers/observability/>
 - Supabase secure database access: <https://supabase.com/docs/guides/database/secure-data>
+- Supabase API keys: <https://supabase.com/docs/guides/getting-started/api-keys>
+- Supabase API-key migration:
+  <https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys>
 - Supabase Postgres connection modes:
   <https://supabase.com/docs/guides/database/connecting-to-postgres>
 - Supabase database webhooks: <https://supabase.com/docs/guides/database/webhooks>
@@ -199,8 +234,10 @@ Commands were run from the repository root on 2026-07-11 unless noted otherwise.
 | `pnpm view vitest version`                                                        | Registry reports `4.1.10`, matching the catalog                                                |
 | `pnpm view typescript version`                                                    | Registry reports `7.0.2`; catalog handoff sent because root config is outside this lane        |
 
-No Supabase CLI command, remote D1 migration, Worker deployment, email send, Queue message, Workflow
-instance, R2 operation, or cloud-resource creation was executed.
+No Supabase CLI command, Worker deployment, email send, Queue message, or Workflow instance was
+executed. The later authorized provisioning entry supersedes the original read-only Cloudflare
+inventory: D1, R2, and Queue resources were created through the API MCP, and the D1 migration was
+applied remotely.
 
 ## Blockers or handoff notes
 
@@ -209,9 +246,6 @@ instance, R2 operation, or cloud-resource creation was executed.
    the projector registry accepts explicit sanitized public events. An application-owned adapter
    must render safe HTML, resolve author/media data, map event names, and implement the
    `OutboxEventSource` lifecycle before the end-to-end projection checkbox can close.
-2. **Cloud resources are not provisioned.** The primary agent's Cloudflare API MCP read-only audit
-   found no existing `kenarhinlabs-*` backend resources. The provisioning guide is a runbook, not
-   evidence of live D1, R2, Queue, Workflow, Hyperdrive, or Email Service resources.
-3. **Remote delivery requires secrets and verified senders.** Hyperdrive needs the intended Supabase
-   direct-connection credentials, while Email Service needs account/domain setup. These are
-   deployment inputs and are not committed or inferred from the MCP connection.
+2. **Application adapters remain incomplete.** The live deployment is healthy, but lead/contact
+   intake, admin mutations, webhook persistence, email-delivery state, media processing, and the
+   outbox source still fail closed until the API persistence ports are implemented.

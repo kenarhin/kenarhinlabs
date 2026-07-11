@@ -546,17 +546,19 @@ SYNC_WORKFLOW         # Workflow binding for durable sync jobs
 
 ```txt
 SUPABASE_URL
-SUPABASE_ANON_KEY
-SUPABASE_SERVICE_ROLE_KEY        # API only; never exposed to frontend
-SUPABASE_JWT_SECRET              # if verifying JWTs directly
+SUPABASE_PUBLISHABLE_KEY         # public clients only; sb_publishable_... format
+SUPABASE_SECRET_KEY              # backend only when elevated Data API access is required
+SUPABASE_JWT_AUDIENCE            # asymmetric Auth token verification through project JWKS
 DATABASE_URL                     # local Drizzle Kit/migrations only
 CLOUDFLARE_EMAIL_SMTP_TOKEN
 ```
 
 ## Security Model
 
-- Service role key must only exist in backend environments that need it.
-- Admin UI should never receive service role credentials.
+- Supabase secret keys must only exist in backend environments that need elevated Data API access.
+- Browser and admin bundles receive only a publishable key, never `sb_secret_...` credentials.
+- The built-in Postgres roles remain `anon`, `authenticated`, and `service_role`; modern API keys
+  map to those roles and do not rename them.
 - Cloudflare Access protects admin perimeter.
 - Supabase Auth handles identity.
 - Hono handles authorization and business permissions.

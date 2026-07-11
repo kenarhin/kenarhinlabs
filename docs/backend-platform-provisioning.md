@@ -1,8 +1,9 @@
 # Backend Platform Provisioning
 
 This guide defines the Cloudflare resources and environment conventions required by the Ken Arhin
-Labs backend. It is intentionally procedural: repository setup and local validation do not create,
-deploy, or mutate cloud resources automatically.
+Labs backend. Repository setup and local validation do not mutate cloud resources automatically; the
+production resources listed below were deliberately provisioned through the Cloudflare API MCP after
+explicit user authorization.
 
 ## Remote control boundaries
 
@@ -13,6 +14,24 @@ deploy, or mutate cloud resources automatically.
   creation commands below are a reviewed human-operator runbook, not commands executed during
   repository setup.
 - No remote mutation is implied by implementing or validating these repository files.
+
+## Current production resource state
+
+Verified through the Cloudflare API MCP on 2026-07-11:
+
+| Resource                           | State                                                                                                                      |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| D1 `kenarhinlabs-public`           | Provisioned in WEUR as `a1775a3b-8626-4baf-a624-c06a5847d183`; migration `0001_public_read_model.sql` applied and tracked. |
+| R2 `kenarhinlabs-media`            | Provisioned in WEUR with the Standard storage class; remains private by default.                                           |
+| Content, email, and media Queues   | Three primary queues and their three dead-letter queues are provisioned.                                                   |
+| Email Sending                      | `kenarhinlabs.com` is enabled with its return-path and DKIM sending configuration active.                                  |
+| Hyperdrive `kenarhinlabs-supabase` | Provisioned as `017ff91c40f646af9901ddd4268225b3`; live readiness proves the direct Supabase connection works.             |
+| Workflow and Queue consumers       | `kenarhinlabs-sync` and all three Worker consumers are deployed with their configured retries and dead-letter queues.      |
+| API Worker                         | `kenarhinlabs-api` is deployed at `https://api.kenarhinlabs.com`; live health and readiness checks pass.                   |
+
+Future binding changes must regenerate Worker types and pass the dry-run gate before deployment. The
+three webhook secrets are declared in `secrets.required`, so Wrangler blocks deployments if any
+required secret is missing.
 
 ## Binding contract
 
@@ -59,13 +78,13 @@ EMAIL_FROM_ADDRESS
 EMAIL_FROM_NAME
 ```
 
-Secrets belong in `.dev.vars` for local development and `wrangler secret put` for deployed
+Secrets belong in `.dev.vars` for local development and deployed secret storage for remote
 environments:
 
 ```txt
 SUPABASE_URL
-SUPABASE_SERVICE_ROLE_KEY
-SUPABASE_JWKS_URL
+SUPABASE_SECRET_KEY
+SUPABASE_JWT_AUDIENCE
 TURNSTILE_SECRET_KEY
 INTERNAL_WEBHOOK_SECRET
 ```
@@ -73,6 +92,11 @@ INTERNAL_WEBHOOK_SECRET
 The native `EMAIL` binding does not require an Email Service API token inside the Worker. The SMTP
 token used by Supabase Auth is configured in Supabase and must not be copied into the application
 repository.
+
+Supabase's current public client key is `SUPABASE_PUBLISHABLE_KEY` with an `sb_publishable_...`
+value. The legacy JWT-based `anon` and `service_role` API keys are not used by this project.
+References to `anon`, `authenticated`, and `service_role` in SQL remain correct because those are
+built-in Postgres roles selected by the API gateway, including when modern keys are used.
 
 ## Wrangler configuration shape
 

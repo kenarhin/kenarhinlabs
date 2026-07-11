@@ -4,19 +4,34 @@
   "main": "src/index.ts",
   "compatibility_date": "2026-07-11",
   "compatibility_flags": ["nodejs_compat"],
+  "routes": [{ "pattern": "api.kenarhinlabs.com", "custom_domain": true }],
+  "vars": {
+    "ALLOWED_ORIGINS": "https://kenarhinlabs.com,https://admin.kenarhinlabs.com",
+    "ENVIRONMENT": "production",
+    "HEALTH_CHECK_TIMEOUT_MS": "2000",
+    "SUPABASE_JWT_AUDIENCE": "authenticated",
+    "SUPABASE_URL": "https://mbscfzccmomwqdybnlbq.supabase.co",
+  },
+  "secrets": {
+    "required": [
+      "CLOUDFLARE_EMAIL_WEBHOOK_SECRET",
+      "INTERNAL_QUEUE_WEBHOOK_SECRET",
+      "SUPABASE_WEBHOOK_SECRET",
+    ],
+  },
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",
-      // Provisioning replaces this non-secret sentinel with each environment's configuration ID.
-      "id": "00000000000000000000000000000000",
+      // Production Supabase connection pool configured in the Cloudflare dashboard.
+      "id": "017ff91c40f646af9901ddd4268225b3",
     },
   ],
   "d1_databases": [
     {
       "binding": "D1_PUBLIC",
       "database_name": "kenarhinlabs-public",
-      // Provisioning replaces this sentinel with the environment's D1 UUID.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // Production D1 public read model provisioned through the Cloudflare API MCP.
+      "database_id": "a1775a3b-8626-4baf-a624-c06a5847d183",
       "migrations_dir": "../../packages/db/d1/migrations",
     },
   ],

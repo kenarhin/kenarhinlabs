@@ -23,17 +23,17 @@
   },
   "scripts": {
     "build": "pnpm --recursive --if-present run build",
-    "build:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!./packages/ui' --recursive --if-present run build",
+    "build:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!@labs/design' --recursive --if-present run build",
     "check": "pnpm format:check && pnpm lint:backend && pnpm typecheck:backend && pnpm test:backend && pnpm build:backend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "pnpm --recursive --if-present run lint",
-    "lint:backend": "eslint apps/api packages --ignore-pattern packages/ui --max-warnings=0",
+    "lint:backend": "eslint apps/api packages --ignore-pattern packages/design --max-warnings=0",
     "list:workspaces": "pnpm --recursive list --depth -1",
     "test": "pnpm --recursive --if-present run test",
-    "test:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!./packages/ui' --recursive --if-present run test",
+    "test:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!@labs/design' --recursive --if-present run test",
     "typecheck": "pnpm --recursive --if-present run typecheck",
-    "typecheck:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!./packages/ui' --recursive --if-present run typecheck"
+    "typecheck:backend": "pnpm --filter ./apps/api --filter './packages/**' --filter '!@labs/design' --recursive --if-present run typecheck"
   },
   "devDependencies": {
     "@eslint/js": "catalog:",

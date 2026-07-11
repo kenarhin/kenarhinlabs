@@ -187,3 +187,29 @@ The backend program is complete only when all applicable gates pass from the rep
   generation/dry-run, and `git diff --check` all pass.
 - The end-to-end D1 projection adapter and identity-backed RLS integration tests remain explicitly
   open; repository foundations are not misreported as a live production deployment.
+
+### 2026-07-11 — Cloudflare provisioning and API-key modernization
+
+- With explicit user authorization, created production D1, R2, three primary Queues, and three
+  dead-letter Queues through the Cloudflare API MCP. Applied the tracked D1 read-model migration and
+  verified the remote schema in WEUR.
+- Verified Email Sending is already active for `kenarhinlabs.com` and retained the restricted Worker
+  send binding.
+- Replaced the D1 sentinel UUID in Wrangler with the live database UUID. At this checkpoint,
+  Hyperdrive was the only missing data binding because its Supabase direct database password was
+  unavailable.
+- Updated configuration guidance from legacy JWT-based `anon`/`service_role` API keys to modern,
+  separately rotatable `sb_publishable_...` and `sb_secret_...` keys. SQL grants and RLS continue to
+  use the correctly named built-in Postgres roles.
+
+### 2026-07-11 — Production API deployment
+
+- Bound the user-created `kenarhinlabs-supabase` Hyperdrive configuration, added production runtime
+  variables, and installed three independently generated encrypted webhook secrets.
+- Deployed `kenarhinlabs-api` to `https://api.kenarhinlabs.com`. Cloudflare registered the Workflow,
+  Queue producers/consumers, dead-letter queues, Hyperdrive, D1, R2, Email, rate limits, logs, and
+  traces from the reviewed Wrangler configuration.
+- Verified HTTP 200 liveness and readiness. The readiness response proves Supabase Auth,
+  Hyperdrive/Postgres, and rate-limit bindings are operational.
+- Verified CORS allows `https://kenarhinlabs.com` while omitting an allow-origin header for
+  `https://api.kenarhinlabs.com`, which is the API destination rather than a browser application.

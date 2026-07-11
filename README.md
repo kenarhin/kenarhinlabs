@@ -96,9 +96,10 @@ pnpm list:workspaces
 pnpm check
 ```
 
-Never commit `.dev.vars`, `.env` files, API tokens, service-role keys, database passwords, or
-production resource IDs. Browser applications may use a Supabase publishable/anonymous key;
-`SUPABASE_SERVICE_ROLE_KEY` is backend-only.
+Never commit `.dev.vars`, `.env` files, secret API keys, database passwords, or production
+credentials. Browser applications use a Supabase `sb_publishable_...` key. Backend components that
+need elevated Data API access use separately rotatable `sb_secret_...` keys through secret storage;
+neither key type replaces user authentication or RLS.
 
 ## Development commands
 
@@ -179,7 +180,9 @@ naming convention, provisioning order, and validation commands are in
 
 Important deployment boundaries:
 
-- Setup and tests do not provision or deploy cloud resources.
+- Repository setup and tests do not automatically provision or deploy cloud resources. The
+  production API is deployed at `https://api.kenarhinlabs.com` with Hyperdrive, D1, R2, Email,
+  Queues, Workflows, rate limits, logs, and traces bound through Wrangler.
 - `wrangler.jsonc` is the Worker configuration source of truth.
 - Generate Worker binding types after every binding change.
 - Use Wrangler secrets for deployed credentials and `.dev.vars` for local credentials.

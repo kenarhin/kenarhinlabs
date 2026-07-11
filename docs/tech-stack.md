@@ -721,7 +721,7 @@ Public site:
 PUBLIC_SITE_URL
 API_BASE_URL
 SUPABASE_URL
-SUPABASE_ANON_KEY
+SUPABASE_PUBLISHABLE_KEY
 R2_PUBLIC_BASE_URL
 ```
 
@@ -731,15 +731,15 @@ Admin app:
 ADMIN_SITE_URL
 API_BASE_URL
 SUPABASE_URL
-SUPABASE_ANON_KEY
+SUPABASE_PUBLISHABLE_KEY
 ```
 
 API Worker secrets/bindings:
 
 ```txt
 SUPABASE_URL
-SUPABASE_SERVICE_ROLE_KEY
-SUPABASE_JWT_SECRET or JWKS config
+SUPABASE_SECRET_KEY when elevated Data API access is required
+SUPABASE_JWKS_URL and SUPABASE_JWT_AUDIENCE
 CLOUDFLARE_EMAIL_API_TOKEN
 R2_BUCKET binding
 D1_DATABASE binding
@@ -748,7 +748,10 @@ WORKFLOW bindings
 TURNSTILE_SECRET_KEY
 ```
 
-Never expose service role keys to the browser.
+Use current `sb_publishable_...` keys in public clients and separately rotatable `sb_secret_...`
+keys only in protected backend components. The legacy JWT-based `anon` and `service_role` API keys
+are not application configuration. Their names still correctly identify Supabase's built-in Postgres
+roles in grants and RLS policies.
 
 ## 22. Source references
 

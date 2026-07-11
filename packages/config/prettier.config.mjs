@@ -15,6 +15,13 @@ const config = {
   arrowParens: "always",
   proseWrap: "always",
   endOfLine: "lf",
+  overrides: [
+    {
+      // This editor validates the standalone D1 config as strict JSONC and flags trailing commas.
+      files: "packages/db/wrangler.d1.jsonc",
+      options: { trailingComma: "none" },
+    },
+  ],
 };
 
 export default config;

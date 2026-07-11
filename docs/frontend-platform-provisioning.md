@@ -265,13 +265,13 @@ Browser-safe configuration may include:
 VITE_ADMIN_SITE_URL or framework-equivalent public variable
 VITE_API_BASE_URL
 VITE_SUPABASE_URL
-VITE_SUPABASE_ANON_KEY
+VITE_SUPABASE_PUBLISHABLE_KEY
 ```
 
 Never expose:
 
 ```txt
-SUPABASE_SERVICE_ROLE_KEY
+SUPABASE_SECRET_KEY
 Database credentials
 Cloudflare API tokens
 SMTP tokens
