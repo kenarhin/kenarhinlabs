@@ -1,0 +1,13 @@
+/*
+ * Import Tailwind in each application first, then import this file:
+ *
+ *   @import "tailwindcss" source("../");
+ *   @import "@labs/ui/styles.css";
+ */
+
+@import "./fonts.css";
+@import "./theme.css";
+@import "./base.css";
+
+/* Future shared components live under packages/ui/src and must be scanned. */
+@source "../";

@@ -467,7 +467,7 @@ ken-arhin-labs/
 │   │   ├── src/
 │   │   └── package.json
 │   │
-│   ├── ui/                          # Shared UI primitives if needed
+│   ├── design/                          # Shared design primitives if needed
 │   │   ├── src/
 │   │   └── package.json
 │   │

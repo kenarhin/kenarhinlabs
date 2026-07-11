@@ -1,0 +1,253 @@
+/*
+ * Ken Arhin Labs semantic theme.
+ *
+ * Applications consume semantic utilities such as bg-background,
+ * text-foreground, bg-primary and font-display. Primitive brand colors
+ * remain private CSS variables so implementation code does not depend on
+ * palette names or raw color values.
+ */
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Private brand primitives — OKLCH equivalents of the approved palette. */
+  --brand-lab-ink: oklch(0.18291 0.00858 128.995);
+  --brand-warm-canvas: oklch(0.95525 0.01111 89.723);
+  --brand-clean-paper: oklch(0.99393 0.00818 91.48);
+  --brand-signal-orange: oklch(0.68235 0.21076 37.698);
+  --brand-system-blue: oklch(0.55131 0.24728 265.854);
+  --brand-field-green: oklch(0.49205 0.068 142.474);
+  --brand-steel-text: oklch(0.51301 0.01258 118.26);
+  --brand-rule-line: oklch(0.87313 0.01554 90.248);
+
+  /* Semantic surfaces and content. */
+  --background: var(--brand-warm-canvas);
+  --foreground: var(--brand-lab-ink);
+  --surface: var(--brand-clean-paper);
+  --surface-foreground: var(--brand-lab-ink);
+  --surface-muted: color-mix(in oklab, var(--brand-rule-line) 52%, var(--brand-warm-canvas));
+  --surface-inverse: var(--brand-lab-ink);
+  --surface-inverse-foreground: var(--brand-warm-canvas);
+
+  /* Semantic actions. */
+  --primary: var(--brand-signal-orange);
+  --primary-foreground: var(--brand-lab-ink);
+  --secondary: var(--brand-system-blue);
+  --secondary-foreground: var(--brand-clean-paper);
+  --accent: var(--brand-field-green);
+  --accent-foreground: var(--brand-clean-paper);
+
+  /* Semantic quiet UI. */
+  --muted: var(--surface-muted);
+  --muted-foreground: var(--brand-steel-text);
+  --border: var(--brand-rule-line);
+  --input: color-mix(in oklab, var(--brand-rule-line) 82%, var(--brand-lab-ink));
+  --ring: var(--brand-system-blue);
+  --overlay: color-mix(in oklab, var(--brand-lab-ink) 72%, transparent);
+
+  /* Functional states — not additional brand accents. */
+  --success: var(--brand-field-green);
+  --success-foreground: var(--brand-clean-paper);
+  --warning: oklch(0.638 0.153 69.2);
+  --warning-foreground: var(--brand-lab-ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: var(--brand-clean-paper);
+  --info: var(--brand-system-blue);
+  --info-foreground: var(--brand-clean-paper);
+
+  /* Stable brand roles used by diagrams and authored sections. */
+  --signal: var(--brand-signal-orange);
+  --system: var(--brand-system-blue);
+  --field: var(--brand-field-green);
+
+  /* Type families. */
+  --font-family-display: "Bricolage Grotesque Variable", "Arial Narrow", sans-serif;
+  --font-family-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --background: var(--brand-lab-ink);
+  --foreground: var(--brand-warm-canvas);
+  --surface: oklch(0.22963 0.01215 129.065);
+  --surface-foreground: var(--brand-warm-canvas);
+  --surface-muted: oklch(0.27376 0.01713 127.036);
+  --surface-inverse: var(--brand-warm-canvas);
+  --surface-inverse-foreground: var(--brand-lab-ink);
+
+  --primary: var(--brand-signal-orange);
+  --primary-foreground: var(--brand-lab-ink);
+  --secondary: oklch(0.73283 0.13772 271.679);
+  --secondary-foreground: var(--brand-lab-ink);
+  --accent: oklch(0.74552 0.05163 139.627);
+  --accent-foreground: var(--brand-lab-ink);
+
+  --muted: var(--surface-muted);
+  --muted-foreground: oklch(0.74041 0.01649 126.9);
+  --border: oklch(0.37366 0.01998 130.785);
+  --input: oklch(0.4305 0.021 130.2);
+  --ring: var(--brand-signal-orange);
+  --overlay: color-mix(in oklab, black 78%, transparent);
+
+  --success: oklch(0.74552 0.05163 139.627);
+  --success-foreground: var(--brand-lab-ink);
+  --warning: oklch(0.795 0.161 79.2);
+  --warning-foreground: var(--brand-lab-ink);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: var(--brand-lab-ink);
+  --info: oklch(0.73283 0.13772 271.679);
+  --info-foreground: var(--brand-lab-ink);
+
+  --signal: var(--brand-signal-orange);
+  --system: oklch(0.73283 0.13772 271.679);
+  --field: oklch(0.74552 0.05163 139.627);
+}
+
+/* Follow the operating system when the application has not set a preference. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+
+    --background: var(--brand-lab-ink);
+    --foreground: var(--brand-warm-canvas);
+    --surface: oklch(0.22963 0.01215 129.065);
+    --surface-foreground: var(--brand-warm-canvas);
+    --surface-muted: oklch(0.27376 0.01713 127.036);
+    --surface-inverse: var(--brand-warm-canvas);
+    --surface-inverse-foreground: var(--brand-lab-ink);
+
+    --primary: var(--brand-signal-orange);
+    --primary-foreground: var(--brand-lab-ink);
+    --secondary: oklch(0.73283 0.13772 271.679);
+    --secondary-foreground: var(--brand-lab-ink);
+    --accent: oklch(0.74552 0.05163 139.627);
+    --accent-foreground: var(--brand-lab-ink);
+
+    --muted: var(--surface-muted);
+    --muted-foreground: oklch(0.74041 0.01649 126.9);
+    --border: oklch(0.37366 0.01998 130.785);
+    --input: oklch(0.4305 0.021 130.2);
+    --ring: var(--brand-signal-orange);
+    --overlay: color-mix(in oklab, black 78%, transparent);
+
+    --success: oklch(0.74552 0.05163 139.627);
+    --success-foreground: var(--brand-lab-ink);
+    --warning: oklch(0.795 0.161 79.2);
+    --warning-foreground: var(--brand-lab-ink);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: var(--brand-lab-ink);
+    --info: oklch(0.73283 0.13772 271.679);
+    --info-foreground: var(--brand-lab-ink);
+
+    --signal: var(--brand-signal-orange);
+    --system: oklch(0.73283 0.13772 271.679);
+    --field: oklch(0.74552 0.05163 139.627);
+  }
+}
+
+@theme inline {
+  /* Remove Tailwind's generic palette from the public token API. */
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Semantic colors: use these in application and component code. */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-foreground: var(--surface-foreground);
+  --color-surface-muted: var(--surface-muted);
+  --color-surface-inverse: var(--surface-inverse);
+  --color-surface-inverse-foreground: var(--surface-inverse-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+  --color-signal: var(--signal);
+  --color-system: var(--system);
+  --color-field: var(--field);
+
+  /* Typography. */
+  --font-display: var(--font-family-display);
+  --font-sans: var(--font-family-body);
+  --font-mono: var(--font-family-mono);
+
+  --text-display-xl: clamp(4rem, 10vw, 9rem);
+  --text-display-xl--line-height: 0.9;
+  --text-display-xl--letter-spacing: -0.055em;
+  --text-display-xl--font-weight: 750;
+
+  --text-display-lg: clamp(3.5rem, 8vw, 6rem);
+  --text-display-lg--line-height: 0.92;
+  --text-display-lg--letter-spacing: -0.045em;
+  --text-display-lg--font-weight: 720;
+
+  --text-heading-lg: clamp(2.75rem, 6vw, 4.5rem);
+  --text-heading-lg--line-height: 0.96;
+  --text-heading-lg--letter-spacing: -0.04em;
+  --text-heading-lg--font-weight: 700;
+
+  --text-heading-md: clamp(2.125rem, 4vw, 3rem);
+  --text-heading-md--line-height: 1;
+  --text-heading-md--letter-spacing: -0.035em;
+  --text-heading-md--font-weight: 680;
+
+  --text-heading-sm: clamp(1.5rem, 3vw, 2rem);
+  --text-heading-sm--line-height: 1.05;
+  --text-heading-sm--letter-spacing: -0.025em;
+  --text-heading-sm--font-weight: 650;
+
+  --text-lead: 1.375rem;
+  --text-lead--line-height: 1.5;
+  --text-lead--letter-spacing: -0.01em;
+
+  --text-reading: 1.125rem;
+  --text-reading--line-height: 1.65;
+
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.08em;
+  --text-label--font-weight: 500;
+
+  /* Layout and shape. */
+  --breakpoint-3xl: 120rem;
+  --container-site: 100rem;
+  --container-copy: 72ch;
+  --container-copy-narrow: 58ch;
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+
+  /* Depth and motion. */
+  --shadow-hairline: 0 0 0 1px color-mix(in oklab, var(--border) 72%, transparent);
+  --shadow-float: 0 18px 48px -28px color-mix(in oklab, var(--foreground) 28%, transparent);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-emphasis: cubic-bezier(0.22, 1, 0.36, 1);
+}

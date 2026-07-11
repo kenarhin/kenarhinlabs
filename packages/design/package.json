@@ -1,0 +1,24 @@
+{
+  "name": "@labs/design",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Shared design foundation and future user-interface primitives for Ken Arhin Labs applications.",
+  "type": "module",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./styles.css": "./src/styles/index.css",
+    "./theme.css": "./src/styles/theme.css",
+    "./fonts.css": "./src/styles/fonts.css",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.2.6",
+    "@fontsource/ibm-plex-mono": "^5.2.6",
+    "@fontsource/ibm-plex-sans": "^5.2.6"
+  },
+  "peerDependencies": {
+    "tailwindcss": "^4.3.2"
+  }
+}
