@@ -1,67 +1,73 @@
-# `@labs/ui`
+# `@labs/design`
 
-Shared design foundation for Ken Arhin Labs applications.
+Shared design foundations for Ken Arhin Labs applications.
 
-This package intentionally contains **no components yet**. It currently owns:
+This package contains no React, Astro, Base UI, Radix, or shadcn components. It exists to keep the brand implementation consistent without forcing the public site and the admin application to share component architecture.
 
-- self-hosted brand font imports;
-- light, dark and system-aware semantic color tokens;
+## Responsibilities
+
+- self-hosted font imports;
+- light, dark, and system-aware semantic colors;
 - Tailwind CSS v4 theme variables;
-- typography, radius, container, shadow and easing tokens;
-- minimal cross-application base styles.
+- typography, radius, layout, and depth tokens;
+- base accessibility and document styles;
+- owned long-form content styles through `.typeset`;
+- shared motion durations and easing vocabulary.
 
-## Install workspace dependencies
+Application-specific layouts, components, GSAP timelines, and interaction logic remain in the application that owns them.
 
-From the repository root:
+## Consume from an application
 
-```sh
-pnpm install
-```
-
-Each consuming application must depend on the workspace package and Tailwind CSS v4. For example:
+Add the workspace dependency:
 
 ```json
 {
   "dependencies": {
-    "@labs/ui": "workspace:*"
+    "@labs/design": "workspace:*"
   },
   "devDependencies": {
-    "tailwindcss": "^4.3.2",
-    "@tailwindcss/vite": "^4.3.2"
+    "@tailwindcss/vite": "^4.3.2",
+    "tailwindcss": "^4.3.2"
   }
 }
 ```
 
-## Application stylesheet
-
-Create the application's own CSS entry point. When the file is located at `src/styles/global.css`, use:
+When an application's global stylesheet is located at `src/styles/global.css`:
 
 ```css
 @import "tailwindcss" source("../");
-@import "@labs/ui/styles.css";
+@import "@labs/design/styles.css";
 ```
 
-The first import creates Tailwind utilities and scans the application's `src` directory. The package stylesheet registers `packages/ui/src` as an additional source for future shared components.
+The application owns the Tailwind entry point. This package contributes the shared theme and foundations.
 
 ## Semantic utilities
 
-Use semantic classes rather than palette-specific or arbitrary color values:
+Use semantic roles:
 
 ```html
 <section class="bg-background text-foreground">
-  <article class="border-border bg-surface text-surface-foreground">
-    <p class="text-muted-foreground">System metadata</p>
+  <article class="border border-border bg-surface text-surface-foreground">
+    <p class="text-muted-foreground">SYSTEM STATUS / LIVE</p>
     <a class="bg-primary text-primary-foreground">Start a project</a>
   </article>
 </section>
 ```
 
-Available color roles include:
+Do not couple application markup to raw values or generic palette names:
+
+```html
+<!-- Avoid -->
+<div class="bg-[#F3F0E8] text-[#11130F]">...</div>
+<div class="bg-purple-500 text-slate-950">...</div>
+```
+
+The exported color roles are:
 
 ```text
 background / foreground
-surface / surface-foreground / surface-muted
-surface-inverse / surface-inverse-foreground
+surface / surface-foreground / surface-subtle
+surface-strong / surface-strong-foreground
 primary / primary-foreground
 secondary / secondary-foreground
 accent / accent-foreground
@@ -71,14 +77,21 @@ success / warning / destructive / info
 signal / system / field
 ```
 
-The generic Tailwind color palette is removed from the exported theme. This prevents application code from drifting into arbitrary `purple-500`, `slate-900` or raw-hex styling.
+`signal`, `system`, and `field` are narrative roles for diagrams and authored visual sections:
 
-## Typography utilities
+```text
+signal  activation, movement, and the primary route
+system  technology, data, and connected engineering
+field   stable, operational, and completed states
+```
+
+## Typography
 
 ```text
 font-display
 font-sans
 font-mono
+
 text-display-xl
 text-display-lg
 text-heading-lg
@@ -87,22 +100,53 @@ text-heading-sm
 text-lead
 text-reading
 text-body
+text-body-sm
 text-label
+text-technical
 ```
+
+## Long-form content
+
+Use the owned Typeset layer for rendered Markdown, case studies, Field Notes, stack guides, legal pages, and admin previews:
+
+```html
+<article class="typeset typeset-editorial max-w-prose">
+  <!-- rendered semantic HTML -->
+</article>
+```
+
+Available presets:
+
+```text
+typeset-editorial  public reading experiences
+typeset-compact    dense previews and operational contexts
+```
+
+Typeset does not set a maximum width. The page layout owns reading measure.
 
 ## Theme selection
 
-The CSS follows the operating-system theme when no explicit preference exists. Applications can override it by setting one of these values on the root element:
+The CSS follows the operating-system theme when the root element has no explicit theme.
 
 ```html
 <html data-theme="light">
 <html data-theme="dark">
 ```
 
-A three-way control should store `light`, `dark` or `system`. For `system`, remove the `data-theme` attribute.
+A future theme controller should store `light`, `dark`, or `system`. For `system`, remove `data-theme`. Set the resolved attribute before first paint to avoid a theme flash.
 
-Set the attribute before first paint when the application adds the theme controller, so the page does not flash the wrong mode.
+## Ownership boundaries
 
-## Package boundary
+```text
+apps/web
+  Custom Astro components. No shadcn.
 
-`DESIGN.md` at the repository root describes the brand and art direction. This package is the implementation source for reusable design tokens. Application-specific layouts and motion remain in their respective apps unless they become genuinely reusable primitives.
+apps/admin
+  App-local shadcn components using Base UI.
+  Map shadcn roles to these semantic variables inside the admin stylesheet.
+
+packages/design
+  No components. No framework-specific code.
+```
+
+Create a future shared React component package only after real reuse exists across multiple React applications.

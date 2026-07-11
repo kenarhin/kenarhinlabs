@@ -1,0 +1,35 @@
+/*
+ * Shared motion vocabulary only.
+ * Page choreography and GSAP timelines stay inside the application that owns
+ * the interaction.
+ */
+
+:root {
+  --motion-duration-micro: 140ms;
+  --motion-duration-control: 220ms;
+  --motion-duration-layout: 420ms;
+  --motion-duration-editorial: 720ms;
+  --motion-duration-signature: 1400ms;
+
+  --motion-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-exit: cubic-bezier(0.7, 0, 0.84, 0);
+  --motion-ease-route: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@theme inline {
+  --ease-standard: var(--motion-ease-standard);
+  --ease-enter: var(--motion-ease-enter);
+  --ease-exit: var(--motion-ease-exit);
+  --ease-route: var(--motion-ease-route);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-micro: 1ms;
+    --motion-duration-control: 1ms;
+    --motion-duration-layout: 1ms;
+    --motion-duration-editorial: 1ms;
+    --motion-duration-signature: 1ms;
+  }
+}

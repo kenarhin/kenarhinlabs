@@ -1,24 +1,32 @@
 {
   "name": "@labs/design",
   "private": true,
-  "version": "0.0.1",
-  "description": "Shared design foundation and future user-interface primitives for Ken Arhin Labs applications.",
+  "version": "0.0.0",
+  "description": "Shared brand tokens, fonts, themes, typesetting, and motion foundations for Ken Arhin Labs applications.",
   "type": "module",
   "sideEffects": [
     "**/*.css"
   ],
+  "style": "./src/styles/index.css",
   "exports": {
+    ".": "./src/styles/index.css",
     "./styles.css": "./src/styles/index.css",
-    "./theme.css": "./src/styles/theme.css",
     "./fonts.css": "./src/styles/fonts.css",
-    "./package.json": "./package.json"
+    "./theme.css": "./src/styles/theme.css",
+    "./tokens.css": "./src/styles/tokens.css",
+    "./base.css": "./src/styles/base.css",
+    "./typeset.css": "./src/styles/typeset.css",
+    "./motion.css": "./src/styles/motion.css"
   },
+  "files": [
+    "src/styles"
+  ],
   "dependencies": {
-    "@fontsource-variable/bricolage-grotesque": "^5.2.6",
-    "@fontsource/ibm-plex-mono": "^5.2.6",
-    "@fontsource/ibm-plex-sans": "^5.2.6"
+    "@fontsource-variable/bricolage-grotesque": "^5.2.10",
+    "@fontsource/ibm-plex-mono": "^5.2.7",
+    "@fontsource/ibm-plex-sans": "^5.2.8"
   },
   "peerDependencies": {
-    "tailwindcss": "^4.3.2"
+    "tailwindcss": ">=4.3.0 <5.0.0"
   }
 }

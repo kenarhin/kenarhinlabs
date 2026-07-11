@@ -157,7 +157,7 @@ The experience must feel:
 
 The core visual metaphor is **a living system**. Routes connect, signals travel, nodes activate, interfaces assemble and real project evidence emerges from the system. Motion and layout should explain how separate digital parts become one operating ecosystem.
 
-This file communicates brand identity and design intent. It is not the runtime token source. The implementation source of truth is the semantic Tailwind CSS v4 theme in `packages/ui/src/styles/theme.css`. Hex values remain here because they are easy for humans, design tools and coding agents to read.
+This file communicates brand identity and design intent. It is not the runtime token source. The implementation source of truth is the semantic Tailwind CSS v4 theme in `packages/design/src/styles/theme.css`. Hex values remain here because they are easy for humans, design tools and coding agents to read.
 
 ## Colors
 
@@ -348,6 +348,25 @@ Avoid:
 > Unlock the power of AI and transform the future.
 
 Headlines should make a defensible claim. Supporting copy should provide specificity rather than repeat the headline with more adjectives.
+
+
+## Product and Component Ownership
+
+The public site, admin application and shared design package have intentionally different responsibilities.
+
+### Public site (`apps/web`)
+
+The public website is an authored Astro experience. Build its interface from custom Astro components, semantic HTML, SVG, Tailwind CSS v4 and GSAP. Do not use shadcn/ui on the public site. A generic component library must not determine the brand, page composition or motion language.
+
+Complex public interactions should first use native platform features and focused headless primitives. Introduce a React island only when the behavior genuinely requires React.
+
+### Admin application (`apps/admin`)
+
+Use shadcn/ui extensively for the operational interface, with Base UI as the primitive foundation. Generated components stay inside `apps/admin/src/components/ui`; they are app-owned source code and must be adapted to the Ken Arhin Labs semantic theme. The admin values clarity, accessibility, density and predictable state feedback over cinematic expression.
+
+### Shared design package (`packages/design`)
+
+The shared package contains fonts, semantic tokens, themes, Typeset, base styles and motion vocabulary. It contains no React components, Astro components, hooks or shadcn configuration. Create a future shared React component package only after demonstrated reuse across multiple React applications.
 
 ## Do's and Don'ts
 

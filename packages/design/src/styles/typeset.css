@@ -1,0 +1,251 @@
+/*
+ * Owned content typography inspired by the shadcn/typeset architecture.
+ *
+ * It styles semantic HTML or rendered Markdown inside `.typeset`. The page
+ * layout owns the maximum width; this stylesheet only owns reading rhythm.
+ */
+
+@layer components {
+  .typeset {
+    --typeset-font-body: var(--font-family-body);
+    --typeset-font-heading: var(--font-family-display);
+    --typeset-font-mono: var(--font-family-mono);
+    --typeset-size: 1rem;
+    --typeset-leading: 1.7;
+    --typeset-flow: 1.35em;
+    --typeset-rule: var(--border);
+    --typeset-link: var(--secondary);
+    --typeset-code-background: var(--surface-subtle);
+
+    color: var(--foreground);
+    font-family: var(--typeset-font-body);
+    font-size: var(--typeset-size);
+    line-height: var(--typeset-leading);
+  }
+
+  .typeset-editorial {
+    --typeset-size: 1.125rem;
+    --typeset-leading: 1.75;
+    --typeset-flow: 1.55em;
+  }
+
+  .typeset-compact {
+    --typeset-size: 0.9375rem;
+    --typeset-leading: 1.62;
+    --typeset-flow: 1em;
+  }
+
+  .typeset > :first-child {
+    margin-block-start: 0;
+  }
+
+  .typeset > :last-child {
+    margin-block-end: 0;
+  }
+
+  .typeset :where(p, ul, ol, blockquote, pre, table, figure, details, dl) {
+    margin-block: var(--typeset-flow) 0;
+  }
+
+  .typeset :where(h1, h2, h3, h4, h5, h6) {
+    margin-block: calc(var(--typeset-flow) * 1.75) 0;
+    color: var(--foreground);
+    font-family: var(--typeset-font-heading);
+    font-variation-settings: "wdth" 92, "opsz" 48;
+    font-weight: 680;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    text-wrap: balance;
+  }
+
+  .typeset :where(h1) {
+    font-size: clamp(2.25rem, 5vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .typeset :where(h2) {
+    font-size: clamp(1.75rem, 3.6vw, 3rem);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+
+  .typeset :where(h3) {
+    font-size: clamp(1.4rem, 2.5vw, 2rem);
+  }
+
+  .typeset :where(h4) {
+    font-size: 1.25em;
+  }
+
+  .typeset :where(h5, h6) {
+    font-size: 1em;
+    letter-spacing: -0.01em;
+  }
+
+  .typeset :where(h1, h2, h3, h4, h5, h6) + :where(p, ul, ol, blockquote, pre, figure) {
+    margin-block-start: calc(var(--typeset-flow) * 0.55);
+  }
+
+  .typeset :where(a) {
+    color: var(--typeset-link);
+    font-weight: 500;
+    text-decoration-color: color-mix(in oklab, var(--typeset-link) 48%, transparent);
+    text-decoration-line: underline;
+    text-decoration-thickness: 0.08em;
+    text-underline-offset: 0.18em;
+  }
+
+  .typeset :where(a:hover) {
+    text-decoration-color: currentColor;
+  }
+
+  .typeset :where(strong, b) {
+    font-weight: 600;
+  }
+
+  .typeset :where(ul, ol) {
+    padding-inline-start: 1.35em;
+  }
+
+  .typeset :where(li) {
+    padding-inline-start: 0.2em;
+  }
+
+  .typeset :where(li + li) {
+    margin-block-start: 0.42em;
+  }
+
+  .typeset :where(li > ul, li > ol) {
+    margin-block-start: 0.5em;
+  }
+
+  .typeset :where(blockquote) {
+    margin-inline: 0;
+    padding-inline-start: 1.25em;
+    border-inline-start: 3px solid var(--signal);
+    color: var(--muted-foreground);
+    font-size: 1.08em;
+  }
+
+  .typeset :where(blockquote > :first-child) {
+    margin-block-start: 0;
+  }
+
+  .typeset :where(code:not(pre code)) {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--typeset-code-background);
+    padding: 0.12em 0.35em;
+    font-family: var(--typeset-font-mono);
+    font-size: 0.88em;
+  }
+
+  .typeset :where(pre) {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface-strong);
+    color: var(--surface-strong-foreground);
+    padding: 1.1rem 1.25rem;
+    font-family: var(--typeset-font-mono);
+    font-size: 0.86em;
+    line-height: 1.65;
+    tab-size: 2;
+  }
+
+  .typeset :where(pre code) {
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  .typeset :where(hr) {
+    margin-block: calc(var(--typeset-flow) * 2);
+    border: 0;
+    border-block-start: 1px solid var(--typeset-rule);
+  }
+
+  .typeset :where(table) {
+    inline-size: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 0.94em;
+  }
+
+  .typeset :where(th, td) {
+    padding: 0.75em 0.85em;
+    border-block-end: 1px solid var(--border);
+    text-align: start;
+    vertical-align: top;
+  }
+
+  .typeset :where(th) {
+    background: var(--surface-subtle);
+    font-weight: 600;
+  }
+
+  .typeset :where(caption) {
+    margin-block-end: 0.6em;
+    color: var(--muted-foreground);
+    font-size: 0.875em;
+    text-align: start;
+  }
+
+  .typeset :where(figure) {
+    margin-inline: 0;
+  }
+
+  .typeset :where(figcaption) {
+    margin-block-start: 0.65em;
+    color: var(--muted-foreground);
+    font-family: var(--typeset-font-mono);
+    font-size: 0.75em;
+    letter-spacing: 0.02em;
+    line-height: 1.5;
+  }
+
+  .typeset :where(img) {
+    border-radius: var(--radius-sm);
+  }
+
+  .typeset :where(kbd) {
+    border: 1px solid var(--border);
+    border-block-end-width: 2px;
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    padding: 0.15em 0.4em;
+    font-family: var(--typeset-font-mono);
+    font-size: 0.82em;
+  }
+
+  .typeset :where(mark) {
+    background: color-mix(in oklab, var(--primary) 42%, transparent);
+    color: inherit;
+    padding-inline: 0.08em;
+  }
+
+  .typeset :where(summary) {
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .typeset :where(dt) {
+    margin-block-start: var(--typeset-flow);
+    font-weight: 600;
+  }
+
+  .typeset :where(dd) {
+    margin-inline-start: 0;
+    color: var(--muted-foreground);
+  }
+
+  @media (max-width: 40rem) {
+    .typeset-editorial {
+      --typeset-size: 1.0625rem;
+      --typeset-leading: 1.72;
+    }
+  }
+}
