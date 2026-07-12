@@ -514,6 +514,7 @@ ken-arhin-labs/
 │   ├── backend-architecture.md
 │   ├── database-schema.md
 │   ├── backend-platform-provisioning.md
+    ├── pwa/
 │   ├── tasks/
 │   │   ├── backend/
 │   │   │   ├── backend.md           # Overall backend program and verification gates
