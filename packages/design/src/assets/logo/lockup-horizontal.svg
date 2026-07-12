@@ -1,9 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg"
-  width="632" height="96" viewBox="0 0 632 96"
-  role="img" aria-labelledby="kal-wordmark-title"
-  color="#11130F" data-logo="ken-arhin-labs-wordmark">
-  <title id="kal-wordmark-title">Ken Arhin Labs wordmark</title>
-  <g fill="none" stroke="currentColor" stroke-width="7"
+  width="760" height="112" viewBox="0 0 760 112"
+  role="img" aria-labelledby="kal-horizontal-title" data-logo="ken-arhin-labs-horizontal">
+  <title id="kal-horizontal-title">Ken Arhin Labs</title>
+  <g transform="translate(8 8)" data-part="mark">
+    <g fill="none" stroke="currentColor" stroke-width="12"
+      stroke-linecap="round" stroke-linejoin="round">
+      <path data-part="stem" pathLength="1" d="M20 14V82" />
+      <path data-part="bridge" pathLength="1" d="M20 48H38" />
+      <path data-part="upper-route" pathLength="1" d="M38 48L78 16" />
+      <path data-part="lower-route" pathLength="1" d="M38 48L78 80" />
+    </g>
+    <circle data-part="signal" cx="38" cy="48" r="7" fill="#FF5A1F" />
+  </g>
+  <g transform="translate(128 8)" data-part="wordmark"
+    fill="none" stroke="currentColor" stroke-width="7"
     stroke-linecap="square" stroke-linejoin="miter">
     <path data-letter="K" transform="translate(12 16)" d="M4 8V64 M4 36H14 M14 36L34 8 M14 36L34 64" />
     <path data-letter="E" transform="translate(58 16)" d="M34 8H4V64H34 M4 36H28" />

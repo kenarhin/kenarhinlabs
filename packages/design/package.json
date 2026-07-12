@@ -10,6 +10,7 @@
   "style": "./src/styles/index.css",
   "exports": {
     ".": "./src/styles/index.css",
+    "./assets/logo/*": "./src/assets/logo/*",
     "./styles.css": "./src/styles/index.css",
     "./fonts.css": "./src/styles/fonts.css",
     "./theme.css": "./src/styles/theme.css",
@@ -19,6 +20,7 @@
     "./motion.css": "./src/styles/motion.css"
   },
   "files": [
+    "src/assets",
     "src/styles"
   ],
   "dependencies": {
