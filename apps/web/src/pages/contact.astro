@@ -1,0 +1,160 @@
+---
+/**
+ * Contact and project-intake foundation route.
+ *
+ * The form posts to the real Hono public contact contract. The backend intake
+ * adapter is currently fail-closed, so the page also provides a direct email
+ * path and displays the API request ID when submission cannot be accepted.
+ */
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+  title="Contact"
+  description="Start a project or contact Ken Arhin Labs about a website, application, AI workflow, or digital infrastructure."
+>
+  <section class="px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop lg:py-section">
+    <div class="mx-auto w-full max-w-wide">
+      <div class="grid gap-14 border-t border-border pt-6 lg:grid-cols-12">
+        <div class="lg:col-span-5">
+          <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+            Contact / Start a project
+          </p>
+          <h1 class="mt-8 max-w-3xl text-display-lg text-foreground">
+            Bring us the messy version.
+          </h1>
+          <p class="mt-8 max-w-xl text-lead text-muted-foreground">
+            Tell us what is not working, what you are trying to build, or where
+            the moving parts have become difficult to manage.
+          </p>
+
+          <div class="mt-12 border-t border-border pt-6">
+            <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+              Prefer direct email?
+            </p>
+            <a
+              class="mt-3 inline-flex text-body font-medium text-foreground underline decoration-signal decoration-2 underline-offset-4"
+              href="mailto:hello@kenarhinlabs.com"
+            >
+              hello@kenarhinlabs.com
+            </a>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 lg:col-start-7">
+          <form
+            class="border border-border bg-surface p-6 sm:p-8 lg:p-10"
+            data-contact-form
+          >
+            <div class="grid gap-6 sm:grid-cols-2">
+              <div>
+                <label class="text-body-sm font-medium" for="contact-name">Name</label>
+                <input
+                  class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                  id="contact-name"
+                  name="name"
+                  type="text"
+                  autocomplete="name"
+                  minlength="2"
+                  maxlength="160"
+                  required
+                />
+              </div>
+              <div>
+                <label class="text-body-sm font-medium" for="contact-email">Email</label>
+                <input
+                  class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                  id="contact-email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="320"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="mt-6">
+              <label class="text-body-sm font-medium" for="contact-subject">
+                What would you like to work on?
+              </label>
+              <input
+                class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                id="contact-subject"
+                name="subject"
+                type="text"
+                minlength="3"
+                maxlength="200"
+                placeholder="A website, application, AI workflow, or infrastructure problem"
+                required
+              />
+            </div>
+
+            <div class="mt-6">
+              <label class="text-body-sm font-medium" for="contact-message">
+                Tell us about the current situation
+              </label>
+              <p id="contact-message-help" class="mt-1 text-body-sm text-muted-foreground">
+                Useful context includes the problem, people affected, current tools, timing, and constraints.
+              </p>
+              <textarea
+                class="mt-2 min-h-48 w-full resize-y rounded-sm border border-input bg-background px-4 py-3 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                id="contact-message"
+                name="message"
+                minlength="10"
+                maxlength="10000"
+                aria-describedby="contact-message-help"
+                required
+              ></textarea>
+            </div>
+
+            <div
+              class="mt-6 hidden border-l-2 border-info bg-info/8 px-4 py-3 text-body-sm"
+              role="status"
+              aria-live="polite"
+              data-contact-status
+            ></div>
+
+            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <p class="max-w-sm text-body-sm text-muted-foreground">
+                Your message is sent to the Ken Arhin Labs API. We do not add
+                you to a marketing list from this form.
+              </p>
+              <button
+                type="submit"
+                class="inline-flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground disabled:cursor-wait disabled:opacity-60"
+                data-contact-submit
+              >
+                <span data-submit-label>Send project note</span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-border bg-surface px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop">
+    <div class="mx-auto grid w-full max-w-wide gap-10 lg:grid-cols-12">
+      <h2 class="text-heading-md lg:col-span-4">What happens next</h2>
+      <ol class="grid gap-8 sm:grid-cols-3 lg:col-span-7 lg:col-start-6">
+        <li>
+          <span class="font-mono text-label text-signal">01</span>
+          <p class="mt-4 font-medium">We read the context</p>
+          <p class="mt-2 text-body-sm text-muted-foreground">We look for the actual system problem before prescribing a deliverable.</p>
+        </li>
+        <li>
+          <span class="font-mono text-label text-signal">02</span>
+          <p class="mt-4 font-medium">We clarify the shape</p>
+          <p class="mt-2 text-body-sm text-muted-foreground">If there is a fit, we ask focused questions about scope, constraints, and timing.</p>
+        </li>
+        <li>
+          <span class="font-mono text-label text-signal">03</span>
+          <p class="mt-4 font-medium">We propose a next step</p>
+          <p class="mt-2 text-body-sm text-muted-foreground">You receive a practical route forward, not a vague discovery performance.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+</Layout>

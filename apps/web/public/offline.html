@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#11130F" />
+    <title>You are offline | Ken Arhin Labs</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: "IBM Plex Sans", system-ui, sans-serif;
+        background: #f3f0e8;
+        color: #11130f;
+      }
+      * { box-sizing: border-box; }
+      body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 1.25rem; }
+      main { width: min(100%, 48rem); border-top: 1px solid #d9d5ca; padding-top: 1.5rem; }
+      .label { font: 500 0.75rem/1.2 ui-monospace, monospace; letter-spacing: 0.08em; text-transform: uppercase; color: #666860; }
+      h1 { max-width: 12ch; margin: 2rem 0 0; font: 700 clamp(3rem, 10vw, 6rem)/0.94 system-ui, sans-serif; letter-spacing: -0.05em; }
+      p { max-width: 38rem; margin: 1.5rem 0 0; font-size: 1.125rem; line-height: 1.6; color: #666860; }
+      nav { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+      a { min-height: 3rem; display: inline-flex; align-items: center; border: 1px solid #d9d5ca; border-radius: 4px; padding: 0 1.25rem; color: inherit; font-weight: 600; text-decoration: none; }
+      a:first-child { border-color: #ff5a1f; background: #ff5a1f; }
+      a:focus-visible { outline: 2px solid #2d5bff; outline-offset: 3px; }
+      @media (prefers-color-scheme: dark) {
+        :root { background: #11130f; color: #f3f0e8; }
+        main, a { border-color: #3d4338; }
+        p, .label { color: #a8ada2; }
+        a:first-child { color: #11130f; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="label">Network / Offline</p>
+      <h1>You are outside the live system.</h1>
+      <p>
+        Previously visited public pages may still be available, but they may not
+        reflect recent updates. Reconnect to load anything new.
+      </p>
+      <nav aria-label="Offline actions">
+        <a href="/">Try again</a>
+        <a href="/">Go to homepage</a>
+      </nav>
+    </main>
+  </body>
+</html>

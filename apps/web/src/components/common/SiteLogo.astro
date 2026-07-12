@@ -1,0 +1,41 @@
+---
+/**
+ * Theme-aware rendering wrapper for the approved vector logo family.
+ *
+ * The source SVGs remain in @labs/design. They are imported as raw markup so
+ * their currentColor strokes inherit the consuming theme without re-typesetting
+ * or redrawing the authored wordmark.
+ */
+import horizontalLogo from "@labs/design/assets/logo/lockup-horizontal.svg?raw";
+import markLogo from "@labs/design/assets/logo/mark.svg?raw";
+
+interface Props {
+  class?: string;
+  compact?: boolean;
+}
+
+const { class: className = "", compact = false } = Astro.props;
+
+/**
+ * Converts the source logo to decorative inline artwork.
+ *
+ * Accessible names belong to the surrounding link or heading. Removing the
+ * source title and labelled-by ID also prevents duplicate SVG IDs when a page
+ * renders the logo in both the header, mobile dialog, and footer.
+ */
+function makeDecorative(artwork: string): string {
+  return artwork
+    .replace(/\srole="img"/, "")
+    .replace(/\saria-labelledby="[^"]+"/, "")
+    .replace(/<title[^>]*>.*?<\/title>/s, "")
+    .replace("<svg ", '<svg aria-hidden="true" focusable="false" ');
+}
+
+const artwork = makeDecorative(compact ? markLogo : horizontalLogo);
+---
+
+<span
+  class:list={["brand-logo inline-flex shrink-0 text-foreground", className]}
+  data-brand-logo={compact ? "mark" : "horizontal"}
+  set:html={artwork}
+></span>

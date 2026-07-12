@@ -1,0 +1,75 @@
+---
+/**
+ * Editorial footer for the public site.
+ *
+ * @param navigation Current footer navigation, sourced from the API when published.
+ */
+import type { NavigationItem } from "../../lib/api/public-api";
+import SiteLogo from "../common/SiteLogo.astro";
+
+interface Props {
+  navigation: NavigationItem[];
+}
+
+const { navigation } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-border bg-surface" data-site-footer>
+  <div
+    class="mx-auto grid w-full max-w-wide gap-14 px-page-mobile py-section-sm sm:px-page-tablet lg:grid-cols-12 lg:px-page-desktop lg:py-section"
+  >
+    <div class="lg:col-span-6">
+      <a
+        href="/"
+        class="inline-flex rounded-xs"
+        aria-label="Ken Arhin Labs — Home"
+      >
+        <SiteLogo class="w-52 sm:w-64" />
+      </a>
+      <p class="mt-8 max-w-xl text-heading-sm text-foreground">
+        Digital systems, built around people.
+      </p>
+      <p class="mt-5 max-w-lg text-body text-muted-foreground">
+        Websites, applications, AI workflows, and infrastructure designed to
+        work as one useful operating system.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-2 gap-8 lg:col-span-5 lg:col-start-8">
+      <div>
+        <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+          Navigate
+        </p>
+        <ul class="mt-5 grid gap-3">
+          {
+            navigation.map((item) => (
+              <li>
+                <a class="text-body-sm text-foreground hover:text-signal" href={item.href}>
+                  {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+          Connect
+        </p>
+        <ul class="mt-5 grid gap-3 text-body-sm">
+          <li><a class="hover:text-signal" href="mailto:hello@kenarhinlabs.com">Email the lab</a></li>
+          <li><a class="hover:text-signal" href="/contact">Start a project</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div
+      class="flex flex-col gap-4 border-t border-border pt-6 font-mono text-label uppercase tracking-wider text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:col-span-12"
+    >
+      <p>© {year} Ken Arhin Labs</p>
+      <p>Built in Ghana · Working globally</p>
+    </div>
+  </div>
+</footer>

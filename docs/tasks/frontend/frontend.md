@@ -1,4 +1,4 @@
-# Frontend Implementation Plan
+https://127.0.0.1:4321/# Frontend Implementation Plan
 
 _Replanned: 2026-07-12_
 
@@ -28,9 +28,9 @@ built in parallel.
 - Public navigation is application-owned when the live navigation endpoint returns an empty
   collection. Those links are structural routes, not mock CMS records. A non-empty valid API
   response may replace them at render time.
-- Homepage copy comes from approved brand documentation while `/public/homepage` remains unavailable.
-  No invented case studies, testimonials, metrics, prices, offers, or CMS entries will be presented
-  as backend data.
+- Homepage copy comes from approved brand documentation while `/public/homepage` remains
+  unavailable. No invented case studies, testimonials, metrics, prices, offers, or CMS entries will
+  be presented as backend data.
 - The contact form will use the real `/public/contact` contract and render honest submission errors.
   The current backend persistence port returns `503`; that gap is documented and is not patched from
   the frontend lane.
@@ -39,15 +39,15 @@ built in parallel.
 
 ## Lane ownership
 
-| Lane | Scope | Task log |
-| --- | --- | --- |
-| 01 — Design-system connection | Existing Tailwind v4, font, token, and theme connection | `01-design-system-connection.md` |
-| 02 — Web foundation and shell | Layout, metadata, theme control, header, mobile navigation, footer, shared public components, 404 | `02-web-foundation-and-shell.md` |
-| 03 — Living System homepage | Hero composition, SVG system, GSAP choreography, supporting homepage sections | `03-living-system-homepage.md` |
-| 04 — Contact and API integration | Typed public API boundary, navigation integration, contact page and real failure states | `04-contact-and-api-integration.md` |
-| 05 — Public PWA and quality | `@labs/pwa` diagnostics, Astro integration, offline/update UI, accessibility, performance, browser QA | `05-public-pwa-and-quality.md` |
-| 06 — Remaining public page families | Services, Work, Stacks, Field Notes, Labs, Start, legal, content detail routes | `06-remaining-public-pages.md` |
-| 07 — Admin application | TanStack Start operating system after the public foundation is accepted | `07-admin-application-later.md` |
+| Lane                                | Scope                                                                                                 | Task log                            |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| 01 — Design-system connection       | Existing Tailwind v4, font, token, and theme connection                                               | `01-design-system-connection.md`    |
+| 02 — Web foundation and shell       | Layout, metadata, theme control, header, mobile navigation, footer, shared public components, 404     | `02-web-foundation-and-shell.md`    |
+| 03 — Living System homepage         | Hero composition, SVG system, GSAP choreography, supporting homepage sections                         | `03-living-system-homepage.md`      |
+| 04 — Contact and API integration    | Typed public API boundary, navigation integration, contact page and real failure states               | `04-contact-and-api-integration.md` |
+| 05 — Public PWA and quality         | `@labs/pwa` diagnostics, Astro integration, offline/update UI, accessibility, performance, browser QA | `05-public-pwa-and-quality.md`      |
+| 06 — Remaining public page families | Services, Work, Stacks, Field Notes, Labs, Start, legal, content detail routes                        | `06-remaining-public-pages.md`      |
+| 07 — Admin application              | TanStack Start operating system after the public foundation is accepted                               | `07-admin-application-later.md`     |
 
 Each lane owns only its listed scope. Backend gaps are recorded as handoffs; frontend work must not
 silently replace missing persistence or projection adapters.
@@ -67,64 +67,65 @@ silently replace missing persistence or projection adapters.
 
 ## Phase 1 — Brand and package readiness
 
-- [ ] Normalize the approved logo assets under `packages/design/src/assets/logo/` and expose them
+- [x] Normalize the approved logo assets under `packages/design/src/assets/logo/` and expose them
       through the package without introducing framework components.
-- [ ] Preserve `viewBox`, `pathLength`, `data-part`, accessibility metadata, and theme-capable
+- [x] Preserve `viewBox`, `pathLength`, `data-part`, accessibility metadata, and theme-capable
       `currentColor` behavior.
-- [ ] Resolve `packages/pwa/examples/**` TypeScript project/dependency diagnostics with a deliberate
+- [x] Resolve `packages/pwa/examples/**` TypeScript project/dependency diagnostics with a deliberate
       examples project boundary and current dependencies.
-- [ ] Record the unresolved official Astro 7 peer range for `@vite-pwa/astro@1.2.0`.
-- [ ] Verify `@labs/design` and `@labs/pwa` package checks before app integration.
+- [x] Record the unresolved official Astro 7 peer range for `@vite-pwa/astro@1.2.0`.
+- [x] Verify the `@labs/design` asset contract and `@labs/pwa` package checks before app
+      integration.
 
 ## Phase 2 — Public foundation and shell
 
-- [ ] Build the reusable Astro layout, metadata contract, skip link, theme boot, and accessible theme
-      preference control.
-- [ ] Build the responsive header, primary navigation, mobile menu, and footer.
-- [ ] Build public button/link, container, section-label, and system-annotation patterns only where
+- [x] Build the reusable Astro layout, metadata contract, skip link, theme boot, and accessible
+      theme preference control.
+- [x] Build the responsive header, primary navigation, mobile menu, and footer.
+- [x] Build public button/link, container, section-label, and system-annotation patterns only where
       the current pages use them.
-- [ ] Build a useful branded `404.astro` page with normal navigation and no JavaScript dependency.
-- [ ] Preserve complete document navigation when ClientRouter or animation is unavailable.
+- [x] Build a useful branded `404.astro` page with normal navigation and no JavaScript dependency.
+- [x] Preserve complete document navigation when ClientRouter or animation is unavailable.
 
 ## Phase 3 — Living System homepage
 
-- [ ] Build a complete static hero containing the approved category label, headline, supporting
+- [x] Build a complete static hero containing the approved category label, headline, supporting
       message, actions, system diagram, and continuation cue.
-- [ ] Build a scoped GSAP entrance timeline using route drawing, node activation, and a single
+- [x] Build a scoped GSAP entrance timeline using route drawing, node activation, and a single
       meaningful signal event.
-- [ ] Author desktop, tablet, mobile, and reduced-motion states through `gsap.matchMedia()`.
-- [ ] Add proof/capability/process/next-step homepage sections without inventing backend content.
-- [ ] Keep the first two viewports clear, useful, and immediately interactive.
-- [ ] Ensure all GSAP contexts, timelines, SplitText instances, and ScrollTriggers revert before
-      Astro swaps and reinitialize once after page load.
+- [x] Author desktop, tablet, mobile, and reduced-motion states through `gsap.matchMedia()`.
+- [x] Add proof/capability/process/next-step homepage sections without inventing backend content.
+- [x] Keep the first two viewports clear, useful, and immediately interactive.
+- [x] Ensure all GSAP contexts, timelines, and ScrollTriggers revert before Astro swaps and
+      reinitialize once after page load.
 
 ## Phase 4 — Contact and backend-aware integration
 
-- [ ] Create a typed public API client that normalizes the Hono response envelope and preserves
+- [x] Create a typed public API client that normalizes the Hono response envelope and preserves
       request IDs.
-- [ ] Fetch header/footer navigation server-side and fall back only when the valid result is empty or
-      unavailable.
-- [ ] Build the contact page with accessible fields matching the shared backend validator.
-- [ ] Submit to the real API and provide pending, validation, accepted, rate-limited, dependency, and
-      transport states.
-- [ ] Document that contact persistence remains unavailable until the backend intake adapter is
+- [x] Fetch header/footer navigation server-side and fall back only when the valid result is empty
+      or unavailable.
+- [x] Build the contact page with accessible fields matching the shared backend validator.
+- [x] Submit to the real API and provide pending, validation, accepted, rate-limited, dependency,
+      and transport states.
+- [x] Document that contact persistence remains unavailable until the backend intake adapter is
       implemented.
-- [ ] Do not claim that the unavailable homepage projection is integrated.
+- [x] Do not claim that the unavailable homepage projection is integrated.
 
 ## Phase 5 — Public PWA and quality
 
-- [ ] Integrate the reviewed PWA path through the Astro 7 Vite configuration and `@labs/pwa`
+- [x] Integrate the reviewed PWA path through the Astro 7 Vite configuration and `@labs/pwa`
       configuration factory.
-- [ ] Generate only approved public brand icons with authored maskable safe areas.
-- [ ] Add the manifest, standalone offline page, single service-worker registration, update prompt,
+- [x] Generate only approved public brand icons with authored maskable safe areas.
+- [x] Add the manifest, standalone offline page, single service-worker registration, update prompt,
       and offline/stale indicator.
-- [ ] Verify generated Workbox policy keeps API/auth/preview routes network-only and does not inject
+- [x] Verify generated Workbox policy keeps API/auth/preview routes network-only and does not inject
       an SPA `index.html` fallback.
-- [ ] Run Astro checks, TypeScript, package tests, production builds, generated-worker inspection,
+- [x] Run Astro checks, TypeScript, package tests, production builds, generated-worker inspection,
       Cloudflare dry run, and `git diff --check`.
-- [ ] Visually test light/dark themes, major breakpoints, keyboard navigation, reduced motion, and
+- [x] Visually test light/dark themes, major breakpoints, keyboard navigation, reduced motion, and
       offline/update surfaces in the in-app browser.
-- [ ] Record any device/browser/PWA install checks that still require a preview deployment.
+- [x] Record any device/browser/PWA install checks that still require a preview deployment.
 
 ## Phase 6 — Remaining public site
 
@@ -146,12 +147,12 @@ silently replace missing persistence or projection adapters.
 
 ## Backend handoffs
 
-| Contract | Current evidence | Frontend behavior | Backend work still required |
-| --- | --- | --- | --- |
-| `GET /public/navigation` | Live `200`; empty header/footer arrays | Use structural app navigation, replace with valid non-empty API navigation | Publish navigation records when CMS ownership is ready |
-| `GET /public/homepage` | Live `503 DEPENDENCY_UNAVAILABLE` | Render approved brand-authored homepage content; do not label it CMS-backed | Implement homepage read adapter/projection |
-| `POST /public/contact` | Route and validator exist; intake adapter is fail-closed | Submit real payload and show honest dependency error/request ID | Implement contact persistence and notification adapter |
-| Public content/tools | Code contracts exist; projection path is incomplete | Do not populate current foundation with fabricated entries | Complete public projection source adapter and publish records |
+| Contract                 | Current evidence                                         | Frontend behavior                                                           | Backend work still required                                   |
+| ------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `GET /public/navigation` | Live `200`; empty header/footer arrays                   | Use structural app navigation, replace with valid non-empty API navigation  | Publish navigation records when CMS ownership is ready        |
+| `GET /public/homepage`   | Live `503 DEPENDENCY_UNAVAILABLE`                        | Render approved brand-authored homepage content; do not label it CMS-backed | Implement homepage read adapter/projection                    |
+| `POST /public/contact`   | Route and validator exist; intake adapter is fail-closed | Submit real payload and show honest dependency error/request ID             | Implement contact persistence and notification adapter        |
+| Public content/tools     | Code contracts exist; projection path is incomplete      | Do not populate current foundation with fabricated entries                  | Complete public projection source adapter and publish records |
 
 ## Verification gates
 
@@ -180,4 +181,3 @@ The current web-first program is complete only when:
 - GSAP ScrollTrigger: https://gsap.com/docs/v3/Plugins/ScrollTrigger/
 - GSAP SplitText: https://gsap.com/docs/v3/Plugins/SplitText/
 - Cloudflare Astro guide: https://developers.cloudflare.com/workers/framework-guides/web-apps/astro/
-

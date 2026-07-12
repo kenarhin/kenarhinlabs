@@ -1,21 +1,222 @@
 ---
 /**
- * index.astro — public site home page.
+ * Public homepage foundation.
  *
- * SEO title is keyword-rich as recommended for homepage discoverability.
- * The meta description is supplied explicitly. The tagline itself ("Digital
- * systems, built around people.") lives in the hero H1, not the <title>.
- *
- * Open Graph title uses the tagline for social sharing — more memorable
- * and human than the SEO-optimised browser title.
+ * The page uses approved brand copy and documented project names while the
+ * backend homepage projection remains unavailable. It does not fabricate CMS
+ * records, metrics, testimonials, or case-study outcomes.
  */
-import Welcome from "../components/Welcome.astro";
+import LivingSystemHero from "../components/marketing/LivingSystemHero.astro";
 import Layout from "../layouts/Layout.astro";
+
+const capabilities = [
+  {
+    id: "01",
+    title: "Web platforms",
+    description:
+      "Editorial sites, product experiences, commerce, and operational interfaces designed as durable systems.",
+    route: "STRATEGY → INTERFACE → ENGINEERING",
+  },
+  {
+    id: "02",
+    title: "Applications",
+    description:
+      "Purpose-built web and mobile products with clear workflows, resilient data, and maintainable foundations.",
+    route: "PRODUCT → EXPERIENCE → RELEASE",
+  },
+  {
+    id: "03",
+    title: "AI + automation",
+    description:
+      "Useful agents and workflows connected to real business processes, review boundaries, and measurable actions.",
+    route: "INPUT → REASONING → ACTION → REVIEW",
+  },
+  {
+    id: "04",
+    title: "Infrastructure",
+    description:
+      "Hosting, domains, email, storage, security, deployment, and observability assembled into one operating layer.",
+    route: "BUILD → DEPLOY → OBSERVE → OPERATE",
+  },
+];
+
+const projectNames = [
+  "Menely Group",
+  "233 Digital",
+  "Agents by 233 Digital",
+  "233 Shops",
+  "DailyVrs",
+];
 ---
 
 <Layout
-  title="Ken Arhin Labs | Web Development, AI & Managed Hosting"
-  description="Ken Arhin Labs designs, builds, hosts, and operates websites, web applications, AI workflows, and connected digital systems for modern businesses."
+  title="Ken Arhin Labs | Digital Systems, AI & Web Platforms"
+  description="Ken Arhin Labs designs, builds, hosts, and operates websites, applications, AI workflows, and digital infrastructure that work together."
 >
-  <Welcome />
+  <div data-homepage>
+    <LivingSystemHero />
+
+    <section
+      class="border-y border-border bg-surface"
+      aria-labelledby="ecosystem-title"
+    >
+      <div
+        class="mx-auto grid w-full max-w-wide gap-8 px-page-mobile py-10 sm:px-page-tablet lg:grid-cols-12 lg:px-page-desktop"
+      >
+        <div class="lg:col-span-3">
+          <p
+            id="ecosystem-title"
+            class="font-mono text-label uppercase tracking-widest text-muted-foreground"
+          >
+            Systems in the wider ecosystem
+          </p>
+        </div>
+        <ul
+          class="flex flex-wrap gap-x-8 gap-y-4 text-body-sm text-foreground lg:col-span-9 lg:justify-end"
+          aria-label="Documented projects and platforms"
+        >
+          {
+            projectNames.map((project) => (
+              <li class="inline-flex items-center gap-3">
+                <span class="size-1.5 rounded-full bg-field" aria-hidden="true" />
+                {project}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section
+      id="capabilities"
+      class="scroll-mt-24 px-page-mobile py-section sm:px-page-tablet lg:px-page-desktop lg:py-section-lg"
+      aria-labelledby="capabilities-title"
+    >
+      <div class="mx-auto w-full max-w-wide">
+        <div class="grid gap-8 border-t border-border pt-6 lg:grid-cols-12">
+          <p
+            class="font-mono text-label uppercase tracking-widest text-muted-foreground lg:col-span-3"
+          >
+            01 / Capabilities
+          </p>
+          <div class="lg:col-span-8 lg:col-start-5">
+            <h2
+              id="capabilities-title"
+              class="max-w-4xl text-heading-lg text-foreground"
+              data-section-reveal
+            >
+              Separate digital parts should become one working system.
+            </h2>
+            <p class="mt-7 max-w-2xl text-lead text-muted-foreground">
+              We connect the visible experience to the engineering, automation,
+              and operations that keep it useful after launch.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-16 grid border-l border-t border-border md:grid-cols-2">
+          {
+            capabilities.map((capability) => (
+              <article
+                class="group min-h-80 border-b border-r border-border p-6 sm:p-8 lg:p-10"
+                data-capability
+              >
+                <div class="flex items-start justify-between gap-6">
+                  <span class="font-mono text-label text-muted-foreground">
+                    {capability.id}
+                  </span>
+                  <span
+                    class="size-3 rounded-full border border-border bg-surface transition-colors duration-(--motion-duration-control) group-hover:border-signal group-hover:bg-signal"
+                    aria-hidden="true"
+                  />
+                </div>
+                <h3 class="mt-14 text-heading-sm text-foreground">
+                  {capability.title}
+                </h3>
+                <p class="mt-5 max-w-lg text-body text-muted-foreground">
+                  {capability.description}
+                </p>
+                <p class="mt-10 font-mono text-label tracking-wider text-system">
+                  {capability.route}
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section
+      id="approach"
+      class="scroll-mt-24 bg-surface-strong px-page-mobile py-section text-surface-strong-foreground sm:px-page-tablet lg:px-page-desktop lg:py-section-lg"
+      aria-labelledby="approach-title"
+    >
+      <div class="mx-auto w-full max-w-wide">
+        <div class="grid gap-12 lg:grid-cols-12">
+          <div class="lg:col-span-4">
+            <p class="font-mono text-label uppercase tracking-widest opacity-60">
+              02 / How the system comes together
+            </p>
+            <p class="mt-8 max-w-md text-body opacity-70">
+              The shape changes with the problem. The operating discipline does
+              not.
+            </p>
+          </div>
+          <div class="lg:col-span-7 lg:col-start-6">
+            <h2 id="approach-title" class="text-heading-lg" data-section-reveal>
+              From unclear moving parts to an operated digital system.
+            </h2>
+          </div>
+        </div>
+
+        <ol class="mt-20 grid border-l border-t border-white/20 sm:grid-cols-2 lg:grid-cols-5">
+          {
+            [
+              ["01", "Discover", "Clarify the real problem, people, constraints, and evidence."],
+              ["02", "Structure", "Map the experience, data, services, and operational boundaries."],
+              ["03", "Build", "Design and engineer the smallest coherent system that solves it."],
+              ["04", "Launch", "Validate, deploy, document, and make the change observable."],
+              ["05", "Operate", "Improve the system with real usage, support, and measured learning."],
+            ].map(([id, title, description]) => (
+              <li class="min-h-64 border-b border-r border-white/20 p-6" data-process-step>
+                <span class="font-mono text-label text-signal">{id}</span>
+                <h3 class="mt-12 text-heading-sm">{title}</h3>
+                <p class="mt-4 text-body-sm opacity-65">{description}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+    </section>
+
+    <section
+      class="px-page-mobile py-section sm:px-page-tablet lg:px-page-desktop lg:py-section-lg"
+      aria-labelledby="next-system-title"
+    >
+      <div
+        class="mx-auto grid w-full max-w-wide gap-12 border-t border-border pt-8 lg:grid-cols-12"
+      >
+        <p class="font-mono text-label uppercase tracking-widest text-muted-foreground lg:col-span-3">
+          03 / Start somewhere useful
+        </p>
+        <div class="lg:col-span-8 lg:col-start-5">
+          <h2 id="next-system-title" class="text-heading-lg text-foreground" data-section-reveal>
+            Bring us the messy version. We will help structure the system.
+          </h2>
+          <p class="mt-7 max-w-2xl text-lead text-muted-foreground">
+            Whether you need a public platform, an internal workflow, an AI
+            agent, or the infrastructure around it, the first step is a clear
+            conversation.
+          </p>
+          <a
+            href="/contact"
+            class="mt-10 inline-flex min-h-12 items-center gap-5 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground transition-transform duration-(--motion-duration-control) hover:-translate-y-1"
+          >
+            Start a project
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </div>
 </Layout>

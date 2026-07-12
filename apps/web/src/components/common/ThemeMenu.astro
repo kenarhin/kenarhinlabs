@@ -1,0 +1,41 @@
+---
+/**
+ * Progressive theme preference control.
+ *
+ * Native details/summary keeps the menu keyboard reachable before JavaScript.
+ * The site-shell client module applies light, dark, or system preferences and
+ * updates the accessible current-value label.
+ */
+---
+
+<details class="relative" data-theme-menu>
+  <summary
+    class="inline-flex min-h-11 cursor-pointer list-none items-center gap-2 rounded-sm border border-border bg-surface px-3 font-mono text-label uppercase tracking-wider text-foreground transition-colors duration-(--motion-duration-control) hover:bg-surface-subtle [&::-webkit-details-marker]:hidden"
+  >
+    <span aria-hidden="true" class="size-2 rounded-full bg-signal"></span>
+    <span>Theme</span>
+    <span class="text-muted-foreground" data-theme-label>System</span>
+  </summary>
+
+  <div
+    class="absolute right-0 z-50 mt-2 min-w-40 border border-border bg-surface p-1 shadow-floating"
+    role="group"
+    aria-label="Choose colour theme"
+  >
+    {
+      ["light", "dark", "system"].map((theme) => (
+        <button
+          class="flex min-h-10 w-full items-center justify-between rounded-xs px-3 text-left text-body-sm capitalize text-foreground transition-colors duration-(--motion-duration-control) hover:bg-surface-subtle"
+          type="button"
+          data-theme-option={theme}
+          aria-pressed="false"
+        >
+          {theme}
+          <span aria-hidden="true" class="text-signal opacity-0" data-theme-check>
+            ●
+          </span>
+        </button>
+      ))
+    }
+  </div>
+</details>

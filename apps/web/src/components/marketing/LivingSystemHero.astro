@@ -1,0 +1,180 @@
+---
+/**
+ * Static-first Living System homepage hero.
+ *
+ * The server-rendered composition is complete without JavaScript. The homepage
+ * motion module progressively draws routes, activates nodes, and moves one
+ * signal through a meaningful path for motion-capable visitors.
+ */
+---
+
+<section
+  class="relative isolate min-h-[calc(100svh-4.5rem)] overflow-hidden px-page-mobile py-12 sm:px-page-tablet lg:min-h-[calc(100svh-5rem)] lg:px-page-desktop lg:py-16"
+  aria-labelledby="hero-title"
+  data-hero
+>
+  <div
+    class="pointer-events-none absolute inset-0 -z-10 opacity-55"
+    aria-hidden="true"
+    data-system-grid
+  ></div>
+
+  <div
+    class="mx-auto grid w-full max-w-wide items-center gap-14 lg:grid-cols-12 lg:gap-8"
+  >
+    <div class="relative z-10 lg:col-span-7 xl:col-span-6">
+      <p
+        class="mb-8 inline-flex items-center gap-3 font-mono text-label uppercase tracking-widest text-muted-foreground"
+        data-hero-kicker
+      >
+        <span class="size-2 rounded-full bg-signal" aria-hidden="true"></span>
+        Independent digital systems lab
+      </p>
+
+      <h1
+        id="hero-title"
+        class="max-w-5xl text-display-lg text-foreground"
+        data-hero-title
+      >
+        <span class="block" data-hero-line>Digital systems,</span>
+        <span class="block" data-hero-line>built around people.</span>
+      </h1>
+
+      <p
+        class="mt-8 max-w-2xl text-lead text-muted-foreground lg:mt-10"
+        data-hero-copy
+      >
+        Ken Arhin Labs designs, builds, hosts, and operates websites,
+        applications, AI workflows, and digital infrastructure that work
+        together.
+      </p>
+
+      <div class="mt-10 flex flex-wrap items-center gap-4" data-hero-actions>
+        <a
+          href="/contact"
+          class="inline-flex min-h-12 items-center gap-5 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground transition-transform duration-(--motion-duration-control) hover:-translate-y-1"
+        >
+          Start a project
+          <span aria-hidden="true">↗</span>
+        </a>
+        <a
+          href="#capabilities"
+          class="inline-flex min-h-12 items-center rounded-sm border border-border bg-surface/70 px-6 text-body-sm font-medium text-foreground transition-colors duration-(--motion-duration-control) hover:bg-surface"
+        >
+          Explore the system
+        </a>
+      </div>
+
+      <div
+        class="mt-12 flex flex-wrap gap-x-7 gap-y-3 border-t border-border pt-5 font-mono text-label uppercase tracking-wider text-muted-foreground"
+        data-hero-meta
+      >
+        <span>Ghana → Global</span>
+        <span>Web · Apps · AI · Infrastructure</span>
+      </div>
+    </div>
+
+    <div
+      class="relative mx-auto w-full max-w-2xl lg:col-span-5 lg:col-start-8 lg:max-w-none xl:col-span-6 xl:col-start-7"
+      data-system-visual
+    >
+      <div class="absolute -left-5 top-12 font-mono text-label text-muted-foreground" aria-hidden="true">
+        SYSTEM / 001
+      </div>
+      <div class="absolute -right-2 bottom-14 font-mono text-label text-field" aria-hidden="true">
+        STATUS: ACTIVE
+      </div>
+
+      <svg
+        class="aspect-[7/6] w-full overflow-visible"
+        viewBox="0 0 700 600"
+        role="img"
+        aria-labelledby="living-system-title living-system-description"
+      >
+        <title id="living-system-title">A connected digital system</title>
+        <desc id="living-system-description">
+          Strategy connects to interface, engineering, automation, infrastructure,
+          and operations through a set of routes and active nodes.
+        </desc>
+
+        <g fill="none" stroke="currentColor" stroke-width="1" opacity="0.24" aria-hidden="true">
+          <path d="M80 70H620M80 170H620M80 270H620M80 370H620M80 470H620" />
+          <path d="M120 40V540M240 40V540M360 40V540M480 40V540M600 40V540" />
+        </g>
+
+        <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+          <path
+            id="hero-route-primary"
+            data-route
+            pathLength="1"
+            d="M92 392 C175 392 168 154 286 154 S408 292 494 292 S552 128 626 128"
+          />
+          <path
+            data-route
+            pathLength="1"
+            d="M286 154 C320 206 309 386 414 386 S532 470 626 470"
+          />
+          <path data-route pathLength="1" d="M92 392 H214 C267 392 254 292 326 292 H494" />
+          <path data-route pathLength="1" d="M494 292 V470" />
+        </g>
+
+        <g data-node style="transform-origin: 92px 392px">
+          <circle cx="92" cy="392" r="26" fill="var(--surface)" stroke="var(--signal)" stroke-width="3" />
+          <circle cx="92" cy="392" r="7" fill="var(--signal)" />
+          <text x="58" y="443" class="system-label">STRATEGY</text>
+        </g>
+        <g data-node style="transform-origin: 286px 154px">
+          <circle cx="286" cy="154" r="20" fill="var(--surface)" stroke="var(--system)" stroke-width="3" />
+          <circle cx="286" cy="154" r="5" fill="var(--system)" />
+          <text x="244" y="116" class="system-label">INTERFACE</text>
+        </g>
+        <g data-node style="transform-origin: 326px 292px">
+          <rect x="304" y="270" width="44" height="44" rx="4" fill="var(--surface)" stroke="var(--foreground)" stroke-width="3" />
+          <circle cx="326" cy="292" r="5" fill="var(--foreground)" />
+          <text x="276" y="342" class="system-label">ENGINEERING</text>
+        </g>
+        <g data-node style="transform-origin: 494px 292px">
+          <circle cx="494" cy="292" r="24" fill="var(--surface)" stroke="var(--signal)" stroke-width="3" />
+          <path d="M483 292H505M494 281V303" stroke="var(--signal)" stroke-width="3" stroke-linecap="round" />
+          <text x="443" y="250" class="system-label">AI + AUTOMATION</text>
+        </g>
+        <g data-node style="transform-origin: 414px 386px">
+          <circle cx="414" cy="386" r="19" fill="var(--surface)" stroke="var(--field)" stroke-width="3" />
+          <circle cx="414" cy="386" r="5" fill="var(--field)" />
+          <text x="366" y="430" class="system-label">OPERATIONS</text>
+        </g>
+        <g data-node style="transform-origin: 626px 128px">
+          <rect x="601" y="103" width="50" height="50" rx="2" fill="var(--surface-strong)" stroke="var(--system)" stroke-width="3" />
+          <circle cx="626" cy="128" r="6" fill="var(--secondary)" />
+          <text x="566" y="82" class="system-label">INFRASTRUCTURE</text>
+        </g>
+        <g data-node style="transform-origin: 626px 470px">
+          <circle cx="626" cy="470" r="24" fill="var(--surface)" stroke="var(--field)" stroke-width="3" />
+          <path d="M615 470L623 478L639 461" fill="none" stroke="var(--field)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <text x="590" y="518" class="system-label">LIVE</text>
+        </g>
+
+        <circle data-signal r="8" fill="var(--signal)" />
+      </svg>
+    </div>
+  </div>
+
+  <a
+    href="#capabilities"
+    class="absolute bottom-5 left-page-mobile inline-flex items-center gap-3 font-mono text-label uppercase tracking-widest text-muted-foreground sm:left-page-tablet lg:left-page-desktop"
+    data-scroll-cue
+  >
+    <span class="h-10 w-px bg-border" aria-hidden="true"></span>
+    Continue
+  </a>
+</section>
+
+<style>
+  .system-label {
+    fill: var(--muted-foreground);
+    font-family: var(--font-family-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+</style>

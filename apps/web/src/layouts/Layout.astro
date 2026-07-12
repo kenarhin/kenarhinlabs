@@ -1,64 +1,48 @@
 ---
 /**
- * BaseLayout.astro — root layout for all public site pages.
+ * Root document layout for every public route.
  *
- * Responsibilities:
- *   - HTML shell with correct lang, charset, and viewport
- *   - Themed html element: data-theme attribute set before first paint
- *     to prevent flash of wrong color scheme
- *   - Global CSS import (Tailwind v4 + @labs/design tokens)
- *   - SEO: page-level title, description, og:image with sensible defaults
- *   - Astro View Transitions (ClientRouter) for SPA-style navigation
- *   - Theme boot script: reads localStorage → sets data-theme before paint,
- *     re-applied on every astro:after-swap to prevent flash during navigation
- *   - Slot for page content
- *
- * Props:
- *   title       - Page <title>. Defaults to site name.
- *   description - Meta description. Defaults to site tagline.
- *   image       - og:image URL. Defaults to /og.png.
- *   noindex     - Set true to add <meta name="robots" content="noindex">.
+ * @param title Human-readable page title without the global suffix.
+ * @param description Search/social description.
+ * @param image Absolute or site-relative Open Graph image.
+ * @param noindex Prevents indexing for utility/error routes.
+ * @param bodyClass Optional page-owned body composition class.
  */
-
 import { ClientRouter } from "astro:transitions";
+import PwaStatus from "../components/pwa/PwaStatus.astro";
+import SiteFooter from "../components/navigation/SiteFooter.astro";
+import SiteHeader from "../components/navigation/SiteHeader.astro";
+import { getSiteNavigation } from "../lib/api/public-api";
 import "../styles/global.css";
 
 interface Props {
-  title?: string;
+  bodyClass?: string;
   description?: string;
   image?: string;
   noindex?: boolean;
+  title?: string;
 }
 
-/* Site-wide defaults. */
 const SITE_NAME = "Ken Arhin Labs";
-/**
- * SITE_TAGLINE is used as the default meta description for pages that do
- * not supply their own. It is also the H1 on the homepage.
- * The homepage <title> is set separately via a page-level prop to keep
- * it SEO-optimised (descriptive + keyword-rich) while the tagline remains
- * concise and human.
- */
-const SITE_TAGLINE = "Digital systems, built around people.";
-const SITE_META_DESC =
-  "Ken Arhin Labs designs, builds, hosts, and operates websites, web applications, AI workflows, and connected digital systems for modern businesses.";
+const SITE_DESCRIPTION =
+  "Ken Arhin Labs designs, builds, hosts, and operates websites, applications, AI workflows, and digital infrastructure that work together.";
 const SITE_URL = "https://kenarhinlabs.com";
 
 const {
-  title = SITE_NAME,
-  /* Pages that don't pass a description get the full meta description. */
-  description = SITE_META_DESC,
-  image = "/og.png",
+  bodyClass = "",
+  description = SITE_DESCRIPTION,
+  image = "/social/default-og.png",
   noindex = false,
+  title = SITE_NAME,
 } = Astro.props;
 
-/*
- * Compose the canonical <title>.
- * The homepage passes its own title already containing "Ken Arhin Labs"
- * so we use it verbatim. All other pages get "Page Name | Ken Arhin Labs".
- */
-const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
+const pageTitle =
+  title === SITE_NAME || title.includes(SITE_NAME)
+    ? title
+    : `${title} | ${SITE_NAME}`;
 const canonicalURL = new URL(Astro.url.pathname, SITE_URL);
+const socialImageURL = new URL(image, SITE_URL);
+const navigation = await getSiteNavigation();
 ---
 
 <!doctype html>
@@ -66,93 +50,74 @@ const canonicalURL = new URL(Astro.url.pathname, SITE_URL);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#11130F" />
+    <meta name="generator" content={Astro.generator} />
 
-    <!-- Canonical URL -->
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
-
-    <!-- Favicon -->
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-
-    <!-- Primary meta -->
-    <title>{pageTitle}</title>
-    <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-    <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={new URL(image, SITE_URL)} />
-    <meta property="og:site_name" content={SITE_NAME} />
-
-    <!-- Twitter / X card -->
+    <meta property="og:image" content={socialImageURL} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={pageTitle} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={new URL(image, SITE_URL)} />
-
-    <!-- Astro generator tag (helps with debugging) -->
-    <meta name="generator" content={Astro.generator} />
+    <meta name="twitter:image" content={socialImageURL} />
 
     <!--
-      Theme boot script — MUST run inline before paint to avoid FOUC.
-      Reads the stored preference from localStorage and sets data-theme on
-      <html> immediately. If no preference is stored, the CSS media query
-      in @labs/design/theme.css handles the system preference automatically
-      (the :root:not([data-theme]) rule). We therefore only set the attribute
-      when a preference has been explicitly chosen.
-
-      is:inline forces Astro to leave this script unprocessed and inline it
-      directly so it always executes at the correct time during SSR and also
-      re-executes on every view transition via astro:after-swap.
+      The synchronous theme boot runs before paint. Astro's before-swap hook
+      applies the same preference to the incoming document during navigation.
     -->
     <script is:inline>
       (function () {
-        /**
-         * Applies the stored theme preference to the <html> element.
-         * Called once on page load and again on every view transition.
-         *
-         * Theme values:
-         *   "light"  → data-theme="light"
-         *   "dark"   → data-theme="dark"
-         *   "system" → data-theme attribute removed (CSS media query takes over)
-         *   absent   → same as "system"
-         */
-        function applyTheme() {
-          var stored;
-          try {
-            stored = localStorage.getItem("labs-theme");
-          } catch (_) {
-            /* localStorage blocked (private browsing, iframe sandbox, etc.) */
-          }
-
-          var html = document.documentElement;
-
-          if (stored === "light" || stored === "dark") {
-            html.setAttribute("data-theme", stored);
-          } else {
-            /* "system" or absent: remove the attribute so the CSS media query governs. */
-            html.removeAttribute("data-theme");
-          }
+        var stored = null;
+        try {
+          stored = localStorage.getItem("labs-theme");
+        } catch (_) {
+          /* Storage can be blocked; system CSS remains the safe fallback. */
         }
 
-        /* Apply immediately before first paint. */
-        applyTheme();
-
-        /* Re-apply after each Astro view transition to prevent flash on navigation. */
-        document.addEventListener("astro:after-swap", applyTheme);
+        if (stored === "light" || stored === "dark") {
+          document.documentElement.setAttribute("data-theme", stored);
+        } else {
+          document.documentElement.removeAttribute("data-theme");
+        }
       })();
     </script>
 
-    <!-- Astro View Transitions — SPA-style navigation with fallback. -->
-    <ClientRouter />
+    <ClientRouter fallback="swap" />
   </head>
+  <body class={bodyClass}>
+    <a
+      href="#main-content"
+      class="fixed left-4 top-4 z-[100] -translate-y-24 rounded-sm bg-primary px-4 py-3 font-medium text-primary-foreground transition-transform focus:translate-y-0"
+    >
+      Skip to content
+    </a>
 
-  <body>
-    <!-- Page content injected here from individual .astro page files. -->
-    <slot />
+    <SiteHeader
+      navigation={navigation.header}
+      currentPath={Astro.url.pathname}
+    />
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
+    <SiteFooter navigation={navigation.footer} />
+    <PwaStatus />
+
+    <script>
+      import { installClientLifecycle } from "../lib/client/lifecycle";
+
+      installClientLifecycle();
+    </script>
   </body>
 </html>

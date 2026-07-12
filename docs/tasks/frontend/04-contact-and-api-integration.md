@@ -9,14 +9,14 @@ contact form states, and frontend documentation of missing backend adapters.
 
 ## Checklist
 
-- [ ] Implement the typed API envelope and error boundary.
-- [ ] Preserve `X-Request-Id`/response request IDs in user-facing support states.
-- [ ] Integrate server-rendered navigation reads.
-- [ ] Build the contact page and accessible form.
-- [ ] Match the `contactInputSchema` field and length contract.
-- [ ] Implement pending, accepted, validation, rate-limit, dependency, and transport states.
-- [ ] Keep a non-JavaScript contact route/fallback where practical.
-- [ ] Document backend persistence blockers truthfully.
+- [x] Implement the typed API envelope and error boundary.
+- [x] Preserve `X-Request-Id`/response request IDs in user-facing support states.
+- [x] Integrate server-rendered navigation reads.
+- [x] Build the contact page and accessible form.
+- [x] Match the `contactInputSchema` field and length contract.
+- [x] Implement pending, accepted, validation, rate-limit, dependency, and transport states.
+- [x] Keep a non-JavaScript contact route/fallback where practical.
+- [x] Document backend persistence blockers truthfully.
 
 ## Live contract evidence
 
@@ -32,11 +32,20 @@ Checked 2026-07-12 without remote mutation:
 
 ## Verification evidence
 
-Not yet run for the implementation.
+### 2026-07-12 — Implemented and browser-verified
+
+- The public API boundary validates same-origin navigation paths, times out safely, and uses the
+  structural route set only when the response is empty, invalid, or unavailable.
+- The form matches the backend's name/email/subject/message contract and includes a direct email
+  alternative when JavaScript or intake persistence is unavailable.
+- A CDP test replaced `fetch` locally with a `503 DEPENDENCY_UNAVAILABLE` response, submitted a
+  valid form, and verified the visible fallback plus `Reference: req-browser-qa`. No live POST was
+  sent during QA.
+- The contact page passed Astro diagnostics with no warnings and had no horizontal overflow or
+  duplicate IDs in the 1440×1000 light-theme check.
 
 ## Blockers or handoff notes
 
 The frontend can integrate and display exact failure states, but successful contact intake requires
 backend persistence and notification adapters. This lane must not claim an end-to-end successful
 submission until live evidence proves it.
-

@@ -1,0 +1,8 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "ken-arhin-labs-web",
+  "compatibility_date": "2026-07-12",
+  "observability": {
+    "enabled": true
+  }
+}

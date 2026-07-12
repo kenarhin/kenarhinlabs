@@ -13,14 +13,14 @@ unrelated shared package refactors.
 
 ## Checklist
 
-- [ ] Normalize and export approved logo assets.
-- [ ] Build accessible logo usage and theme-aware rendering.
-- [ ] Build the base layout, metadata contract, skip link, and route lifecycle hooks.
-- [ ] Build the responsive header and mobile navigation.
-- [ ] Build the footer and global next-step pattern.
-- [ ] Build the theme preference control without first-paint flash.
-- [ ] Build the branded 404 page.
-- [ ] Verify keyboard, mobile, light, dark, and no-motion behavior.
+- [x] Normalize and export approved logo assets.
+- [x] Build accessible logo usage and theme-aware rendering.
+- [x] Build the base layout, metadata contract, skip link, and route lifecycle hooks.
+- [x] Build the responsive header and mobile navigation.
+- [x] Build the footer and global next-step pattern.
+- [x] Build the theme preference control without first-paint flash.
+- [x] Build the branded 404 page.
+- [x] Verify keyboard, mobile, light, dark, and no-motion behavior.
 
 ## Decisions and assumptions
 
@@ -50,10 +50,19 @@ unrelated shared package refactors.
 
 ## Verification evidence
 
-Not yet run for the implementation.
+### 2026-07-12 — Implemented and browser-verified
+
+- `SiteLogo.astro` consumes the approved vector paths and removes internal title IDs only when the
+  artwork becomes decorative. CDP inspection found no duplicate IDs in any tested route.
+- The root layout now owns canonical/social metadata, the default Open Graph card, theme boot, skip
+  navigation, Astro client routing, shell lifecycle, and PWA status surface.
+- Desktop and mobile CDP checks found 81px and 73px headers respectively with no horizontal
+  overflow. Opening the native mobile dialog moved focus to `Close navigation`.
+- Light, dark, and reduced-motion screenshots were reviewed at 1440×1000 and 390×844.
+- The custom 404 rendered normal recovery navigation and a decorative System K without JavaScript-
+  dependent content.
 
 ## Blockers or handoff notes
 
 None for the static shell. CMS-managed navigation currently returns empty arrays, so the shell must
 retain its authored structural routes until published navigation exists.
-

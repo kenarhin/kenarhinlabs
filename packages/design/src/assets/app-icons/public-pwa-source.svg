@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title">
+  <title id="title">Ken Arhin Labs public application icon</title>
+  <rect width="1024" height="1024" fill="#FF5A1F" />
+  <g transform="translate(224 224) scale(6)" fill="none" stroke="#11130F" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M20 14V82" />
+    <path d="M20 48H38" />
+    <path d="M38 48L78 16" />
+    <path d="M38 48L78 80" />
+  </g>
+  <circle cx="452" cy="512" r="42" fill="#11130F" />
+</svg>

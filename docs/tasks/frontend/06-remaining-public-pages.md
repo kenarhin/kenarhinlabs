@@ -25,4 +25,3 @@ and their data-backed detail routes.
 
 The end-to-end Supabase-to-D1 projection adapter is incomplete and the live database does not yet
 provide representative published records. This lane must not be populated with fabricated CMS data.
-

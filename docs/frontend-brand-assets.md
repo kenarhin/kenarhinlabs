@@ -726,16 +726,25 @@ The identity has passed similarity and trademark review before formal registrati
 
 ## 21. Remaining asset work
 
+### 21.1 Implementation status — 2026-07-12
+
+The public-site foundation now includes the favicon raster/ICO family, public PWA icons, authored
+maskable variants, the public Apple touch icon, and a default 1200×630 Open Graph card. The raster
+exports were produced from the approved flat System K direction and optimized with ImageMagick as
+stripped 8-bit sRGB PNGs.
+
+An image-generation exploration was reviewed and rejected because it introduced glow/gradient
+treatment and altered the approved mark geometry. It is not a source or runtime asset. Production
+public icons remain deterministic exports of the approved vector direction.
+
 The following items are still implementation tasks:
 
 ```txt
 Optically review and finalise the five source SVGs
 Create monochrome SVG variants
-Create favicon raster and ICO outputs
-Create public PWA icon family
 Create admin PWA icon family
-Create Apple touch icons
-Create Open Graph templates
+Create admin Apple touch icon
+Create the remaining content-specific Open Graph templates
 Create social avatar and banner exports
 Create public system glyphs
 Create proposal, presentation, and email-signature templates
