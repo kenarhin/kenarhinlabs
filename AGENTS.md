@@ -20,3 +20,21 @@ Examples:
 - ✅ `pnpm dlx wrangler dev`
 - ❌ `node wrangler exec`
 - ❌ `wrangler exec`
+
+## Environment Variable Files
+
+When loading environment variables, never read values from files like `.env`, `.env.local`, or `.dev.vars`. under any circumstances for safety reasons on my end so that I don't expose my secret values
+Load or parse example/template files (for example `.env.example`, `.env.local.example`, `.dev.vars.example`, or similarly named files) — these can guide you or give you a clue.
+
+If you need to verify whether a variable exists, do not print or log the variable's value. Instead use a small check that reports presence only. Example (POSIX shell):
+
+```
+# Check if MY_SECRET is set without printing its value
+if [ -z "${MY_SECRET+x}" ]; then
+	echo "MY_SECRET not set"
+else
+	echo "MY_SECRET is set"
+fi
+```
+
+Avoid any scripts or tooling that echo or log secret values to stdout, logs, or error reports.
