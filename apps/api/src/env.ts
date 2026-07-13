@@ -5,6 +5,9 @@ import { z } from "zod";
 // rate limiters. The runtime configuration boundary validates only string vars
 // and secrets while allowing those independently typed bindings to pass through.
 const runtimeEnvSchema = z.object({
+  ADMIN_SITE_URL: z.url().refine((value) => value.startsWith("https://"), {
+    message: "ADMIN_SITE_URL must use HTTPS",
+  }),
   ALLOWED_ORIGINS: z
     .string()
     .transform((value) =>
@@ -15,6 +18,8 @@ const runtimeEnvSchema = z.object({
     )
     .pipe(z.array(z.url()).min(1)),
   ENVIRONMENT: z.enum(["development", "preview", "production", "test"]),
+  EMAIL_FROM_ADDRESS: z.email(),
+  EMAIL_FROM_NAME: z.string().trim().min(1).max(120),
   CLOUDFLARE_EMAIL_WEBHOOK_SECRET: z.string().min(32).max(512),
   HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().min(100).max(10_000).default(2_000),
   SUPABASE_JWT_AUDIENCE: z.string().trim().min(1).max(120).default("authenticated"),
@@ -23,6 +28,7 @@ const runtimeEnvSchema = z.object({
     message: "SUPABASE_URL must use HTTPS",
   }),
   INTERNAL_QUEUE_WEBHOOK_SECRET: z.string().min(32).max(512),
+  PROJECT_INTAKE_EMAIL: z.email(),
 });
 
 export type RuntimeEnv = z.infer<typeof runtimeEnvSchema>;

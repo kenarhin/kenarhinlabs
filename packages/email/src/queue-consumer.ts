@@ -7,7 +7,7 @@ import type { EmailFailure, EmailSendReceipt, TransactionalEmailJobV1 } from "./
  * Persists transactional email claims and delivery outcomes around provider sends.
  */
 export interface EmailDeliveryRepository {
-  claim(job: TransactionalEmailJobV1): Promise<"claimed" | "already-processed">;
+  claim(job: TransactionalEmailJobV1): Promise<"claimed" | "already-processed" | "busy">;
   markSent(job: TransactionalEmailJobV1, receipt: EmailSendReceipt): Promise<void>;
   markFailed(
     job: TransactionalEmailJobV1,
@@ -72,6 +72,12 @@ export async function consumeEmailBatch(
       const claim = await dependencies.repository.claim(job);
       if (claim === "already-processed") {
         message.ack();
+        continue;
+      }
+      if (claim === "busy") {
+        // A different delivery attempt still owns the database lease. Retrying
+        // preserves at-least-once semantics without sending the email twice.
+        message.retry({ delaySeconds: retryDelaySeconds(message.attempts) });
         continue;
       }
 

@@ -2,11 +2,21 @@ import type { AuthorizationRepository, ProfileStatus } from "@labs/auth";
 import { dependencyUnavailable } from "@labs/core";
 import { createWorkerDatabase, profiles, type WorkerDatabase } from "@labs/db";
 import { findPublishedContent, listPublicNavigation } from "@labs/db/queries/content.queries";
+import {
+  claimEmailDelivery,
+  markEmailDeliveryFailed,
+  markEmailDeliverySent,
+} from "@labs/db/queries/email-delivery.queries";
+import { persistIntakeTransaction } from "@labs/db/queries/intake.queries";
 import { listCurrentOffers } from "@labs/db/queries/offers.queries";
 import { getUserAuthorization } from "@labs/db/queries/users.queries";
+import type { EmailDeliveryRepository } from "@labs/email";
 
+import { logError, logInfo } from "../middleware/logging";
 import type { JsonValue } from "../types/app";
 import type { ApiServices } from "./contracts";
+import { publishPendingEmailOutbox } from "./email-outbox";
+import { createTransactionalIntakeService } from "./intake";
 import { createUnavailableServices } from "./unavailable";
 
 /** Narrows an unknown binding without duplicating Cloudflare's generated Env interface. */
@@ -93,12 +103,66 @@ function createAuthorizationRepository(bindings: CloudflareBindings): Authorizat
   };
 }
 
+/** Creates the durable delivery-state adapter used by the email Queue consumer. */
+function createEmailDeliveryRepository(bindings: CloudflareBindings): EmailDeliveryRepository {
+  return {
+    claim: async (job) =>
+      withDatabase(bindings, (database) =>
+        claimEmailDelivery(database, job.messageId, job.idempotencyKey),
+      ),
+    markFailed: async (job, failure, willRetry) =>
+      withDatabase(bindings, (database) =>
+        markEmailDeliveryFailed(database, {
+          code: failure.code,
+          idempotencyKey: job.idempotencyKey,
+          message: failure.message,
+          messageId: job.messageId,
+          willRetry,
+        }),
+      ),
+    markSent: async (job, receipt) =>
+      withDatabase(bindings, (database) =>
+        markEmailDeliverySent(database, {
+          idempotencyKey: job.idempotencyKey,
+          messageId: job.messageId,
+          provider: receipt.provider,
+          providerMessageId: receipt.providerMessageId,
+        }),
+      ),
+  };
+}
+
+/** Publishes one bounded batch of durable email outbox work through the Queue binding. */
+export async function publishPendingEmailJobs(
+  bindings: CloudflareBindings,
+  limit = 50,
+): Promise<void> {
+  const result = await withDatabase(bindings, (database) =>
+    publishPendingEmailOutbox(database, bindings.EMAIL_QUEUE, limit),
+  );
+  if (result.claimed > 0) {
+    logInfo("email_outbox.published", { ...result });
+  }
+}
+
 /**
  * Creates request-scoped production services that can be implemented safely
  * with the database lane today, leaving unavailable adapters fail-closed.
  */
 export function createWorkerServices(bindings: CloudflareBindings): ApiServices {
   const unavailable = createUnavailableServices();
+  const intake = createTransactionalIntakeService({
+    configuration: {
+      adminSiteUrl: bindings.ADMIN_SITE_URL,
+      fromEmail: bindings.EMAIL_FROM_ADDRESS,
+      fromName: bindings.EMAIL_FROM_NAME,
+      projectIntakeEmail: bindings.PROJECT_INTAKE_EMAIL,
+    },
+    onPublishFailure: (fields) => logError(fields.event, { leadId: fields.leadId }),
+    persist: (plan) =>
+      withDatabase(bindings, (database) => persistIntakeTransaction(database, plan)),
+    publishPending: () => publishPendingEmailJobs(bindings, 10),
+  });
 
   return {
     ...unavailable,
@@ -117,6 +181,11 @@ export function createWorkerServices(bindings: CloudflareBindings): ApiServices 
           };
         }
       },
+    },
+    intake,
+    platform: {
+      ...unavailable.platform,
+      emailDeliveryRepository: createEmailDeliveryRepository(bindings),
     },
     publicRead: {
       ...unavailable.publicRead,

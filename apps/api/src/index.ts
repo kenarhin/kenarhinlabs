@@ -3,7 +3,7 @@ import { WorkflowEntrypoint, type WorkflowEvent, type WorkflowStep } from "cloud
 
 import { createApp } from "./app";
 import { consumeQueueBatch, runSyncWorkflow } from "./queues";
-import { createWorkerServices } from "./services/postgres";
+import { createWorkerServices, publishPendingEmailJobs } from "./services/postgres";
 
 export { createApp } from "./app";
 export type { ApiServices } from "./services/contracts";
@@ -15,6 +15,11 @@ const worker = {
   },
   async queue(batch, env) {
     await consumeQueueBatch(batch, env, createWorkerServices(env));
+  },
+  async scheduled(_controller, env) {
+    // The cron publisher closes the transaction-to-Queue failure window. Each
+    // pass is bounded and duplicate Queue messages remain idempotent downstream.
+    await publishPendingEmailJobs(env, 100);
   },
 } satisfies ExportedHandler<CloudflareBindings>;
 

@@ -23,6 +23,33 @@ Contact email workflow:         Not wired end to end
 Current valid-submit result:     503 DEPENDENCY_UNAVAILABLE
 ```
 
+### Backend implementation update — 2026-07-13
+
+The repository and canonical database work described by this handoff has now been implemented and
+verified locally:
+
+- production service construction now replaces the fail-closed intake and email-delivery ports;
+- one Postgres transaction creates the lead, communication thread, durable email messages, and
+  transactional-outbox events;
+- immediate Queue publication is best effort after the commit, with a one-minute scheduled publisher
+  recovering deferred outbox work;
+- Queue delivery claims and delivery outcomes are persisted with stable job and idempotency keys;
+- the migration `add_durable_email_delivery` is applied to the verified Supabase project, with all
+  ten columns, three indexes, and the update trigger confirmed live;
+- API tests pass (13), email delivery tests pass (9), the affected packages typecheck, migration and
+  Drizzle checks pass, changed files pass lint/format checks, and Wrangler 4.110.0 completes the
+  deployment dry run.
+
+Production deployment and end-to-end delivery are deliberately still pending. There is no preview
+Worker environment configured, no approved synthetic recipient/cleanup run, and Cloudflare Email
+Routing currently has no rule that forwards `projects@kenarhinlabs.com` to the verified destination.
+The existing catch-all is disabled, so the internal notification must not be described as delivered
+until that rule exists and a smoke test proves it.
+
+The canonical communications records live in Supabase Postgres, not D1. D1 remains the public,
+non-sensitive projection. Authenticated admin email-list/reply adapters and inbound Email Routing
+Worker ingestion are a separate future slice; the present admin email endpoints still fail closed.
+
 User impact:
 
 - a visitor can complete and submit the Contact form;
@@ -244,3 +271,21 @@ approved.
 This issue is complete only when a real browser submission is accepted by the deployed API, stored
 as a durable lead, and produces observable retry-safe notification work. A route-level unit test or
 a healthy `/ready` response alone is not sufficient.
+
+## Verification log
+
+### 2026-07-13 — Repository and database implementation
+
+- [x] Implemented Postgres-backed `createContact` and `createLead` adapters.
+- [x] Made the lead/message/outbox database transaction the `202` acceptance boundary.
+- [x] Implemented the durable Queue publisher and one-minute recovery trigger.
+- [x] Implemented idempotent email delivery claim, sent, retryable-failure, and terminal-failure
+      persistence.
+- [x] Applied and catalog-verified `add_durable_email_delivery` using Supabase MCP on the expected
+      `mbscfzccmomwqdybnlbq` project.
+- [x] Passed targeted typecheck, tests, schema validation, Drizzle check, lint, formatting, and
+      Wrangler dry-run gates.
+- [ ] Configure a `projects@kenarhinlabs.com` Email Routing destination rule.
+- [ ] Provision/use a preview Worker environment and complete the approved synthetic test.
+- [ ] Deploy the reviewed Worker to production.
+- [ ] Complete an authorized production browser smoke test and record only request/lead IDs.

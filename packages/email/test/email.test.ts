@@ -105,4 +105,127 @@ describe("transactional email", () => {
     expect(ack).toHaveBeenCalledOnce();
     expect(retry).not.toHaveBeenCalled();
   });
+
+  it("retries a message while another consumer owns its delivery lease", async () => {
+    const ack = vi.fn();
+    const retry = vi.fn();
+    const send = vi.fn();
+    const batch = {
+      queue: "email",
+      metadata: { metrics: { backlogCount: 0, backlogBytes: 0 } },
+      messages: [
+        {
+          id: "queue-busy",
+          timestamp: new Date(),
+          attempts: 2,
+          body: job,
+          ack,
+          retry,
+        },
+      ],
+      ackAll: vi.fn(),
+      retryAll: vi.fn(),
+    } satisfies MessageBatch<unknown>;
+
+    await consumeEmailBatch(batch, {
+      transport: new CloudflareEmailTransport({ send } as SendEmail),
+      repository: {
+        claim: vi.fn().mockResolvedValue("busy" as const),
+        markFailed: vi.fn(),
+        markSent: vi.fn(),
+      },
+    });
+
+    expect(send).not.toHaveBeenCalled();
+    expect(ack).not.toHaveBeenCalled();
+    expect(retry).toHaveBeenCalledOnce();
+  });
+
+  it("persists a retryable provider failure before retrying the Queue message", async () => {
+    const ack = vi.fn();
+    const retry = vi.fn();
+    const providerError = Object.assign(new Error("Synthetic provider throttling"), {
+      code: "E_RATE_LIMIT_EXCEEDED",
+    });
+    const repository = {
+      claim: vi.fn().mockResolvedValue("claimed" as const),
+      markFailed: vi.fn().mockResolvedValue(undefined),
+      markSent: vi.fn(),
+    };
+    const batch = {
+      queue: "email",
+      metadata: { metrics: { backlogCount: 0, backlogBytes: 0 } },
+      messages: [
+        {
+          id: "queue-retryable-failure",
+          timestamp: new Date(),
+          attempts: 1,
+          body: job,
+          ack,
+          retry,
+        },
+      ],
+      ackAll: vi.fn(),
+      retryAll: vi.fn(),
+    } satisfies MessageBatch<unknown>;
+
+    await consumeEmailBatch(batch, {
+      transport: new CloudflareEmailTransport({
+        send: vi.fn().mockRejectedValue(providerError),
+      } as unknown as SendEmail),
+      repository,
+    });
+
+    expect(repository.markFailed).toHaveBeenCalledWith(
+      job,
+      expect.objectContaining({ code: "E_RATE_LIMIT_EXCEEDED", retryable: true }),
+      true,
+    );
+    expect(retry).toHaveBeenCalledOnce();
+    expect(ack).not.toHaveBeenCalled();
+  });
+
+  it("persists a terminal provider failure before acknowledging the Queue message", async () => {
+    const ack = vi.fn();
+    const retry = vi.fn();
+    const providerError = Object.assign(new Error("Synthetic recipient rejection"), {
+      code: "E_RECIPIENT_NOT_ALLOWED",
+    });
+    const repository = {
+      claim: vi.fn().mockResolvedValue("claimed" as const),
+      markFailed: vi.fn().mockResolvedValue(undefined),
+      markSent: vi.fn(),
+    };
+    const batch = {
+      queue: "email",
+      metadata: { metrics: { backlogCount: 0, backlogBytes: 0 } },
+      messages: [
+        {
+          id: "queue-terminal-failure",
+          timestamp: new Date(),
+          attempts: 1,
+          body: job,
+          ack,
+          retry,
+        },
+      ],
+      ackAll: vi.fn(),
+      retryAll: vi.fn(),
+    } satisfies MessageBatch<unknown>;
+
+    await consumeEmailBatch(batch, {
+      transport: new CloudflareEmailTransport({
+        send: vi.fn().mockRejectedValue(providerError),
+      } as unknown as SendEmail),
+      repository,
+    });
+
+    expect(repository.markFailed).toHaveBeenCalledWith(
+      job,
+      expect.objectContaining({ code: "E_RECIPIENT_NOT_ALLOWED", retryable: false }),
+      false,
+    );
+    expect(ack).toHaveBeenCalledOnce();
+    expect(retry).not.toHaveBeenCalled();
+  });
 });

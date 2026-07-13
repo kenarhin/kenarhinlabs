@@ -1,5 +1,15 @@
 import { sql } from "drizzle-orm";
-import { check, index, jsonb, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  check,
+  index,
+  integer,
+  jsonb,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 import { timestamps, uuidPrimaryKey } from "./common.js";
 import { clients, leads } from "./crm.js";
@@ -68,20 +78,37 @@ export const emailMessages = commsSchema.table(
     textBody: text("text_body"),
     provider: text("provider").notNull(),
     providerMessageId: text("provider_message_id"),
+    jobId: uuid("job_id").notNull(),
+    idempotencyKey: text("idempotency_key").notNull(),
     status: text("status").default("queued").notNull(),
+    attempts: integer("attempts").default(0).notNull(),
+    retryable: boolean("retryable").default(true).notNull(),
+    lastErrorCode: text("last_error_code"),
+    lastError: text("last_error"),
+    lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true }),
+    nextAttemptAt: timestamp("next_attempt_at", { withTimezone: true }),
+    sentAt: timestamp("sent_at", { withTimezone: true }),
     metadata: jsonb("metadata").$type<Record<string, unknown>>().default({}).notNull(),
-    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    ...timestamps,
   },
   (table) => [
+    uniqueIndex("email_messages_job_id_unique").on(table.jobId),
+    uniqueIndex("email_messages_idempotency_key_unique").on(table.idempotencyKey),
     uniqueIndex("email_messages_provider_id_unique")
       .on(table.provider, table.providerMessageId)
       .where(sql`${table.providerMessageId} is not null`),
+    index("email_messages_delivery_claim_idx").on(
+      table.status,
+      table.retryable,
+      table.nextAttemptAt,
+    ),
     index("email_messages_thread_created_idx").on(table.threadId, table.createdAt),
     check("email_messages_direction_check", sql`${table.direction} in ('inbound','outbound')`),
     check(
       "email_messages_status_check",
-      sql`${table.status} in ('queued','sent','failed','received')`,
+      sql`${table.status} in ('queued','processing','sent','failed','received')`,
     ),
+    check("email_messages_attempts_check", sql`${table.attempts} >= 0`),
     check("email_messages_to_emails_check", sql`jsonb_typeof(${table.toEmails}) = 'array'`),
     check(
       "email_messages_cc_emails_check",

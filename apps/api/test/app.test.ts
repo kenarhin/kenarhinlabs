@@ -1,5 +1,6 @@
 import { createHmac } from "node:crypto";
 
+import { dependencyUnavailable } from "@labs/core";
 import { describe, expect, it, vi } from "vitest";
 
 import { createApp } from "../src/app";
@@ -10,7 +11,10 @@ import { createUnavailableServices } from "../src/services/unavailable";
 function testBindings() {
   return {
     ALLOWED_ORIGINS: "https://kenarhinlabs.com,https://admin.kenarhinlabs.com",
+    ADMIN_SITE_URL: "https://admin.kenarhinlabs.com",
     CLOUDFLARE_EMAIL_WEBHOOK_SECRET: "cloudflare-email-webhook-secret-value",
+    EMAIL_FROM_ADDRESS: "projects@kenarhinlabs.com",
+    EMAIL_FROM_NAME: "Ken Arhin Labs",
     ENVIRONMENT: "test",
     HEALTH_CHECK_TIMEOUT_MS: "2000",
     HYPERDRIVE: {
@@ -25,6 +29,7 @@ function testBindings() {
       user: "test",
     },
     INTERNAL_QUEUE_WEBHOOK_SECRET: "internal-queue-webhook-secret-value",
+    PROJECT_INTAKE_EMAIL: "projects@kenarhinlabs.com",
     PUBLIC_RATE_LIMITER: { limit: async () => ({ success: true }) },
     SUPABASE_JWT_AUDIENCE: "authenticated",
     SUPABASE_URL: "https://example.supabase.co",
@@ -125,6 +130,143 @@ describe("API runtime", () => {
 
     expect(response.status).toBe(202);
     expect(createLead).toHaveBeenCalledOnce();
+  });
+
+  it("accepts a valid Contact request with its lead and request identities", async () => {
+    const leadId = "10000000-0000-4000-8000-000000000001";
+    const createContact = vi.fn(async () => ({ id: leadId, status: "accepted" as const }));
+    const response = await createApp(
+      testServices({
+        intake: {
+          createContact,
+          createLead: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
+        },
+      }),
+    ).request(
+      "/public/contact",
+      {
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "A sufficiently detailed synthetic project request.",
+          name: "Contact Tester",
+          subject: "Synthetic project enquiry",
+        }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      },
+      testBindings(),
+    );
+    const body = await response.json<{
+      data: { id: string; status: string };
+      ok: boolean;
+      requestId: string;
+    }>();
+
+    expect(response.status).toBe(202);
+    expect(body).toMatchObject({ data: { id: leadId, status: "accepted" }, ok: true });
+    expect(body.requestId).toBeTruthy();
+    expect(response.headers.get("x-request-id")).toBe(body.requestId);
+    expect(createContact).toHaveBeenCalledOnce();
+  });
+
+  it("preserves the structured 503 when Contact persistence is unavailable", async () => {
+    const response = await createApp(
+      testServices({
+        intake: {
+          createContact: async () => {
+            throw dependencyUnavailable("Backend persistence");
+          },
+          createLead: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
+        },
+      }),
+    ).request(
+      "/public/contact",
+      {
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "A sufficiently detailed synthetic project request.",
+          name: "Contact Tester",
+          subject: "Synthetic project enquiry",
+        }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      },
+      testBindings(),
+    );
+    const body = await response.json<{ error: { code: string }; requestId: string }>();
+
+    expect(response.status).toBe(503);
+    expect(body.error.code).toBe("DEPENDENCY_UNAVAILABLE");
+    expect(body.requestId).toBeTruthy();
+  });
+
+  it("rejects a rate-limited Contact request before invoking intake", async () => {
+    const createContact = vi.fn(async () => ({
+      id: crypto.randomUUID(),
+      status: "accepted" as const,
+    }));
+    const bindings = {
+      ...testBindings(),
+      PUBLIC_RATE_LIMITER: { limit: async () => ({ success: false }) },
+    };
+    const response = await createApp(
+      testServices({
+        intake: {
+          createContact,
+          createLead: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
+        },
+      }),
+    ).request(
+      "/public/contact",
+      {
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "A sufficiently detailed synthetic project request.",
+          name: "Contact Tester",
+          subject: "Synthetic project enquiry",
+        }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      },
+      bindings,
+    );
+    const body = await response.json<{ error: { code: string } }>();
+
+    expect(response.status).toBe(429);
+    expect(body.error.code).toBe("RATE_LIMITED");
+    expect(createContact).not.toHaveBeenCalled();
+  });
+
+  it("never writes submitted Contact content or addresses to application logs", async () => {
+    // Capture the Worker logger surface while keeping test-runner output intact.
+    const info = vi.spyOn(console, "log").mockImplementation(() => undefined);
+    const error = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const privateEmail = "private-contact@example.com";
+    const privateMessage = "Synthetic confidential project details for a logging assertion.";
+    try {
+      const response = await createApp(testServices()).request(
+        "/public/contact",
+        {
+          body: JSON.stringify({
+            email: privateEmail,
+            message: privateMessage,
+            name: "Logging Tester",
+            subject: "Private logging assertion",
+          }),
+          headers: { "content-type": "application/json" },
+          method: "POST",
+        },
+        testBindings(),
+      );
+      const serializedLogs = JSON.stringify([...info.mock.calls, ...error.mock.calls]);
+
+      expect(response.status).toBe(202);
+      expect(serializedLogs).not.toContain(privateEmail);
+      expect(serializedLogs).not.toContain(privateMessage);
+    } finally {
+      info.mockRestore();
+      error.mockRestore();
+    }
   });
 
   it("requires authentication before resolving an admin route", async () => {

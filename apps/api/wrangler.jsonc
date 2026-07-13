@@ -2,13 +2,17 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "kenarhinlabs-api",
   "main": "src/index.ts",
-  "compatibility_date": "2026-07-11",
+  "compatibility_date": "2026-07-13",
   "compatibility_flags": ["nodejs_compat"],
   "routes": [{ "pattern": "api.kenarhinlabs.com", "custom_domain": true }],
   "vars": {
+    "ADMIN_SITE_URL": "https://admin.kenarhinlabs.com",
     "ALLOWED_ORIGINS": "https://kenarhinlabs.com,https://admin.kenarhinlabs.com",
+    "EMAIL_FROM_ADDRESS": "projects@kenarhinlabs.com",
+    "EMAIL_FROM_NAME": "Ken Arhin Labs",
     "ENVIRONMENT": "production",
     "HEALTH_CHECK_TIMEOUT_MS": "2000",
+    "PROJECT_INTAKE_EMAIL": "projects@kenarhinlabs.com",
     "SUPABASE_JWT_AUDIENCE": "authenticated",
     "SUPABASE_URL": "https://mbscfzccmomwqdybnlbq.supabase.co",
   },
@@ -87,6 +91,7 @@
       "class_name": "SyncWorkflow",
     },
   ],
+  "triggers": { "crons": ["* * * * *"] },
   "ratelimits": [
     {
       "name": "PUBLIC_RATE_LIMITER",
