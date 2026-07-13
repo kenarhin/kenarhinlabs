@@ -1,0 +1,205 @@
+---
+/**
+ * Static website terms for public information and project enquiries.
+ *
+ * Project-specific commercial obligations remain in signed proposals and
+ * statements of work; this page does not fabricate prices, refunds, service
+ * levels, ownership transfers, or dispute venues that are not evidenced.
+ */
+import LegalPageShell from "../../components/content/LegalPageShell.astro";
+import { LEGAL_CONTACT_EMAIL } from "../../data/contact-channels";
+
+export const prerender = true;
+
+const lastUpdated = "13 July 2026";
+const toc = [
+  { id: "acceptance", label: "Using this website" },
+  { id: "information", label: "Information, not engagement" },
+  { id: "enquiries", label: "Project enquiries" },
+  { id: "agreements", label: "Proposals and project terms" },
+  { id: "intellectual-property", label: "Intellectual property" },
+  { id: "conduct", label: "Acceptable use" },
+  { id: "third-parties", label: "Third-party services" },
+  { id: "availability", label: "Availability and disclaimers" },
+  { id: "liability", label: "Responsibility and liability" },
+  { id: "law", label: "Law, changes, and contact" },
+] as const;
+---
+
+<LegalPageShell
+  title="Website terms"
+  description="Terms for using the Ken Arhin Labs public website, viewing its materials, and sending a project enquiry."
+  documentCode="TRM-01"
+  documentLabel="Terms"
+  lastUpdated={lastUpdated}
+  summary="These terms govern the public website and project-enquiry channels. Browsing the site or sending a message does not create a client engagement; project scope, fees, ownership, hosting, support, and risk belong in a separately accepted proposal or statement of work."
+  reviewNote="Obtain qualified legal review of the applicable-law, disclaimer, and liability wording before publication. The site currently does not complete purchases or take payments, so do not add generic refund language without a real commercial flow."
+  toc={toc}
+  visualStages={["Use the website", "Start a conversation", "Agree project terms"]}
+>
+  <h2 id="acceptance" tabindex="-1">1. Using this website</h2>
+  <p>
+    These terms apply when you access or use <strong>kenarhinlabs.com</strong> and its public pages,
+    materials, contact form, and installable progressive web app features. If you do not agree to
+    these terms, do not use the website or submit information through it.
+  </p>
+  <p>
+    The website is operated by Ken Arhin Labs, an independent digital systems business serving a
+    global audience. It is a public information and enquiry surface, not a customer account,
+    payment portal, self-service hosting platform, or automatically contracting marketplace.
+  </p>
+
+  <h2 id="information" tabindex="-1">2. Information, not professional engagement</h2>
+  <p>
+    The website describes capabilities, working methods, technology choices, selected work, and
+    future directions. This material is general information. It is not legal, financial, security,
+    compliance, investment, or other regulated professional advice, and it is not a promise that a
+    particular technology or approach is suitable for your situation.
+  </p>
+  <p>
+    Examples, diagrams, availability statements, and development fixtures can change as the site
+    and services develop. You should confirm the scope, assumptions, dependencies, and current
+    status that matter to your decision before relying on them.
+  </p>
+
+  <h2 id="enquiries" tabindex="-1">3. Project enquiries do not create a client relationship</h2>
+  <p>
+    Sending a contact form, email, direct message, or other enquiry invites a conversation only. It
+    does not require Ken Arhin Labs to accept work, reserve availability, provide advice, keep an
+    idea exclusively confidential, or deliver any service. A client relationship begins only when
+    the parties accept a separate written agreement in the manner stated in that agreement.
+  </p>
+  <p>
+    Submit only information you are authorised to share. Do not send passwords, production
+    credentials, payment-card information, regulated personal data, or confidential source code
+    before an appropriate secure channel and confidentiality arrangement have been agreed.
+  </p>
+  <p>
+    You remain responsible for the accuracy of your enquiry and for obtaining permission to share
+    information belonging to another person or organisation. We may use submitted information to
+    assess fit, ask follow-up questions, respond, protect the service, and prepare a possible
+    proposal, subject to the <a href="/legal/privacy">privacy notice</a>.
+  </p>
+
+  <h2 id="agreements" tabindex="-1">4. Proposals, statements of work, and project terms</h2>
+  <p>
+    Any proposal, estimate, statement of work, order, or service agreement accepted for a project
+    should state the commercial and delivery terms that actually apply. Depending on the project,
+    those terms may include:
+  </p>
+  <ul>
+    <li>scope, deliverables, assumptions, exclusions, milestones, and acceptance;</li>
+    <li>fees, taxes, provider costs, payment timing, and the effect of late payment;</li>
+    <li>client responsibilities, access, approvals, content, and change control;</li>
+    <li>ownership and licences for pre-existing materials, deliverables, and third-party assets;</li>
+    <li>hosting, domains, data, backups, monitoring, security, support, and service levels;</li>
+    <li>privacy, confidentiality, warranties, liability allocation, and termination; and</li>
+    <li>handoff, account ownership, portability, exit assistance, and dispute handling.</li>
+  </ul>
+  <p>
+    The accepted project agreement controls if it conflicts with these website terms on a
+    project-specific matter. The public website does not currently complete purchases or take
+    payments, so cancellation, return, refund, renewal, and subscription terms must be supplied in
+    the relevant accepted agreement rather than inferred from this page.
+  </p>
+
+  <h2 id="intellectual-property" tabindex="-1">5. Intellectual property and permitted use</h2>
+  <p>
+    Unless a page says otherwise, Ken Arhin Labs or its licensors retain rights in the website's
+    authored text, brand assets, layouts, diagrams, code presentation, and other original material.
+    Third-party technology and social marks belong to their respective owners and are shown for
+    identification; their appearance does not imply endorsement or partnership.
+  </p>
+  <p>
+    You may view, link to, and make reasonable personal or internal-business use of publicly
+    available pages. You may not, without permission or another lawful basis, reproduce a
+    substantial part of the site for commercial use, remove rights notices, impersonate the brand,
+    misrepresent affiliation, resell materials, or use the site in a way that infringes another
+    person's rights.
+  </p>
+  <p>
+    Ownership and permitted use of client deliverables, reusable tools, licensed software, and
+    client-supplied materials are determined by the relevant project agreement, not by this page.
+  </p>
+
+  <h2 id="conduct" tabindex="-1">6. Acceptable use</h2>
+  <p>You must not use the website or its enquiry channels to:</p>
+  <ul>
+    <li>break applicable law or encourage unlawful activity;</li>
+    <li>submit malicious code, automated abuse, spam, or deceptive requests;</li>
+    <li>probe, bypass, disrupt, overload, or gain unauthorised access to systems or data;</li>
+    <li>infringe privacy, confidentiality, intellectual-property, or other legal rights;</li>
+    <li>misrepresent your identity, authority, or relationship with another party; or</li>
+    <li>interfere with another visitor's safe and ordinary use of the site.</li>
+  </ul>
+  <p>
+    We may restrict requests or access where reasonably necessary to protect people, the website,
+    its providers, or legal rights. Project termination, suspension, data return, and transition
+    obligations are governed by the applicable signed project agreement.
+  </p>
+
+  <h2 id="third-parties" tabindex="-1">7. Third-party services, hosting, and links</h2>
+  <p>
+    The website may identify or link to cloud, database, AI, development, social, and communication
+    platforms. Those services are operated under their own terms, availability, security, pricing,
+    and privacy practices. A link or technology mark is not a warranty or endorsement.
+  </p>
+  <p>
+    Ken Arhin Labs can currently design, deploy, and manage client systems using established
+    infrastructure providers. Provider selection, account and billing ownership, regions, domains,
+    access, backups, monitoring, incident response, support, portability, and exit procedures must
+    be agreed for each project. The planned Ken Arhin Labs hosting platform is not yet a live
+    self-service product.
+  </p>
+  <p>
+    We are not responsible for the content or independent operation of an external site simply
+    because this website links to it. Review the external provider's terms before relying on it.
+  </p>
+
+  <h2 id="availability" tabindex="-1">8. Availability and disclaimers</h2>
+  <p>
+    We aim to keep the public site useful and accurate, but it may be interrupted, cached, delayed,
+    incomplete, or unavailable. Previously visited PWA pages may be shown offline and may not
+    reflect the newest content, availability, or service status.
+  </p>
+  <p>
+    To the extent permitted by applicable law, the public site and its general information are
+    provided without a promise that they will be uninterrupted, error-free, complete, secure for
+    every purpose, or suitable for your particular needs. Nothing in these terms limits a specific
+    written warranty expressly included in an accepted project agreement.
+  </p>
+
+  <h2 id="liability" tabindex="-1">9. Responsibility and liability</h2>
+  <p>
+    You are responsible for how you use public information and for maintaining appropriate copies,
+    security, permissions, and professional advice for your own systems. To the extent permitted by
+    applicable law, Ken Arhin Labs is not responsible under these website terms for indirect or
+    consequential loss arising only from use of, inability to use, or reliance on the public site
+    or an independently operated third-party service.
+  </p>
+  <p>
+    This wording does not exclude or restrict liability that applicable law does not allow to be
+    excluded or restricted. Liability, remedies, service levels, and risk allocation for paid
+    client work belong in the accepted project agreement. This section requires qualified legal
+    review before the page is treated as final.
+  </p>
+
+  <h2 id="law" tabindex="-1">10. Applicable law, changes, and contact</h2>
+  <p>
+    These website terms are interpreted under applicable law while preserving mandatory rights
+    that may apply to a visitor where they live. Any project-specific governing law, forum,
+    escalation, mediation, or other dispute process must be stated in the accepted project
+    agreement; this page does not impose an exclusive court or venue.
+  </p>
+  <p>
+    We may update these terms as the public website and its services change. The last-updated date
+    identifies the current draft. Continued use after a revised version is published applies to
+    later use of the website, but it does not silently rewrite an already accepted project
+    agreement.
+  </p>
+  <p>
+    Questions about these terms can be sent to{" "}
+    <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. General project
+    enquiries can be raised through the <a href="/contact">contact page</a>.
+  </p>
+</LegalPageShell>

@@ -1,0 +1,206 @@
+---
+/**
+ * Static privacy notice for the current public website and contact workflow.
+ *
+ * The document describes repository-evidenced processing only. It must be
+ * reviewed before enabling persistent contact intake or adding new analytics,
+ * marketing, payment, account, or client-portal features.
+ */
+import LegalPageShell from "../../components/content/LegalPageShell.astro";
+import {
+  LEGAL_CONTACT_EMAIL,
+  PROJECT_CONTACT_EMAIL,
+} from "../../data/contact-channels";
+
+export const prerender = true;
+
+const lastUpdated = "13 July 2026";
+const toc = [
+  { id: "scope", label: "Who this notice covers" },
+  { id: "information", label: "Information we handle" },
+  { id: "use", label: "Why we use it" },
+  { id: "local-storage", label: "Your browser and PWA" },
+  { id: "sharing", label: "Providers and transfers" },
+  { id: "retention", label: "Retention" },
+  { id: "security", label: "Security" },
+  { id: "rights", label: "Your choices and rights" },
+  { id: "children", label: "Children" },
+  { id: "changes", label: "Changes and contact" },
+] as const;
+---
+
+<LegalPageShell
+  title="Privacy notice"
+  description="How Ken Arhin Labs handles project enquiries, necessary technical data, theme preferences, and public PWA storage."
+  documentCode="PRV-01"
+  documentLabel="Privacy"
+  lastUpdated={lastUpdated}
+  summary="This notice explains what information the Ken Arhin Labs public website handles, why it is needed, where browser storage is used, and how to ask questions or exercise applicable privacy rights."
+  reviewNote="Obtain qualified legal review before publication. Review this notice again before the contact API begins persistent storage or the site adds analytics, marketing, payments, accounts, or a client portal."
+  toc={toc}
+  visualStages={["Visit the site", "Share information", "Use your rights"]}
+>
+  <h2 id="scope" tabindex="-1">1. Who this notice covers</h2>
+  <p>
+    This notice applies when you visit <strong>kenarhinlabs.com</strong>, use its public
+    progressive web app features, send a project enquiry through the contact form, or email{" "}
+    <a href={`mailto:${PROJECT_CONTACT_EMAIL}`}>{PROJECT_CONTACT_EMAIL}</a>{" "}about the website or a
+    possible project. Privacy and legal requests may instead be sent to{" "}
+    <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>.
+  </p>
+  <p>
+    Ken Arhin Labs is the business responsible for deciding how information submitted through
+    these public channels is used. The site is intended for a global audience, and additional
+    mandatory rights may apply depending on where you live.
+  </p>
+
+  <h2 id="information" tabindex="-1">2. Information we handle</h2>
+  <h3>Information you choose to provide</h3>
+  <p>The current contact form asks for:</p>
+  <ul>
+    <li>your name;</li>
+    <li>your email address;</li>
+    <li>the subject of your enquiry; and</li>
+    <li>the message and project context you choose to include.</li>
+  </ul>
+  <p>
+    If you contact us by email, the information includes your email address and the contents and
+    metadata of that correspondence. Please do not send passwords, payment-card details, health
+    information, government identifiers, or other sensitive information through either channel.
+  </p>
+
+  <h3>Limited technical information</h3>
+  <p>
+    When a contact request reaches the public API, it attaches a request reference and may process
+    the connecting IP address and a shortened browser user-agent string for rate limiting,
+    security, and diagnostics. Like most web infrastructure, the delivery provider also
+    necessarily receives request information such as IP address, requested URL, headers, and
+    timing in order to deliver and protect the service.
+  </p>
+  <p>
+    The website does not currently provide customer accounts, accept payments, or intentionally
+    run advertising or marketing analytics. The contact API's production persistence and
+    notification adapter is not enabled at the date above; an unsuccessful submission is not
+    represented as accepted or stored.
+  </p>
+
+  <h2 id="use" tabindex="-1">3. Why we use information</h2>
+  <p>We use the information described above only as needed to:</p>
+  <ul>
+    <li>read, assess, and respond to a question or project enquiry;</li>
+    <li>take requested steps toward a possible proposal or client engagement;</li>
+    <li>operate, secure, troubleshoot, and prevent abuse of the website and public API;</li>
+    <li>maintain correspondence and project records where a relationship develops; and</li>
+    <li>meet legal, regulatory, accounting, or dispute-resolution obligations where applicable.</li>
+  </ul>
+  <p>
+    Depending on the context and applicable law, this processing may be based on your request or
+    consent, steps toward a possible contract, legitimate operational and security interests, or a
+    legal obligation. The contact form does not enrol you in a marketing list.
+  </p>
+
+  <h2 id="local-storage" tabindex="-1">4. Your browser and the public PWA</h2>
+  <p>
+    The site stores the value <code>light</code>, <code>dark</code>, or <code>system</code> under the
+    browser key <code>labs-theme</code> so your visual preference can be applied on later visits.
+    You can change the preference through the theme control or remove it by clearing this site's
+    browser storage.
+  </p>
+  <p>
+    If your browser supports service workers, the public PWA may keep copies of visited public
+    pages, fonts, images, and core interface files in browser-managed cache storage. This supports
+    faster repeat visits and limited offline use. It does not make contact submissions available
+    offline and does not intentionally cache API, authentication, or private account responses.
+    You can remove these copies through your browser's site-data or installed-app controls.
+  </p>
+  <p>
+    The current public site does not set an application cookie for analytics, advertising, or
+    authentication. Infrastructure or future features must not be treated as covered by this
+    statement without a new review and notice update.
+  </p>
+
+  <h2 id="sharing" tabindex="-1">5. Providers, disclosures, and international handling</h2>
+  <p>
+    The public website and API are delivered through Cloudflare infrastructure. Cloudflare acts as
+    a technical service provider when it routes, secures, caches, and serves requests. Email is
+    handled by the relevant email-service infrastructure when you choose the direct email route.
+  </p>
+  <p>
+    We may also disclose information where required by law, necessary to protect people or the
+    service, or required to establish or defend legal claims. We do not describe a provider as a
+    recipient until the repository and operating process show that it actually handles this public
+    data.
+  </p>
+  <p>
+    Internet and cloud providers may process information in more than one country. Where this
+    occurs, the intended approach is to use appropriate provider terms, security controls, and any
+    transfer safeguards required by applicable law. This statement is not a claim that visitor
+    information remains in one country.
+  </p>
+  <p>
+    Links to X, Instagram, LinkedIn, and WhatsApp take you to services operated by those companies.
+    Their privacy terms apply after you follow those links; Ken Arhin Labs does not control their
+    platforms.
+  </p>
+
+  <h2 id="retention" tabindex="-1">6. Retention</h2>
+  <p>
+    We aim to keep personal information only for as long as it is reasonably needed for the
+    purpose described in this notice, an active or reasonably anticipated project relationship,
+    security and dispute handling, or a legal requirement. No fixed contact-retention period has
+    been approved, so this draft does not invent one.
+  </p>
+  <p>
+    When information is no longer needed and no lawful reason requires it to be retained, it should
+    be securely deleted or de-identified. Browser theme and PWA cache data remain under your
+    browser's storage controls and may also be removed by browser eviction or application updates.
+  </p>
+
+  <h2 id="security" tabindex="-1">7. Security</h2>
+  <p>
+    We use proportionate technical and organisational safeguards appropriate to a public website,
+    including HTTPS in production, input validation, request-rate controls, restricted service
+    boundaries, and cache rules that keep sensitive request types out of public runtime caches.
+    No online service can promise absolute security.
+  </p>
+  <p>
+    If you believe information sent through the site has been misused or exposed, contact us at{" "}
+    <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>{" "}with enough detail to
+    investigate, but do not include additional sensitive information in the first message.
+  </p>
+
+  <h2 id="rights" tabindex="-1">8. Your choices and rights</h2>
+  <p>
+    Subject to applicable law and reasonable identity verification, you may ask whether we hold
+    personal information about you and request access, correction, deletion, or an end to certain
+    processing. A request may be limited where another person's rights, confidentiality, legal
+    duties, or a lawful retention requirement applies.
+  </p>
+  <p>
+    Send requests to <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. We will
+    respond within the period and in the manner required by applicable law. Where applicable, you
+    may also raise a concern with the data-protection or privacy regulator available where you
+    live.
+  </p>
+
+  <h2 id="children" tabindex="-1">9. Children and sensitive information</h2>
+  <p>
+    This business site and its project-enquiry form are not designed for children, and Ken Arhin
+    Labs does not knowingly seek personal information from a child through the form. If you are not
+    legally able to make an enquiry independently where you live, ask a parent or guardian to
+    contact us. A parent or guardian who believes a child supplied information can request review
+    or deletion using the email above.
+  </p>
+
+  <h2 id="changes" tabindex="-1">10. Changes and contact</h2>
+  <p>
+    We may revise this notice when the site's features, providers, data flows, or legal obligations
+    change. The last-updated date identifies the current draft. Material changes should be made
+    visible before the affected processing begins where practical.
+  </p>
+  <p>
+    Privacy questions, corrections, and rights requests can be sent to{" "}
+    <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. General project
+    enquiries can be raised through the <a href="/contact">contact page</a>.
+  </p>
+</LegalPageShell>

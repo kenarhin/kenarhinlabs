@@ -1,5 +1,7 @@
 import instagramForDarkBackground from "@labs/design/assets/social/IG/01 Static Glyph/02 White Glyph/Instagram_Glyph_White.svg?url";
 import instagramForLightBackground from "@labs/design/assets/social/IG/01 Static Glyph/03 Black Glyph/Instagram_Glyph_Black.svg?url";
+import linkedinForDarkBackground from "@labs/design/assets/social/linkedin/in-logo/InBug-White.png?url";
+import linkedinForLightBackground from "@labs/design/assets/social/linkedin/in-logo/InBug-Black.png?url";
 import whatsappLogo from "@labs/design/assets/social/whatsapp/Digital_Glyph_Green_RGB_2026.svg?url";
 import xForDarkBackground from "@labs/design/assets/social/x-logo/logo.svg?url";
 import xForLightBackground from "@labs/design/assets/social/x-logo/logo-black-96.png?url";
@@ -42,6 +44,16 @@ export const SOCIAL_LINKS: SocialLink[] = [
     darkModeLogoUrl: instagramForDarkBackground,
     iconWidth: 24,
     iconHeight: 24,
+  },
+  {
+    id: "linkedin",
+    name: "LinkedIn",
+    handle: "Company page",
+    href: "https://www.linkedin.com/company/kenarhinlabs/",
+    lightModeLogoUrl: linkedinForLightBackground,
+    darkModeLogoUrl: linkedinForDarkBackground,
+    iconWidth: 840,
+    iconHeight: 779,
   },
   {
     id: "whatsapp",

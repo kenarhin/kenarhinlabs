@@ -577,10 +577,11 @@ than the source library and powers a static-first list. JavaScript may enhance t
 seamless rail, but no-JavaScript and reduced-motion states must preserve one complete, readable,
 horizontally scrollable list.
 
-The footer social destinations live in `apps/web/src/data/social-links.ts`. X and Instagram use
-their supplied black/white variants by theme; the official green WhatsApp glyph remains unchanged
-in both themes. The oversized supplied X black PNG also has a stripped 96px, four-times-display
-derivative generated with ImageMagick; the original source remains unchanged.
+The footer and Contact-page social destinations live in `apps/web/src/data/social-links.ts`. X,
+Instagram, and LinkedIn use their supplied black/white variants by theme; the official green
+WhatsApp glyph remains unchanged in both themes. The oversized supplied X black PNG also has a
+stripped 96px, four-times-display derivative generated with ImageMagick; the original source
+remains unchanged.
 
 ## 14. Project evidence assets
 

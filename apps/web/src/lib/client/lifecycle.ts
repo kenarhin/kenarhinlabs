@@ -27,6 +27,11 @@ async function setupPage(): Promise<Cleanup> {
     cleanups.push(setupContactForm());
   }
 
+  if (document.querySelector("[data-legal-document-map]")) {
+    const { setupLegalDocumentMotion } = await import("../motion/legal-document");
+    cleanups.push(setupLegalDocumentMotion());
+  }
+
   return () => cleanups.reverse().forEach((cleanup) => cleanup());
 }
 

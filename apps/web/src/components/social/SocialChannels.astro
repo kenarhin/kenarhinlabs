@@ -1,0 +1,60 @@
+---
+/**
+ * Contact-page directory of official Ken Arhin Labs social destinations.
+ *
+ * The section renders meaningful text and working links without JavaScript;
+ * platform marks remain decorative because each destination is named visibly.
+ */
+import { SOCIAL_LINKS } from "../../data/social-links";
+import SocialIcon from "./SocialIcon.astro";
+---
+
+<section
+  class="border-t border-border bg-surface px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop"
+  aria-labelledby="social-channels-title"
+>
+  <div class="mx-auto grid w-full max-w-wide gap-12 lg:grid-cols-12 lg:items-start">
+    <div class="lg:col-span-4">
+      <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+        Follow the lab
+      </p>
+      <h2 id="social-channels-title" class="mt-6 text-heading-md text-foreground">
+        See what we are building, learning, and shipping.
+      </h2>
+      <p class="mt-5 max-w-lg text-body text-muted-foreground">
+        Follow Ken Arhin Labs for project notes, practical system thinking, launch updates, and work
+        in progress.
+      </p>
+    </div>
+
+    <ul class="grid border-t border-border sm:grid-cols-2 lg:col-span-7 lg:col-start-6">
+      {
+        SOCIAL_LINKS.map((social) => (
+          <li class="border-b border-border sm:odd:border-r">
+            <a
+              class="group flex min-h-36 flex-col justify-between gap-8 p-5 text-foreground transition-colors duration-(--motion-duration-control) hover:bg-surface-subtle sm:p-6"
+              href={social.href}
+              target="_blank"
+              rel="me noopener noreferrer"
+            >
+              <div class="flex items-start justify-between gap-5">
+                <SocialIcon social={social} />
+                <span
+                  class="font-mono text-label text-muted-foreground transition-transform duration-(--motion-duration-control) group-hover:translate-x-1"
+                  aria-hidden="true"
+                >
+                  ↗
+                </span>
+              </div>
+              <div>
+                <p class="text-heading-sm">{social.name}</p>
+                <p class="mt-2 font-mono text-label text-muted-foreground">{social.handle}</p>
+              </div>
+              <span class="sr-only"> (opens in a new tab)</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

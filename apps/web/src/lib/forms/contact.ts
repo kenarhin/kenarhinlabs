@@ -1,3 +1,5 @@
+import { PROJECT_CONTACT_EMAIL } from "../../data/contact-channels";
+
 type Cleanup = () => void;
 
 interface ApiErrorEnvelope {
@@ -29,9 +31,9 @@ function errorMessage(response: Response, body: ApiErrorEnvelope, requestId?: st
     return `Too many messages were sent from this connection. Please wait before trying again.${reference}`;
   }
   if (response.status === 503 || body.error?.code === "DEPENDENCY_UNAVAILABLE") {
-    return `The project intake service is not available yet. Please email hello@kenarhinlabs.com instead.${reference}`;
+    return `The project intake service is not available yet. Please email ${PROJECT_CONTACT_EMAIL} instead.${reference}`;
   }
-  return `We could not send your note. Please try again or email hello@kenarhinlabs.com.${reference}`;
+  return `We could not send your note. Please try again or email ${PROJECT_CONTACT_EMAIL}.${reference}`;
 }
 
 /**
@@ -100,7 +102,7 @@ export function setupContactForm(): Cleanup {
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       setStatus(
-        "The network request failed. Please try again or email hello@kenarhinlabs.com.",
+        `The network request failed. Please try again or email ${PROJECT_CONTACT_EMAIL}.`,
         "error",
       );
     } finally {

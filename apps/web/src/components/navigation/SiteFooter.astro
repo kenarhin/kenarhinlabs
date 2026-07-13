@@ -5,8 +5,10 @@
  * @param navigation Current footer navigation, sourced from the API when published.
  */
 import type { NavigationItem } from "../../lib/api/public-api";
+import { GENERAL_CONTACT_EMAIL } from "../../data/contact-channels";
 import { SOCIAL_LINKS } from "../../data/social-links";
 import SiteLogo from "../common/SiteLogo.astro";
+import SocialIcon from "../social/SocialIcon.astro";
 
 interface Props {
   navigation: NavigationItem[];
@@ -14,7 +16,16 @@ interface Props {
 
 const { navigation } = Astro.props;
 const year = new Date().getFullYear();
-const distinctNavigation = navigation.filter((item) => !item.href.includes("#"));
+const legalNavigation: NavigationItem[] = [
+  { href: "/legal/privacy", label: "Privacy" },
+  { href: "/legal/terms", label: "Terms" },
+];
+
+/** Keeps distinct page destinations while adding permanent legal access. */
+const distinctNavigation = [...navigation.filter((item) => !item.href.includes("#")), ...legalNavigation]
+  .filter(
+    (item, index, items) => items.findIndex((candidate) => candidate.href === item.href) === index,
+  );
 ---
 
 <footer class="border-t border-border bg-surface" data-site-footer>
@@ -70,45 +81,7 @@ const distinctNavigation = navigation.filter((item) => !item.href.includes("#"))
                   target="_blank"
                   rel="me noopener noreferrer"
                 >
-                  {social.lightModeLogoUrl && social.darkModeLogoUrl ? (
-                    <span class="flex w-6 shrink-0 justify-center" aria-hidden="true">
-                      <img
-                        class="social-logo social-logo--light-theme"
-                        src={social.lightModeLogoUrl}
-                        width={social.iconWidth}
-                        height={social.iconHeight}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <img
-                        class="social-logo social-logo--dark-theme"
-                        src={social.darkModeLogoUrl}
-                        width={social.iconWidth}
-                        height={social.iconHeight}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </span>
-                  ) : social.logoUrl ? (
-                    <span class="flex w-6 shrink-0 justify-center" aria-hidden="true">
-                      <img
-                        class="social-logo"
-                        src={social.logoUrl}
-                        width={social.iconWidth}
-                        height={social.iconHeight}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </span>
-                  ) : (
-                    <span
-                      class="size-2 shrink-0 rounded-full border border-border bg-surface"
-                      aria-hidden="true"
-                    />
-                  )}
+                  <SocialIcon social={social} />
                   <span>
                     <span class="block">{social.name}</span>
                     <span class="block font-mono text-label text-muted-foreground">
@@ -128,7 +101,9 @@ const distinctNavigation = navigation.filter((item) => !item.href.includes("#"))
           Connect
         </p>
         <ul class="mt-5 grid gap-3 text-body-sm">
-          <li><a class="hover:text-signal" href="mailto:hello@kenarhinlabs.com">Email the lab</a></li>
+          <li>
+            <a class="hover:text-signal" href={`mailto:${GENERAL_CONTACT_EMAIL}`}>Email the lab</a>
+          </li>
           <li><a class="hover:text-signal" href="/contact">Start a project</a></li>
         </ul>
       </div>
@@ -138,37 +113,7 @@ const distinctNavigation = navigation.filter((item) => !item.href.includes("#"))
       class="flex flex-col gap-4 border-t border-border pt-6 font-mono text-label uppercase tracking-wider text-muted-foreground sm:flex-row sm:items-center sm:justify-between lg:col-span-12"
     >
       <p>© {year} Ken Arhin Labs</p>
-      <p>Built in Ghana · Working globally</p>
+      <p>Independent lab · Working globally</p>
     </div>
   </div>
 </footer>
-
-<style>
-  .social-logo {
-    inline-size: auto;
-    block-size: 1.25rem;
-    object-fit: contain;
-  }
-
-  .social-logo--dark-theme {
-    display: none;
-  }
-
-  :global([data-theme="dark"]) .social-logo--light-theme {
-    display: none;
-  }
-
-  :global([data-theme="dark"]) .social-logo--dark-theme {
-    display: block;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme])) .social-logo--light-theme {
-      display: none;
-    }
-
-    :global(:root:not([data-theme])) .social-logo--dark-theme {
-      display: block;
-    }
-  }
-</style>

@@ -302,6 +302,20 @@ content workflow emails
 manual admin-sent emails
 ```
 
+Sender responsibilities:
+
+```txt
+no-reply@kenarhinlabs.com   Supabase Auth and automated system delivery
+hello@kenarhinlabs.com      General business and website correspondence
+projects@kenarhinlabs.com   Contact confirmations, leads, and project correspondence
+support@kenarhinlabs.com    Existing-client and technical support
+```
+
+`contact@kenarhinlabs.com` remains the inbound privacy, legal, security, rights, and policy address.
+It is not an approved outbound API sender unless a future reviewed workflow requires it. The
+complete public channel rules live in
+[`docs/frontend-contact-channels.md`](frontend-contact-channels.md).
+
 ## Content Publishing Flow
 
 ```txt

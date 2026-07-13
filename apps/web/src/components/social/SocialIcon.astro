@@ -1,0 +1,84 @@
+---
+/**
+ * Renders an official social-platform mark with theme-aware variants.
+ *
+ * @param social Social-link data containing unchanged official asset URLs.
+ */
+import type { SocialLink } from "../../data/social-links";
+
+interface Props {
+  social: SocialLink;
+}
+
+const { social } = Astro.props;
+---
+
+<span class="flex w-7 shrink-0 justify-center" aria-hidden="true">
+  {
+    social.lightModeLogoUrl && social.darkModeLogoUrl ? (
+      <>
+        <img
+          class="social-logo social-logo--light-theme"
+          src={social.lightModeLogoUrl}
+          width={social.iconWidth}
+          height={social.iconHeight}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+        <img
+          class="social-logo social-logo--dark-theme"
+          src={social.darkModeLogoUrl}
+          width={social.iconWidth}
+          height={social.iconHeight}
+          alt=""
+          loading="lazy"
+          decoding="async"
+        />
+      </>
+    ) : social.logoUrl ? (
+      <img
+        class="social-logo"
+        src={social.logoUrl}
+        width={social.iconWidth}
+        height={social.iconHeight}
+        alt=""
+        loading="lazy"
+        decoding="async"
+      />
+    ) : (
+      <span class="size-2 shrink-0 rounded-full border border-border bg-surface" />
+    )
+  }
+</span>
+
+<style>
+  .social-logo {
+    inline-size: auto;
+    block-size: 1.5rem;
+    max-inline-size: 1.75rem;
+    object-fit: contain;
+  }
+
+  .social-logo--dark-theme {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .social-logo--light-theme {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .social-logo--dark-theme {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .social-logo--light-theme {
+      display: none;
+    }
+
+    :global(:root:not([data-theme])) .social-logo--dark-theme {
+      display: block;
+    }
+  }
+</style>

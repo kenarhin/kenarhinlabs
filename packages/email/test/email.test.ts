@@ -16,7 +16,7 @@ const job: TransactionalEmailJobV1 = {
   messageId: "message-1",
   idempotencyKey: "contact-1-confirmation",
   to: "client@example.com",
-  from: { email: "hello@kenarhinlabs.com", name: "Ken Arhin Labs" },
+  from: { email: "projects@kenarhinlabs.com", name: "Ken Arhin Labs" },
   template: {
     template: "contact-confirmation",
     variables: { recipientName: "Ada", reference: "LEAD-100" },

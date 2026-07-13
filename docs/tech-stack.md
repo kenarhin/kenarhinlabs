@@ -303,7 +303,7 @@ Username: api_token
 Password: Cloudflare API token with Email Sending: Edit permission
 ```
 
-Possible sender addresses:
+Production API binding allowed sender addresses:
 
 ```txt
 no-reply@kenarhinlabs.com
@@ -312,7 +312,18 @@ projects@kenarhinlabs.com
 support@kenarhinlabs.com
 ```
 
-Also use Cloudflare Email Routing for inbound routing where useful.
+Use these responsibilities:
+
+```txt
+no-reply@kenarhinlabs.com   Automated auth and system delivery
+hello@kenarhinlabs.com      General business and website correspondence
+projects@kenarhinlabs.com   Project intake, confirmations, and project correspondence
+support@kenarhinlabs.com    Existing-client and technical support
+```
+
+`contact@kenarhinlabs.com` is the inbound privacy, legal, security, rights, and policy address. It
+is intentionally absent from the outbound sender allowlist until a real workflow needs to send from
+it. Use Cloudflare Email Routing separately for inbound routing and verified destinations.
 
 ## 8. Database architecture
 

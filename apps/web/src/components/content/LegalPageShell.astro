@@ -1,0 +1,163 @@
+---
+/**
+ * Shared editorial frame for static public legal documents.
+ *
+ * @param title Legal document title rendered as the page H1.
+ * @param description Search description passed to the root layout.
+ * @param documentCode Compact revision-friendly identifier for the document.
+ * @param documentLabel Technical route annotation for the document family.
+ * @param lastUpdated Human-readable revision date.
+ * @param summary Plain-language explanation of the document's purpose.
+ * @param toc Ordered section links rendered as an in-page table of contents.
+ * @param visualStages Three plain-language stages shown in the document map.
+ * @param reviewNote Optional publication-review note for unresolved business facts.
+ */
+import { LEGAL_CONTACT_EMAIL } from "../../data/contact-channels";
+import Layout from "../../layouts/Layout.astro";
+import LegalDocumentMap from "./LegalDocumentMap.astro";
+
+interface TocItem {
+  id: string;
+  label: string;
+}
+
+interface Props {
+  description: string;
+  documentCode: string;
+  documentLabel: string;
+  lastUpdated: string;
+  reviewNote?: string;
+  summary: string;
+  title: string;
+  toc: readonly TocItem[];
+  visualStages: readonly [string, string, string];
+}
+
+const {
+  description,
+  documentCode,
+  documentLabel,
+  lastUpdated,
+  reviewNote,
+  summary,
+  title,
+  toc,
+  visualStages,
+} = Astro.props;
+---
+
+<Layout title={title} description={description}>
+  <section
+    class="relative overflow-hidden px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop lg:py-section"
+    aria-labelledby="legal-document-title"
+  >
+    <div class="mx-auto grid w-full max-w-wide gap-14 border-t border-border pt-6 lg:grid-cols-12">
+      <div class="min-w-0 lg:col-span-8">
+        <p class="flex items-center gap-3 font-mono text-label uppercase tracking-widest text-foreground">
+          <span class="size-2 rounded-full bg-signal" aria-hidden="true"></span>
+          <span>Public system / Legal / {documentLabel}</span>
+        </p>
+        <h1
+          id="legal-document-title"
+          class="mt-8 max-w-5xl text-display-lg text-foreground max-[272px]:text-[3rem]"
+        >
+          {title}
+        </h1>
+        <p class="mt-8 max-w-3xl text-lead text-muted-foreground">{summary}</p>
+        <dl class="mt-10 flex flex-wrap gap-x-10 gap-y-4 border-t border-border pt-5 font-mono text-label uppercase tracking-wider">
+          <div>
+            <dt class="text-muted-foreground">Status</dt>
+            <dd class="mt-2 text-foreground">Implementation draft</dd>
+          </div>
+          <div>
+            <dt class="text-muted-foreground">Last updated</dt>
+            <dd class="mt-2 text-foreground">{lastUpdated}</dd>
+          </div>
+        </dl>
+      </div>
+
+      <LegalDocumentMap
+        documentCode={documentCode}
+        documentLabel={documentLabel}
+        stages={visualStages}
+      />
+    </div>
+  </section>
+
+  <section class="border-y border-border bg-surface px-page-mobile py-8 sm:px-page-tablet lg:px-page-desktop">
+    <div class="mx-auto grid w-full max-w-wide gap-8 lg:grid-cols-12 lg:items-start">
+      <p class="font-mono text-label uppercase tracking-widest text-muted-foreground lg:col-span-3">
+        Plain-language summary
+      </p>
+      <div class="min-w-0 lg:col-span-7 lg:col-start-5">
+        <p class="text-reading text-foreground">{summary}</p>
+        {
+          reviewNote && (
+            <aside class="mt-6 border-l-2 border-warning bg-warning/8 px-4 py-3" aria-label="Content review required">
+              <p class="font-mono text-label uppercase tracking-widest text-foreground">
+                Content review required
+              </p>
+              <p class="mt-2 text-body-sm text-foreground">{reviewNote}</p>
+            </aside>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop lg:py-section">
+    <div class="mx-auto grid w-full max-w-wide gap-14 lg:grid-cols-12">
+      <nav class="min-w-0 lg:col-span-3" aria-label={`${title} contents`}>
+        <div class="border-t border-border pt-5 lg:sticky lg:top-28">
+          <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+            In this document
+          </p>
+          <ol class="mt-5 grid border-t border-border">
+            {
+              toc.map((item, index) => (
+                <li class="border-b border-border">
+                  <a
+                    class="group flex min-h-14 items-center justify-between gap-4 py-3 text-body text-foreground"
+                    href={`#${item.id}`}
+                  >
+                    <span class="transition-colors group-hover:text-signal">{item.label}</span>
+                    <span class="font-mono text-label text-muted-foreground">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </div>
+      </nav>
+
+      <article class="typeset typeset-editorial min-w-0 max-w-reading lg:col-span-7 lg:col-start-5 [&_h2]:scroll-mt-28 [&_h2]:focus:outline-none">
+        <slot />
+      </article>
+    </div>
+  </section>
+
+  <section class="border-t border-border bg-surface-strong px-page-mobile py-section-sm text-surface-strong-foreground sm:px-page-tablet lg:px-page-desktop">
+    <div class="mx-auto grid w-full max-w-wide gap-8 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-7">
+        <p class="font-mono text-label uppercase tracking-widest opacity-60">
+          Questions / Corrections / Rights requests
+        </p>
+        <h2 class="mt-6 text-heading-md">Ask us about the words or the system behind them.</h2>
+      </div>
+      <div class="lg:col-span-4 lg:col-start-9">
+        <a
+          class="inline-flex min-h-12 items-center gap-4 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground"
+          href={`mailto:${LEGAL_CONTACT_EMAIL}`}
+        >
+          {LEGAL_CONTACT_EMAIL}
+          <span aria-hidden="true">↗</span>
+        </a>
+        <p class="mt-5 text-body-sm opacity-65">
+          These pages are implementation drafts and do not replace advice from a qualified legal professional.
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>

@@ -6,6 +6,8 @@
  * adapter is currently fail-closed, so the page also provides a direct email
  * path and displays the API request ID when submission cannot be accepted.
  */
+import { PROJECT_CONTACT_EMAIL } from "../data/contact-channels";
+import SocialChannels from "../components/social/SocialChannels.astro";
 import Layout from "../layouts/Layout.astro";
 ---
 
@@ -34,9 +36,9 @@ import Layout from "../layouts/Layout.astro";
             </p>
             <a
               class="mt-3 inline-flex text-body font-medium text-foreground underline decoration-signal decoration-2 underline-offset-4"
-              href="mailto:hello@kenarhinlabs.com"
+              href={`mailto:${PROJECT_CONTACT_EMAIL}`}
             >
-              hello@kenarhinlabs.com
+              {PROJECT_CONTACT_EMAIL}
             </a>
           </div>
         </div>
@@ -134,6 +136,8 @@ import Layout from "../layouts/Layout.astro";
       </div>
     </div>
   </section>
+
+  <SocialChannels />
 
   <section class="border-t border-border bg-surface px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop">
     <div class="mx-auto grid w-full max-w-wide gap-10 lg:grid-cols-12">

@@ -180,6 +180,21 @@ environment.
 }
 ```
 
+`allowed_sender_addresses` is an outbound `From` restriction, not an inbound mailbox or forwarding
+configuration. The approved roles are:
+
+```txt
+no-reply@kenarhinlabs.com   Automated auth and system delivery
+hello@kenarhinlabs.com      General business and website correspondence
+projects@kenarhinlabs.com   Project intake, confirmations, and project correspondence
+support@kenarhinlabs.com    Existing-client and technical support
+```
+
+Keep `contact@kenarhinlabs.com` as the inbound privacy, legal, security, rights, and policy route.
+Only add it to the allowed sender list if a reviewed backend workflow must send with that address in
+the `From` header. Public routing rules are maintained in
+[`docs/frontend-contact-channels.md`](frontend-contact-channels.md).
+
 ## Provisioning sequence
 
 These commands mutate the selected Cloudflare account. Review the active account with

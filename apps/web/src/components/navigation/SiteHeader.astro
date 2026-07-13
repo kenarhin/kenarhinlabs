@@ -45,7 +45,7 @@ function isCurrent(item: NavigationItem): boolean {
           <a
             href={item.href}
             aria-current={isCurrent(item) ? "page" : undefined}
-            class="group relative py-3 text-body-sm font-medium text-muted-foreground transition-colors duration-(--motion-duration-control) hover:text-foreground aria-[current=page]:text-foreground"
+            class="group relative py-3 text-body font-medium text-muted-foreground transition-colors duration-(--motion-duration-control) hover:text-foreground aria-[current=page]:text-foreground"
           >
             {item.label}
             <span class="absolute inset-x-0 bottom-1 h-px origin-left scale-x-0 bg-signal transition-transform duration-(--motion-duration-control) group-hover:scale-x-100 group-aria-[current=page]:scale-x-100" />

@@ -1,0 +1,79 @@
+---
+/**
+ * Summarises a legal document as a short, readable route map.
+ *
+ * @param documentCode Compact revision-friendly identifier for the document.
+ * @param documentLabel Human-readable name of the current legal document.
+ * @param stages Three plain-language stages that explain the document's scope.
+ */
+import { LEGAL_CONTACT_EMAIL } from "../../data/contact-channels";
+
+interface Props {
+  documentCode: string;
+  documentLabel: string;
+  stages: readonly [string, string, string];
+}
+
+const { documentCode, documentLabel, stages } = Astro.props;
+const titleId = `legal-map-${documentCode.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
+const nodeClasses = [
+  "border-system bg-surface",
+  "border-system bg-system",
+  "border-signal bg-signal",
+] as const;
+---
+
+<aside
+  class="relative hidden min-h-80 overflow-hidden border border-border bg-surface p-7 lg:col-span-3 lg:col-start-10 lg:flex lg:flex-col"
+  data-legal-document-map
+  aria-labelledby={titleId}
+>
+  <div class="flex items-start justify-between gap-5 border-b border-border pb-5">
+    <div>
+      <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+        Document map
+      </p>
+      <h2 id={titleId} class="mt-2 text-body font-medium text-foreground">{documentLabel}</h2>
+    </div>
+    <p class="font-mono text-label uppercase tracking-widest text-field">{documentCode}</p>
+  </div>
+
+  <div class="relative my-7 flex-1">
+    <span
+      class="absolute bottom-3 left-1.75 top-3 w-px origin-top bg-border"
+      data-legal-map-route
+      aria-hidden="true"
+    ></span>
+    <ol class="relative grid h-full content-between gap-6">
+      {
+        stages.map((stage, index) => (
+          <li class="grid grid-cols-[0.9375rem_1fr] items-center gap-4">
+            <span
+              class={`relative z-10 size-3.75 rounded-full border ${nodeClasses[index]}`}
+              data-legal-map-node
+              aria-hidden="true"
+            />
+            <div data-legal-map-stage>
+              <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+                {String(index + 1).padStart(2, "0")}
+              </p>
+              <p class="mt-1 text-body font-medium text-foreground">{stage}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="border-t border-border pt-5">
+    <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+      Legal contact
+    </p>
+    <a
+      class="mt-2 inline-flex text-body-sm font-medium text-foreground underline decoration-signal underline-offset-4 hover:text-signal"
+      href={`mailto:${LEGAL_CONTACT_EMAIL}`}
+    >
+      {LEGAL_CONTACT_EMAIL}
+    </a>
+  </div>
+</aside>
