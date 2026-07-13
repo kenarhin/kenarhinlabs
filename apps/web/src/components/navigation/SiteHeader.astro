@@ -29,14 +29,14 @@ function isCurrent(item: NavigationItem): boolean {
   data-site-header
 >
   <div
-    class="mx-auto flex h-18 w-full max-w-wide items-center justify-between gap-6 px-page-mobile sm:px-page-tablet lg:h-20 lg:px-page-desktop"
+    class="mx-auto flex h-18 w-full max-w-wide items-center justify-between gap-3 px-page-mobile sm:px-page-tablet lg:h-20 lg:gap-6 lg:px-page-desktop"
   >
     <a
       href="/"
       class="inline-flex min-h-11 items-center rounded-xs"
       aria-label="Ken Arhin Labs — Home"
     >
-      <SiteLogo class="w-44 sm:w-52" />
+      <SiteLogo class="w-36 sm:w-52" />
     </a>
 
     <nav class="hidden items-center gap-7 lg:flex" aria-label="Primary navigation">
@@ -87,7 +87,7 @@ function isCurrent(item: NavigationItem): boolean {
     <div class="flex h-full flex-col px-page-mobile py-5 sm:px-page-tablet">
       <div class="flex items-center justify-between border-b border-border pb-5">
         <a href="/" aria-label="Ken Arhin Labs — Home" data-menu-link>
-          <SiteLogo class="w-44" />
+          <SiteLogo class="w-36 sm:w-44" />
         </a>
         <button
           type="button"
@@ -121,12 +121,14 @@ function isCurrent(item: NavigationItem): boolean {
         </div>
       </nav>
 
-      <div class="flex items-end justify-between gap-4 border-t border-border pt-5">
-        <ThemeMenu />
+      <div class="grid gap-3 border-t border-border pt-5 sm:grid-cols-2 sm:items-end">
+        <div class="[&>details]:w-full [&_summary]:w-full [&_summary]:justify-between">
+          <ThemeMenu />
+        </div>
         <a
           href="/contact"
           data-menu-link
-          class="inline-flex min-h-11 items-center rounded-sm bg-primary px-5 text-body-sm font-medium text-primary-foreground"
+          class="inline-flex min-h-11 items-center justify-center rounded-sm bg-primary px-5 text-body-sm font-medium text-primary-foreground"
         >
           Start a project
         </a>

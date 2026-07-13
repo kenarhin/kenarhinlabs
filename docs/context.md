@@ -1,6 +1,6 @@
 # Ken Arhin Labs — Project Context
 
-_Last updated: 2026-07-10_
+_Last updated: 2026-07-13_
 
 ## 1. Project identity
 
@@ -108,7 +108,33 @@ Key public sections:
 5. **Field Notes / Journal / Insights** — blog/content engine
 6. **Labs** — experiments, AI agents, MCP-related work, app/product updates
 7. **Start a Project** — lead capture and project request flow
-8. **Contact** — contact options and inquiry routing
+
+## 5.1 Managed hosting and future platform direction
+
+Managed hosting is a current service capability, not a claim that Ken Arhin Labs already owns a
+hosting network. Today, Ken Arhin Labs may design, deploy, and operate client websites,
+applications, databases, and AI agents on appropriate established cloud platforms.
+
+The managed service should make ownership and responsibilities explicit:
+
+- provider and region selection;
+- account, billing, domain, and DNS ownership;
+- deployment and rollback procedures;
+- database backup and recovery expectations;
+- monitoring, incident response, and maintenance scope;
+- access control, secrets, and client handoff or exit procedures;
+- provider costs separated from Ken Arhin Labs management fees.
+
+The future Ken Arhin Labs hosting platform should be delivered in stages:
+
+1. **Managed operations:** repeatable provider-backed hosting runbooks and service levels.
+2. **Internal control plane:** standardized provisioning, monitoring, billing records, and client
+   visibility across approved providers.
+3. **Customer platform:** a branded self-service surface only after security, reliability, support,
+   backup, recovery, and commercial responsibilities are proven.
+
+Until stage three exists, public copy must say that the Ken Arhin Labs hosting platform is planned
+and must not describe it as a live product. 8. **Contact** — contact options and inquiry routing
 
 ## 6. Blog/content decision
 

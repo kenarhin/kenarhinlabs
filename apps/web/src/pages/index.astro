@@ -7,6 +7,8 @@
  * records, metrics, testimonials, or case-study outcomes.
  */
 import LivingSystemHero from "../components/marketing/LivingSystemHero.astro";
+import TechnologyRail from "../components/technology/TechnologyRail.astro";
+import SelectedWork from "../components/work/SelectedWork.astro";
 import Layout from "../layouts/Layout.astro";
 
 const capabilities = [
@@ -16,6 +18,7 @@ const capabilities = [
     description:
       "Editorial sites, product experiences, commerce, and operational interfaces designed as durable systems.",
     route: "STRATEGY → INTERFACE → ENGINEERING",
+    layoutClass: "lg:col-span-2",
   },
   {
     id: "02",
@@ -23,6 +26,7 @@ const capabilities = [
     description:
       "Purpose-built web and mobile products with clear workflows, resilient data, and maintainable foundations.",
     route: "PRODUCT → EXPERIENCE → RELEASE",
+    layoutClass: "lg:col-span-2",
   },
   {
     id: "03",
@@ -30,23 +34,27 @@ const capabilities = [
     description:
       "Useful agents and workflows connected to real business processes, review boundaries, and measurable actions.",
     route: "INPUT → REASONING → ACTION → REVIEW",
+    layoutClass: "lg:col-span-2",
   },
   {
     id: "04",
     title: "Infrastructure",
     description:
-      "Hosting, domains, email, storage, security, deployment, and observability assembled into one operating layer.",
-    route: "BUILD → DEPLOY → OBSERVE → OPERATE",
+      "Cloud architecture, domains, email, storage, security, and deployment pipelines assembled into one dependable foundation.",
+    route: "ARCHITECT → PROVISION → SECURE → DEPLOY",
+    layoutClass: "lg:col-span-3",
+  },
+  {
+    id: "05",
+    title: "Managed hosting + operations",
+    description:
+      "Websites, databases, applications, and AI agents kept available through established cloud platforms, with monitoring, maintenance, and accountable support.",
+    route: "HOST → MONITOR → MAINTAIN → SCALE",
+    note: "Managed on established platforms today. Our own hosting platform is planned.",
+    layoutClass: "md:col-span-2 lg:col-span-3",
   },
 ];
 
-const projectNames = [
-  "Menely Group",
-  "233 Digital",
-  "Agents by 233 Digital",
-  "233 Shops",
-  "DailyVrs",
-];
 ---
 
 <Layout
@@ -55,37 +63,8 @@ const projectNames = [
 >
   <div data-homepage>
     <LivingSystemHero />
-
-    <section
-      class="border-y border-border bg-surface"
-      aria-labelledby="ecosystem-title"
-    >
-      <div
-        class="mx-auto grid w-full max-w-wide gap-8 px-page-mobile py-10 sm:px-page-tablet lg:grid-cols-12 lg:px-page-desktop"
-      >
-        <div class="lg:col-span-3">
-          <p
-            id="ecosystem-title"
-            class="font-mono text-label uppercase tracking-widest text-muted-foreground"
-          >
-            Systems in the wider ecosystem
-          </p>
-        </div>
-        <ul
-          class="flex flex-wrap gap-x-8 gap-y-4 text-body-sm text-foreground lg:col-span-9 lg:justify-end"
-          aria-label="Documented projects and platforms"
-        >
-          {
-            projectNames.map((project) => (
-              <li class="inline-flex items-center gap-3">
-                <span class="size-1.5 rounded-full bg-field" aria-hidden="true" />
-                {project}
-              </li>
-            ))
-          }
-        </ul>
-      </div>
-    </section>
+    <TechnologyRail />
+    <SelectedWork />
 
     <section
       id="capabilities"
@@ -97,40 +76,49 @@ const projectNames = [
           <p
             class="font-mono text-label uppercase tracking-widest text-muted-foreground lg:col-span-3"
           >
-            01 / Capabilities
+            02 / Capabilities
           </p>
           <div class="lg:col-span-8 lg:col-start-5">
             <h2
               id="capabilities-title"
-              class="max-w-4xl text-heading-lg text-foreground"
+              class="max-w-4xl text-heading-lg text-foreground max-[272px]:text-[2.25rem]"
               data-section-reveal
             >
-              Separate digital parts should become one working system.
+              What we design, build, and operate.
             </h2>
-            <p class="mt-7 max-w-2xl text-lead text-muted-foreground">
-              We connect the visible experience to the engineering, automation,
-              and operations that keep it useful after launch.
+            <p class="mt-8 max-w-2xl text-lead text-muted-foreground">
+              From public-facing platforms to the infrastructure behind them,
+              each capability is designed as part of one coherent system.
             </p>
           </div>
         </div>
 
-        <div class="mt-16 grid border-l border-t border-border md:grid-cols-2">
+        <div class="mt-16 grid border-l border-t border-border md:grid-cols-2 lg:grid-cols-6">
           {
             capabilities.map((capability) => (
               <article
-                class="group min-h-80 border-b border-r border-border p-6 sm:p-8 lg:p-10"
+                class:list={[
+                  "group min-h-80 min-w-0 border-b border-r border-border p-6 outline-none sm:p-8 lg:p-10",
+                  capability.layoutClass,
+                ]}
+                tabindex="0"
+                aria-labelledby={`capability-${capability.id}`}
                 data-capability
               >
                 <div class="flex items-start justify-between gap-6">
                   <span class="font-mono text-label text-muted-foreground">
                     {capability.id}
                   </span>
-                  <span
-                    class="size-3 rounded-full border border-border bg-surface transition-colors duration-(--motion-duration-control) group-hover:border-signal group-hover:bg-signal"
-                    aria-hidden="true"
-                  />
+                  <span class="flex items-center" aria-hidden="true">
+                    <span class="relative block h-px w-12 overflow-hidden bg-border sm:w-20">
+                      <span class="absolute inset-0 origin-left scale-x-0 bg-signal transition-transform duration-(--motion-duration-layout) group-hover:scale-x-100 group-focus-within:scale-x-100" />
+                    </span>
+                    <span
+                      class="size-3 rounded-full border border-border bg-surface transition-colors duration-(--motion-duration-control) group-hover:border-signal group-hover:bg-signal group-focus-within:border-signal group-focus-within:bg-signal"
+                    />
+                  </span>
                 </div>
-                <h3 class="mt-14 text-heading-sm text-foreground">
+                <h3 id={`capability-${capability.id}`} class="mt-14 text-heading-sm text-foreground">
                   {capability.title}
                 </h3>
                 <p class="mt-5 max-w-lg text-body text-muted-foreground">
@@ -139,6 +127,11 @@ const projectNames = [
                 <p class="mt-10 font-mono text-label tracking-wider text-system">
                   {capability.route}
                 </p>
+                {capability.note && (
+                  <p class="mt-5 max-w-lg border-l border-signal pl-4 font-mono text-label leading-relaxed text-muted-foreground">
+                    {capability.note}
+                  </p>
+                )}
               </article>
             ))
           }
@@ -153,18 +146,22 @@ const projectNames = [
     >
       <div class="mx-auto w-full max-w-wide">
         <div class="grid gap-12 lg:grid-cols-12">
-          <div class="lg:col-span-4">
+          <div class="min-w-0 lg:col-span-4">
             <p class="font-mono text-label uppercase tracking-widest opacity-60">
-              02 / How the system comes together
+              03 / How the system comes together
             </p>
             <p class="mt-8 max-w-md text-body opacity-70">
               The shape changes with the problem. The operating discipline does
               not.
             </p>
           </div>
-          <div class="lg:col-span-7 lg:col-start-6">
-            <h2 id="approach-title" class="text-heading-lg" data-section-reveal>
-              From unclear moving parts to an operated digital system.
+          <div class="min-w-0 lg:col-span-7 lg:col-start-6">
+            <h2
+              id="approach-title"
+              class="text-heading-lg max-[272px]:text-[2.25rem]"
+              data-section-reveal
+            >
+              A clear path from uncertainty to operation.
             </h2>
           </div>
         </div>
@@ -197,10 +194,14 @@ const projectNames = [
         class="mx-auto grid w-full max-w-wide gap-12 border-t border-border pt-8 lg:grid-cols-12"
       >
         <p class="font-mono text-label uppercase tracking-widest text-muted-foreground lg:col-span-3">
-          03 / Start somewhere useful
+          04 / Start somewhere useful
         </p>
-        <div class="lg:col-span-8 lg:col-start-5">
-          <h2 id="next-system-title" class="text-heading-lg text-foreground" data-section-reveal>
+        <div class="min-w-0 lg:col-span-8 lg:col-start-5">
+          <h2
+            id="next-system-title"
+            class="text-heading-lg text-foreground max-[272px]:text-[2.25rem]"
+            data-section-reveal
+          >
             Bring us the messy version. We will help structure the system.
           </h2>
           <p class="mt-7 max-w-2xl text-lead text-muted-foreground">

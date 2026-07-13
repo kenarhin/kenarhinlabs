@@ -21,6 +21,7 @@
   --color-surface-subtle: var(--surface-subtle);
   --color-surface-strong: var(--surface-strong);
   --color-surface-strong-foreground: var(--surface-strong-foreground);
+  --color-official-mark-surface: var(--official-mark-surface);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);

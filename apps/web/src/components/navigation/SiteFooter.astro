@@ -5,6 +5,7 @@
  * @param navigation Current footer navigation, sourced from the API when published.
  */
 import type { NavigationItem } from "../../lib/api/public-api";
+import { SOCIAL_LINKS } from "../../data/social-links";
 import SiteLogo from "../common/SiteLogo.astro";
 
 interface Props {
@@ -13,13 +14,14 @@ interface Props {
 
 const { navigation } = Astro.props;
 const year = new Date().getFullYear();
+const distinctNavigation = navigation.filter((item) => !item.href.includes("#"));
 ---
 
 <footer class="border-t border-border bg-surface" data-site-footer>
   <div
     class="mx-auto grid w-full max-w-wide gap-14 px-page-mobile py-section-sm sm:px-page-tablet lg:grid-cols-12 lg:px-page-desktop lg:py-section"
   >
-    <div class="lg:col-span-6">
+    <div class="min-w-0 lg:col-span-5">
       <a
         href="/"
         class="inline-flex rounded-xs"
@@ -36,17 +38,84 @@ const year = new Date().getFullYear();
       </p>
     </div>
 
-    <div class="grid grid-cols-2 gap-8 lg:col-span-5 lg:col-start-8">
+    <div class="grid min-w-0 gap-10 sm:grid-cols-3 lg:col-span-6 lg:col-start-7">
       <div>
         <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
           Navigate
         </p>
         <ul class="mt-5 grid gap-3">
           {
-            navigation.map((item) => (
+            distinctNavigation.map((item) => (
               <li>
                 <a class="text-body-sm text-foreground hover:text-signal" href={item.href}>
                   {item.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div>
+        <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+          Follow us on
+        </p>
+        <ul class="mt-5 grid gap-4">
+          {
+            SOCIAL_LINKS.map((social) => (
+              <li>
+                <a
+                  class="group inline-flex min-h-8 items-center gap-3 text-body-sm text-foreground hover:text-signal"
+                  href={social.href}
+                  target="_blank"
+                  rel="me noopener noreferrer"
+                >
+                  {social.lightModeLogoUrl && social.darkModeLogoUrl ? (
+                    <span class="flex w-6 shrink-0 justify-center" aria-hidden="true">
+                      <img
+                        class="social-logo social-logo--light-theme"
+                        src={social.lightModeLogoUrl}
+                        width={social.iconWidth}
+                        height={social.iconHeight}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <img
+                        class="social-logo social-logo--dark-theme"
+                        src={social.darkModeLogoUrl}
+                        width={social.iconWidth}
+                        height={social.iconHeight}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                  ) : social.logoUrl ? (
+                    <span class="flex w-6 shrink-0 justify-center" aria-hidden="true">
+                      <img
+                        class="social-logo"
+                        src={social.logoUrl}
+                        width={social.iconWidth}
+                        height={social.iconHeight}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    </span>
+                  ) : (
+                    <span
+                      class="size-2 shrink-0 rounded-full border border-border bg-surface"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span>
+                    <span class="block">{social.name}</span>
+                    <span class="block font-mono text-label text-muted-foreground">
+                      {social.handle}
+                    </span>
+                  </span>
+                  <span class="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
             ))
@@ -73,3 +142,33 @@ const year = new Date().getFullYear();
     </div>
   </div>
 </footer>
+
+<style>
+  .social-logo {
+    inline-size: auto;
+    block-size: 1.25rem;
+    object-fit: contain;
+  }
+
+  .social-logo--dark-theme {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .social-logo--light-theme {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .social-logo--dark-theme {
+    display: block;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .social-logo--light-theme {
+      display: none;
+    }
+
+    :global(:root:not([data-theme])) .social-logo--dark-theme {
+      display: block;
+    }
+  }
+</style>

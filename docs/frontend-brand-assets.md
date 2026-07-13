@@ -1,6 +1,6 @@
 # Ken Arhin Labs Frontend Brand Assets
 
-_Last updated: 2026-07-12_
+_Last updated: 2026-07-13_
 
 This document defines the approved working direction for the Ken Arhin Labs logo system, brand icons, application icons, social assets, document assets, and motion identity. It complements:
 
@@ -542,6 +542,46 @@ Light and dark avatar variants where platform support requires them
 
 Keep the profile avatar visually simple enough to remain recognisable when displayed as a small circle.
 
+### Third-party technology and social marks
+
+Downloaded third-party marks are reference assets, not Ken Arhin Labs identity artwork. Store and
+consume them from the shared package:
+
+```txt
+packages/design/src/assets/stack/
+packages/design/src/assets/social/
+```
+
+Applications import them through the package exports rather than copying files into app-local
+public directories:
+
+```txt
+@labs/design/assets/stack/*
+@labs/design/assets/social/*
+```
+
+Rules:
+
+```txt
+Use only official downloaded assets.
+Do not trace, recolour, filter, distort, or redraw platform marks.
+Use supplied light/dark variants where available.
+Keep intrinsic dimensions and aspect ratios in application manifests.
+Pair decorative marks with visible platform or technology names.
+Do not imply endorsement, certification, or formal partnership.
+Do not show the complete asset library merely because it exists.
+```
+
+The homepage curation lives in `apps/web/src/data/technology-stack.ts`. It is intentionally smaller
+than the source library and powers a static-first list. JavaScript may enhance that list into a
+seamless rail, but no-JavaScript and reduced-motion states must preserve one complete, readable,
+horizontally scrollable list.
+
+The footer social destinations live in `apps/web/src/data/social-links.ts`. X and Instagram use
+their supplied black/white variants by theme; the official green WhatsApp glyph remains unchanged
+in both themes. The oversized supplied X black PNG also has a stripped 96px, four-times-display
+derivative generated with ImageMagick; the original source remains unchanged.
+
 ## 14. Project evidence assets
 
 The brand relies on proof, not only claims. Establish a consistent evidence system for:
@@ -596,6 +636,8 @@ packages/design/
         ├── icons/
         │   └── system/
         ├── patterns/
+        ├── social/
+        ├── stack/
         └── templates/
 ```
 
@@ -752,6 +794,22 @@ Prototype and approve the GSAP motion ident
 Complete trademark and similarity review
 ```
 
+### 21.2 Homepage platform assets — 2026-07-13
+
+The homepage now consumes a curated eight-technology manifest from shared source assets and uses
+explicit intrinsic dimensions, optical display widths, theme variants, and a light backing only
+where an official mark requires it. The technology rail has an explicit pause control, pauses on
+hover/focus/document visibility, and becomes a static scrollable list when reduced motion is
+requested or JavaScript is unavailable.
+
+The footer now uses the downloaded official X, Instagram, and WhatsApp assets with visible platform
+names and direct Ken Arhin Labs social destinations. Same-page section anchors were removed from
+the footer Navigate group; it now contains distinct page destinations only.
+
+Selected Work uses documented project names as explicitly labelled development fixtures. Real
+screenshots, approved problem statements, delivery scope, stack details, outcomes, metrics, and
+case-study destinations remain a content handoff and must not be invented.
+
 ## 22. Official references
 
 - MDN — SVG in HTML and accessible labelling: https://developer.mozilla.org/en-US/docs/Web/SVG/Guides/SVG_in_HTML
@@ -764,3 +822,6 @@ Complete trademark and similarity review
 - Apple Human Interface Guidelines — App icons: https://developer.apple.com/design/human-interface-guidelines/app-icons
 - Apple Human Interface Guidelines — Icons: https://developer.apple.com/design/human-interface-guidelines/icons
 - GSAP documentation: https://gsap.com/docs/v3/
+- X brand toolkit: https://about.x.com/en/who-we-are/brand-toolkit
+- Instagram brand resources: https://www.meta.com/brand/resources/instagram/instagram-brand/
+- WhatsApp brand resources: https://www.meta.com/brand/resources/whatsapp/whatsapp-brand/

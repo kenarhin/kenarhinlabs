@@ -11,6 +11,8 @@
   "exports": {
     ".": "./src/styles/index.css",
     "./assets/logo/*": "./src/assets/logo/*",
+    "./assets/social/*": "./src/assets/social/*",
+    "./assets/stack/*": "./src/assets/stack/*",
     "./styles.css": "./src/styles/index.css",
     "./fonts.css": "./src/styles/fonts.css",
     "./theme.css": "./src/styles/theme.css",

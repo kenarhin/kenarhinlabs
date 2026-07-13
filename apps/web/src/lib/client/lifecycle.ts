@@ -17,6 +17,11 @@ async function setupPage(): Promise<Cleanup> {
     cleanups.push(await setupHomepageMotion());
   }
 
+  if (document.querySelector("[data-technology-rail]")) {
+    const { setupTechnologyRailMotion } = await import("../motion/technology-rail");
+    cleanups.push(await setupTechnologyRailMotion());
+  }
+
   if (document.querySelector("[data-contact-form]")) {
     const { setupContactForm } = await import("../forms/contact");
     cleanups.push(setupContactForm());

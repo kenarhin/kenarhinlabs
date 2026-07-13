@@ -116,6 +116,17 @@ export async function setupHomepageMotion(): Promise<Cleanup> {
         },
       });
 
+      gsap.from(select("[data-work-item]"), {
+        y: 36,
+        stagger: 0.1,
+        duration: 0.7,
+        scrollTrigger: {
+          trigger: select("[data-work-item]")[0],
+          start: "top 84%",
+          toggleActions: "play none none reverse",
+        },
+      });
+
       gsap.utils.toArray<HTMLElement>(select("[data-section-reveal]")).forEach((heading) => {
         gsap.from(heading, {
           y: 32,

@@ -30,6 +30,7 @@
   --surface-subtle: color-mix(in oklab, var(--brand-rule-line) 42%, var(--brand-warm-canvas));
   --surface-strong: var(--brand-lab-ink);
   --surface-strong-foreground: var(--brand-warm-canvas);
+  --official-mark-surface: var(--brand-clean-paper);
 
   /* Actions and authored accents. */
   --primary: var(--brand-signal-orange);
@@ -78,6 +79,7 @@
   --surface-subtle: oklch(0.27376 0.01713 127.036);
   --surface-strong: var(--brand-warm-canvas);
   --surface-strong-foreground: var(--brand-lab-ink);
+  --official-mark-surface: var(--brand-clean-paper);
 
   --primary: var(--brand-signal-orange);
   --primary-foreground: var(--brand-lab-ink);
@@ -119,6 +121,7 @@
     --surface-subtle: oklch(0.27376 0.01713 127.036);
     --surface-strong: var(--brand-warm-canvas);
     --surface-strong-foreground: var(--brand-lab-ink);
+    --official-mark-surface: var(--brand-clean-paper);
 
     --primary: var(--brand-signal-orange);
     --primary-foreground: var(--brand-lab-ink);

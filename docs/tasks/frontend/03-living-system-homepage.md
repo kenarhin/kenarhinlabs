@@ -17,6 +17,10 @@ responsive and reduced-motion variants, and the supporting foundation-era homepa
 - [x] Build capability, process, and contact-direction sections.
 - [x] Verify animation cleanup across Astro navigation and resize.
 - [x] Verify performance and immediate CTA availability.
+- [x] Add a static-first, pauseable technology rail using curated shared assets.
+- [x] Add an honest Selected Work evidence structure without invented case-study claims.
+- [x] Separate managed hosting and operations from infrastructure engineering without presenting the
+      planned Ken Arhin Labs hosting platform as live.
 
 ## Motion architecture
 
@@ -65,6 +69,24 @@ responsive and reduced-motion variants, and the supporting foundation-era homepa
 - CDP checks found no horizontal overflow, runtime exceptions, or duplicate IDs on the homepage.
 - The ecosystem strip uses factual names already present in project documentation and makes no
   invented outcome, metric, testimonial, or live-CMS claim.
+
+### 2026-07-13 — Homepage refinement and Chrome DevTools verification
+
+- Replaced the ecosystem strip with a curated eight-technology data manifest and static-first GSAP
+  rail. Exactly one technology group remains accessible; the visual duplicate is assistive-
+  technology-hidden and appears only when motion is active.
+- Added a pause/resume control and verified explicit pause, hover/focus pause, document visibility,
+  responsive reinitialization, reduced-motion fallback, and Astro contact/back lifecycle cleanup.
+- Added Selected Work with Menely Group, 233 Digital, and Agents by 233 Digital as visibly labelled
+  development fixtures. Every unapproved evidence field remains pending.
+- Added Managed hosting + operations as a fifth capability. Public wording distinguishes current
+  provider-backed management from the planned Ken Arhin Labs hosting platform.
+- Chrome DevTools found no horizontal overflow at 240, 280, 320, 768, 1024, or 1440 CSS pixels.
+- Mobile lab trace on the development server observed LCP 1.305 s and CLS 0.00. Lighthouse scored
+  Accessibility 100 and Best Practices 100; the remaining generic `Learn more` link finding belongs
+  to Astro's development toolbar rather than application markup.
+- Light/dark logo variants, local-only asset requests, keyboard operation, reduced motion, and
+  back-navigation reinitialization were verified in Chrome DevTools.
 
 ## Blockers or handoff notes
 

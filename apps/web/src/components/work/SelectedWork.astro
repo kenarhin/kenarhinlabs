@@ -1,0 +1,98 @@
+---
+/**
+ * Selected Work proof section with explicit development-safe evidence states.
+ *
+ * Project names come from the repository's documented proof list. Pending
+ * fields are visible rather than replaced with invented results, screenshots,
+ * technology choices, or delivery claims.
+ */
+import { SELECTED_WORK } from "../../data/selected-work";
+---
+
+<section
+  id="work"
+  class="scroll-mt-24 px-page-mobile py-section sm:px-page-tablet lg:px-page-desktop lg:py-section-lg"
+  aria-labelledby="selected-work-title"
+>
+  <div class="mx-auto w-full max-w-wide">
+    <div class="grid gap-8 border-t border-border pt-6 lg:grid-cols-12">
+      <p
+        class="font-mono text-label uppercase tracking-widest text-muted-foreground lg:col-span-3"
+      >
+        Selected work / Systems in the field
+      </p>
+      <div class="min-w-0 lg:col-span-8 lg:col-start-5">
+        <h2
+          id="selected-work-title"
+          class="max-w-4xl text-heading-lg text-foreground max-[272px]:text-[2.25rem]"
+          data-section-reveal
+        >
+          Selected systems in the field.
+        </h2>
+        <p class="mt-8 max-w-2xl text-lead text-muted-foreground">
+          This proof structure is ready for approved case-study evidence. Until
+          then, documented project names remain clearly marked as development
+          fixtures rather than published claims.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-16 grid border-l border-t border-border lg:grid-cols-3">
+      {
+        SELECTED_WORK.map((project) => (
+          <article
+            class="min-w-0 border-b border-r border-border"
+            aria-labelledby={`${project.id}-title`}
+            data-work-item
+          >
+            <div class="relative aspect-4/3 overflow-hidden border-b border-border bg-surface-strong text-surface-strong-foreground">
+              <div
+                class="absolute inset-0 opacity-45"
+                aria-hidden="true"
+                data-system-grid
+              />
+              <span class="absolute left-6 top-6 font-mono text-label uppercase tracking-wider opacity-65">
+                {project.code}
+              </span>
+              <div class="absolute inset-x-6 top-1/2 h-px bg-current/25" aria-hidden="true" />
+              <div class="absolute left-[22%] top-[42%] size-4 rounded-full border border-signal bg-surface-strong" aria-hidden="true" />
+              <div class="absolute left-[58%] top-[42%] size-4 rounded-full border border-system bg-surface-strong" aria-hidden="true" />
+              <div class="absolute right-[14%] top-[42%] size-4 rounded-full border border-field bg-surface-strong" aria-hidden="true" />
+              <p class="absolute inset-x-6 bottom-6 max-w-xs font-mono text-label uppercase tracking-wider opacity-70">
+                Evidence frame / {project.evidenceStatus}
+              </p>
+            </div>
+
+            <div class="p-6 sm:p-8">
+              <p class="wrap-break-word font-mono text-label uppercase tracking-wider text-muted-foreground">
+                Development fixture / {project.projectReference}
+              </p>
+              <h3 id={`${project.id}-title`} class="mt-5 text-heading-sm text-foreground">
+                {project.name}
+              </h3>
+
+              <dl class="mt-8 grid gap-6 border-t border-border pt-6 text-body-sm">
+                <div>
+                  <dt class="font-mono text-label uppercase tracking-wider text-muted-foreground">Need</dt>
+                  <dd class="mt-2 text-foreground">{project.need}</dd>
+                </div>
+                <div>
+                  <dt class="font-mono text-label uppercase tracking-wider text-muted-foreground">Ken Arhin Labs handled</dt>
+                  <dd class="mt-2 text-foreground">{project.handled}</dd>
+                </div>
+                <div>
+                  <dt class="font-mono text-label uppercase tracking-wider text-muted-foreground">Technology</dt>
+                  <dd class="mt-2 text-foreground">{project.technology}</dd>
+                </div>
+                <div>
+                  <dt class="font-mono text-label uppercase tracking-wider text-muted-foreground">Outcome</dt>
+                  <dd class="mt-2 text-foreground">{project.outcome}</dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

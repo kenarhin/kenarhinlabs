@@ -38,17 +38,20 @@ interface NavigationPayload {
 export const STRUCTURAL_NAVIGATION: SiteNavigation = {
   header: [
     { href: "/", label: "Home" },
-    { href: "/#capabilities", label: "Capabilities" },
-    { href: "/#approach", label: "Approach" },
+    { href: "/#work", label: "Work" },
     { href: "/contact", label: "Contact" },
   ],
   footer: [
     { href: "/", label: "Home" },
+    { href: "/#work", label: "Work" },
     { href: "/#capabilities", label: "Capabilities" },
+    { href: "/#approach", label: "Approach" },
     { href: "/contact", label: "Contact" },
   ],
   source: "structural",
 };
+
+const ONE_PAGE_HEADER_DESTINATIONS = new Set(["/", "/#work", "/contact"]);
 
 /** Returns true when a CMS navigation link is safe for the public shell. */
 function isNavigationItem(value: unknown): value is NavigationItem {
@@ -92,7 +95,9 @@ export async function getSiteNavigation(): Promise<SiteNavigation> {
     const envelope = (await response.json()) as ApiEnvelope<NavigationPayload>;
     if (!envelope.ok || !envelope.data) return STRUCTURAL_NAVIGATION;
 
-    const header = navigationItems(envelope.data.header);
+    const header = navigationItems(envelope.data.header).filter((item) =>
+      ONE_PAGE_HEADER_DESTINATIONS.has(item.href),
+    );
     const footer = navigationItems(envelope.data.footer);
     if (header.length === 0 && footer.length === 0) return STRUCTURAL_NAVIGATION;
 

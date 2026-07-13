@@ -1,0 +1,196 @@
+---
+/**
+ * Static-first curated technology rail.
+ *
+ * The first list is the only accessible sequence. JavaScript reveals the
+ * second, assistive-technology-hidden copy only when it can run the seamless
+ * loop; reduced-motion and no-JavaScript states keep one complete scrollable
+ * or wrapped list.
+ */
+import { HOMEPAGE_TECHNOLOGIES } from "../../data/technology-stack";
+
+const groups = [
+  { duplicate: false, key: "primary" },
+  { duplicate: true, key: "duplicate" },
+];
+---
+
+<section
+  id="technology"
+  class="scroll-mt-24 border-y border-border bg-surface"
+  aria-labelledby="technology-title"
+  data-technology-rail
+>
+  <div
+    class="mx-auto grid w-full max-w-wide gap-8 px-page-mobile py-section-sm sm:px-page-tablet lg:grid-cols-12 lg:px-page-desktop"
+  >
+    <p
+      class="font-mono text-label uppercase tracking-widest text-muted-foreground lg:col-span-3"
+    >
+      Technology / Selected
+    </p>
+
+    <div class="min-w-0 lg:col-span-8 lg:col-start-5">
+      <div class="flex flex-col gap-7 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 id="technology-title" class="text-heading-md text-foreground" data-section-reveal>
+            Tools we use often.
+          </h2>
+          <p class="mt-6 max-w-2xl text-body text-muted-foreground">
+            We choose technology around the needs of each system. These are
+            some of the tools we reach for most.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="min-h-11 shrink-0 items-center justify-between gap-4 self-start rounded-sm border border-border bg-background px-4 font-mono text-label uppercase tracking-wider text-foreground transition-colors duration-(--motion-duration-control) hover:bg-surface-subtle sm:self-auto"
+          aria-pressed="false"
+          data-technology-toggle
+          hidden
+        >
+          <span data-technology-toggle-label>Pause motion</span>
+          <span class="sr-only"> technology rail</span>
+          <span class="text-signal" aria-hidden="true" data-technology-toggle-icon>Ⅱ</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="overflow-x-auto overscroll-x-contain border-t border-border"
+    role="region"
+    aria-label="Selected technology list"
+    tabindex="0"
+    data-technology-viewport
+  >
+    <div class="flex w-max" data-technology-track>
+      {
+        groups.map(({ duplicate, key }) => (
+          <ul
+            class="flex shrink-0"
+            aria-label={duplicate ? undefined : "Technologies used often"}
+            aria-hidden={duplicate ? "true" : undefined}
+            data-technology-group
+            data-technology-duplicate={duplicate ? "true" : undefined}
+            hidden={duplicate}
+          >
+            {HOMEPAGE_TECHNOLOGIES.map((technology) => {
+              const hasThemeVariants = Boolean(
+                technology.lightModeLogoUrl && technology.darkModeLogoUrl,
+              );
+
+              return (
+                <li
+                  class="technology-item flex min-h-40 shrink-0 flex-col justify-between border-r border-border px-6 py-6 sm:min-h-44 sm:px-8"
+                  data-technology-item={`${key}-${technology.id}`}
+                >
+                  <span class="font-mono text-label text-muted-foreground">
+                    {String(technology.displayOrder).padStart(2, "0")}
+                  </span>
+
+                  <div
+                    class:list={[
+                      "technology-mark flex h-16 items-center",
+                      technology.requiresLightSurface &&
+                        "w-fit bg-official-mark-surface px-3 py-2",
+                    ]}
+                    style={`--technology-logo-width: ${technology.displayWidthRem}rem`}
+                  >
+                    <img
+                      class:list={[
+                        "technology-logo",
+                        hasThemeVariants && "technology-logo--light-theme",
+                      ]}
+                      src={technology.lightModeLogoUrl ?? technology.logoUrl}
+                      width={technology.width}
+                      height={technology.height}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {hasThemeVariants && (
+                      <img
+                        class="technology-logo technology-logo--dark-theme"
+                        src={technology.darkModeLogoUrl}
+                        width={technology.width}
+                        height={technology.height}
+                        alt=""
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                  </div>
+
+                  <span class="text-body-sm font-medium text-foreground">
+                    {technology.name}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .technology-item {
+    inline-size: min(16rem, 78vw);
+  }
+
+  .technology-logo {
+    inline-size: min(var(--technology-logo-width), 100%);
+    block-size: auto;
+    max-block-size: 4rem;
+    object-fit: contain;
+    object-position: left center;
+  }
+
+  .technology-logo--dark-theme {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .technology-logo--light-theme {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .technology-logo--dark-theme {
+    display: block;
+  }
+
+  [data-technology-rail][data-motion="active"] [data-technology-viewport] {
+    overflow: hidden;
+  }
+
+  [data-technology-rail][data-motion="active"] [data-technology-track] {
+    will-change: transform;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .technology-logo--light-theme {
+      display: none;
+    }
+
+    :global(:root:not([data-theme])) .technology-logo--dark-theme {
+      display: block;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-technology-track],
+    [data-technology-group] {
+      inline-size: 100%;
+    }
+
+    [data-technology-group] {
+      flex-wrap: wrap;
+    }
+
+    .technology-item {
+      flex: 1 1 15rem;
+      inline-size: auto;
+    }
+  }
+</style>

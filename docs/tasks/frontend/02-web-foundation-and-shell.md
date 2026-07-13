@@ -18,6 +18,7 @@ unrelated shared package refactors.
 - [x] Build the base layout, metadata contract, skip link, and route lifecycle hooks.
 - [x] Build the responsive header and mobile navigation.
 - [x] Build the footer and global next-step pattern.
+- [x] Keep the one-page header focused and expose official social destinations in the footer.
 - [x] Build the theme preference control without first-paint flash.
 - [x] Build the branded 404 page.
 - [x] Verify keyboard, mobile, light, dark, and no-motion behavior.
@@ -61,6 +62,16 @@ unrelated shared package refactors.
 - Light, dark, and reduced-motion screenshots were reviewed at 1440×1000 and 390×844.
 - The custom 404 rendered normal recovery navigation and a decorative System K without JavaScript-
   dependent content.
+
+### 2026-07-13 — Navigation and social refinement
+
+- The header now exposes Home, Work, and Contact only; Capabilities and Approach remain discoverable
+  through page flow rather than competing as primary navigation items.
+- Footer Navigate filters same-page anchors and retains Home and Contact as distinct destinations.
+- The footer adds direct X, Instagram, and WhatsApp Channel links using the downloaded official
+  assets, visible platform/handle text, new-tab disclosure, and theme-appropriate supplied variants.
+- Chrome DevTools verified all three links in the accessibility tree, successful local asset loads,
+  light/dark rendering, keyboard focus, and no footer overflow at narrow mobile widths.
 
 ## Blockers or handoff notes
 

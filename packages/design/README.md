@@ -13,6 +13,7 @@ This package contains no React, Astro, Base UI, Radix, or shadcn components. It 
 - base accessibility and document styles;
 - owned long-form content styles through `.typeset`;
 - shared motion durations and easing vocabulary.
+- shared source logo, technology, and social assets exposed through package subpaths.
 
 Application-specific layouts, components, GSAP timelines, and interaction logic remain in the application that owns them.
 
@@ -40,6 +41,21 @@ When an application's global stylesheet is located at `src/styles/global.css`:
 ```
 
 The application owns the Tailwind entry point. This package contributes the shared theme and foundations.
+
+## Asset exports
+
+Applications consume shared source assets through package subpaths:
+
+```ts
+import logoUrl from "@labs/design/assets/logo/lockup-horizontal.svg?url";
+import technologyUrl from "@labs/design/assets/stack/example/logo.svg?url";
+import socialUrl from "@labs/design/assets/social/example/glyph.svg?url";
+```
+
+`stack` and `social` assets remain the property of their respective platforms. Applications must
+use supplied variants without recolouring or distortion and must not imply endorsement or formal
+partnership. Application-owned data manifests choose which assets are appropriate for a surface;
+the design package does not turn the complete source library into UI.
 
 ## Semantic utilities
 
