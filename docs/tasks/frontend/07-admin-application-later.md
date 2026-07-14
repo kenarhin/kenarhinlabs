@@ -21,6 +21,7 @@ the first complete content-publishing workflow, and later CRM/operations domains
 
 ## Blockers or handoff notes
 
-Several admin mutation and projection ports remain fail-closed in the backend. The admin program
-must re-check those contracts before implementation rather than treating route scaffolds as working
-persistence.
+Several unrelated admin mutation and projection ports remain fail-closed. The communications thread
+list/detail/reply/status/attachment backend is deployed and ready for frontend work; use
+[`email-channels-and-inbox-frontend-handoff.md`](email-channels-and-inbox-frontend-handoff.md) as
+the source of truth instead of the older generic email route scaffolds.

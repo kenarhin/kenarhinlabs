@@ -19,35 +19,38 @@ explicit user authorization.
 
 Verified through the Cloudflare API MCP on 2026-07-11:
 
-| Resource                           | State                                                                                                                      |
-| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| D1 `kenarhinlabs-public`           | Provisioned in WEUR as `a1775a3b-8626-4baf-a624-c06a5847d183`; migration `0001_public_read_model.sql` applied and tracked. |
-| R2 `kenarhinlabs-media`            | Provisioned in WEUR with the Standard storage class; remains private by default.                                           |
-| Content, email, and media Queues   | Three primary queues and their three dead-letter queues are provisioned.                                                   |
-| Email Sending                      | `kenarhinlabs.com` is enabled with its return-path and DKIM sending configuration active.                                  |
-| Hyperdrive `kenarhinlabs-supabase` | Provisioned as `017ff91c40f646af9901ddd4268225b3`; live readiness proves the direct Supabase connection works.             |
-| Workflow and Queue consumers       | `kenarhinlabs-sync` and all three Worker consumers are deployed with their configured retries and dead-letter queues.      |
-| API Worker                         | `kenarhinlabs-api` is deployed at `https://api.kenarhinlabs.com`; live health and readiness checks pass.                   |
+| Resource                            | State                                                                                                                      |
+| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| D1 `kenarhinlabs-public`            | Provisioned in WEUR as `a1775a3b-8626-4baf-a624-c06a5847d183`; migration `0001_public_read_model.sql` applied and tracked. |
+| R2 `kenarhinlabs-media`             | Provisioned in WEUR with the Standard storage class; remains private by default.                                           |
+| R2 `kenarhinlabs-email-attachments` | Provisioned as the dedicated private inbound-email attachment store and bound to the API.                                  |
+| Content, email, and media Queues    | Three primary queues and their three dead-letter queues are provisioned.                                                   |
+| Email Sending                       | `kenarhinlabs.com` is enabled with its return-path and DKIM sending configuration active.                                  |
+| Hyperdrive `kenarhinlabs-supabase`  | Provisioned as `017ff91c40f646af9901ddd4268225b3`; live readiness proves the direct Supabase connection works.             |
+| Workflow and Queue consumers        | `kenarhinlabs-sync` and all three Worker consumers are deployed with their configured retries and dead-letter queues.      |
+| API Worker                          | `kenarhinlabs-api` is deployed at `https://api.kenarhinlabs.com`; live health and readiness checks pass.                   |
+| Email Routing                       | Five channel/alias rules target the API Worker, subaddressing is enabled, and catch-all remains disabled.                  |
 
 Future binding changes must regenerate Worker types and pass the dry-run gate before deployment. The
-three webhook secrets are declared in `secrets.required`, so Wrangler blocks deployments if any
-required secret is missing.
+three webhook secrets plus the reply-token secret are declared in `secrets.required`, so Wrangler
+blocks deployments if any required secret is missing.
 
 ## Binding contract
 
 The API Worker is the deployment owner for the reusable backend packages. Its generated `Env` type
 must expose these bindings:
 
-| Binding         | Cloudflare resource         | Purpose                                                         |
-| --------------- | --------------------------- | --------------------------------------------------------------- |
-| `HYPERDRIVE`    | Hyperdrive configuration    | Pooled Worker access to the direct Supabase Postgres connection |
-| `D1_PUBLIC`     | D1 database                 | Rebuildable, non-sensitive public read model                    |
-| `R2_MEDIA`      | R2 bucket                   | Public and private media objects                                |
-| `EMAIL`         | Email Service send binding  | Transactional business email                                    |
-| `CONTENT_QUEUE` | Queue producer and consumer | Supabase outbox to D1 projection jobs                           |
-| `EMAIL_QUEUE`   | Queue producer and consumer | Transactional email delivery jobs                               |
-| `MEDIA_QUEUE`   | Queue producer and consumer | Media inspection, derivative, and purge jobs                    |
-| `SYNC_WORKFLOW` | Workflow binding            | Durable multi-step projection or rebuild operations             |
+| Binding                | Cloudflare resource         | Purpose                                                         |
+| ---------------------- | --------------------------- | --------------------------------------------------------------- |
+| `HYPERDRIVE`           | Hyperdrive configuration    | Pooled Worker access to the direct Supabase Postgres connection |
+| `D1_PUBLIC`            | D1 database                 | Rebuildable, non-sensitive public read model                    |
+| `R2_MEDIA`             | R2 bucket                   | Public and private media objects                                |
+| `R2_EMAIL_ATTACHMENTS` | R2 bucket                   | Private inbound-email attachment bytes                          |
+| `EMAIL`                | Email Service send binding  | Transactional business email                                    |
+| `CONTENT_QUEUE`        | Queue producer and consumer | Supabase outbox to D1 projection jobs                           |
+| `EMAIL_QUEUE`          | Queue producer and consumer | Transactional email delivery jobs                               |
+| `MEDIA_QUEUE`          | Queue producer and consumer | Media inspection, derivative, and purge jobs                    |
+| `SYNC_WORKFLOW`        | Workflow binding            | Durable multi-step projection or rebuild operations             |
 
 Wrangler configuration is the source of truth. Bindings and `vars` are non-inheritable, so preview
 and production environments must repeat their complete binding declarations.
@@ -56,11 +59,11 @@ and production environments must repeat their complete binding declarations.
 
 Keep environments physically separate. Recommended names are:
 
-| Environment | Worker                     | D1                            | R2                           | Queue suffix     |
-| ----------- | -------------------------- | ----------------------------- | ---------------------------- | ---------------- |
-| Local       | Wrangler local simulation  | Local D1 state                | Local R2 state               | Local simulation |
-| Preview     | `kenarhinlabs-api-preview` | `kenarhinlabs-public-preview` | `kenarhinlabs-media-preview` | `-preview`       |
-| Production  | `kenarhinlabs-api`         | `kenarhinlabs-public`         | `kenarhinlabs-media`         | no suffix        |
+| Environment | Worker                     | D1                            | R2 media / email attachments                            | Queue suffix     |
+| ----------- | -------------------------- | ----------------------------- | ------------------------------------------------------- | ---------------- |
+| Local       | Wrangler local simulation  | Local D1 state                | Local R2 state                                          | Local simulation |
+| Preview     | `kenarhinlabs-api-preview` | `kenarhinlabs-public-preview` | Separate `-preview` buckets                             | `-preview`       |
+| Production  | `kenarhinlabs-api`         | `kenarhinlabs-public`         | `kenarhinlabs-media` / `kenarhinlabs-email-attachments` | no suffix        |
 
 Do not point local development at production resources. Use remote bindings only for a deliberate
 integration test against a dedicated preview resource.
@@ -71,22 +74,23 @@ Safe Wrangler `vars` include environment labels and public service origins:
 
 ```txt
 ENVIRONMENT
-PUBLIC_SITE_URL
 ADMIN_SITE_URL
-R2_PUBLIC_BASE_URL
-EMAIL_FROM_ADDRESS
+ALLOWED_ORIGINS
+EMAIL_ATTACHMENT_BUCKET_NAME
 EMAIL_FROM_NAME
+HEALTH_CHECK_TIMEOUT_MS
+SUPABASE_URL
+SUPABASE_JWT_AUDIENCE
 ```
 
 Secrets belong in `.dev.vars` for local development and deployed secret storage for remote
 environments:
 
 ```txt
-SUPABASE_URL
-SUPABASE_SECRET_KEY
-SUPABASE_JWT_AUDIENCE
-TURNSTILE_SECRET_KEY
-INTERNAL_WEBHOOK_SECRET
+CLOUDFLARE_EMAIL_WEBHOOK_SECRET
+EMAIL_REPLY_TOKEN_SECRET
+INTERNAL_QUEUE_WEBHOOK_SECRET
+SUPABASE_WEBHOOK_SECRET
 ```
 
 The native `EMAIL` binding does not require an Email Service API token inside the Worker. The SMTP
@@ -125,13 +129,20 @@ environment.
       "migrations_dir": "../../packages/db/d1/migrations",
     },
   ],
-  "r2_buckets": [{ "binding": "R2_MEDIA", "bucket_name": "kenarhinlabs-media" }],
+  "r2_buckets": [
+    { "binding": "R2_MEDIA", "bucket_name": "kenarhinlabs-media" },
+    {
+      "binding": "R2_EMAIL_ATTACHMENTS",
+      "bucket_name": "kenarhinlabs-email-attachments",
+    },
+  ],
   "send_email": [
     {
       "name": "EMAIL",
       "allowed_sender_addresses": [
         "no-reply@kenarhinlabs.com",
         "hello@kenarhinlabs.com",
+        "privacy@kenarhinlabs.com",
         "projects@kenarhinlabs.com",
         "support@kenarhinlabs.com",
       ],
@@ -184,37 +195,39 @@ environment.
 configuration. The approved roles are:
 
 ```txt
-no-reply@kenarhinlabs.com   Automated auth and system delivery
-hello@kenarhinlabs.com      General business and website correspondence
+no-reply@kenarhinlabs.com   Automated non-conversational system delivery
+hello@kenarhinlabs.com      General form, business, and website correspondence
 projects@kenarhinlabs.com   Project intake, confirmations, and project correspondence
 support@kenarhinlabs.com    Existing-client and technical support
+privacy@kenarhinlabs.com    Privacy, legal, rights, security, and policy correspondence
 ```
 
-Keep `contact@kenarhinlabs.com` as the inbound privacy, legal, security, rights, and policy route.
-Only add it to the allowed sender list if a reviewed backend workflow must send with that address in
-the `From` header. Public routing rules are maintained in
-[`docs/frontend-contact-channels.md`](frontend-contact-channels.md).
+Keep `contact@kenarhinlabs.com` as an inbound-only compatibility alias to General; it is not an
+outbound sender. Route `hello@`, `contact@`, `projects@`, `support@`, and `privacy@` to the API
+Worker, enable subaddressing, and keep the catch-all disabled. Public routing rules are maintained
+in [`docs/frontend-contact-channels.md`](frontend-contact-channels.md).
 
 ## Provisioning sequence
 
 These commands mutate the selected Cloudflare account. Review the active account with
-`pnpm exec wrangler whoami` before running them.
+`pnpm dlx wrangler whoami` before running them.
 
 ```sh
 # Public read model and media storage
-pnpm exec wrangler d1 create kenarhinlabs-public
-pnpm exec wrangler r2 bucket create kenarhinlabs-media
+pnpm dlx wrangler d1 create kenarhinlabs-public
+pnpm dlx wrangler r2 bucket create kenarhinlabs-media
+pnpm dlx wrangler r2 bucket create kenarhinlabs-email-attachments
 
 # Primary queues and dead-letter queues
-pnpm exec wrangler queues create kenarhinlabs-content
-pnpm exec wrangler queues create kenarhinlabs-content-dlq
-pnpm exec wrangler queues create kenarhinlabs-email
-pnpm exec wrangler queues create kenarhinlabs-email-dlq
-pnpm exec wrangler queues create kenarhinlabs-media
-pnpm exec wrangler queues create kenarhinlabs-media-dlq
+pnpm dlx wrangler queues create kenarhinlabs-content
+pnpm dlx wrangler queues create kenarhinlabs-content-dlq
+pnpm dlx wrangler queues create kenarhinlabs-email
+pnpm dlx wrangler queues create kenarhinlabs-email-dlq
+pnpm dlx wrangler queues create kenarhinlabs-media
+pnpm dlx wrangler queues create kenarhinlabs-media-dlq
 
 # Hyperdrive must use the Supabase direct Postgres connection, not Supavisor.
-pnpm exec wrangler hyperdrive create kenarhinlabs-supabase \
+pnpm dlx wrangler hyperdrive create kenarhinlabs-supabase \
   --connection-string "$SUPABASE_DIRECT_DATABASE_URL"
 ```
 
@@ -237,17 +250,19 @@ or pass a literal password in shell history.
 Apply the repository D1 migrations locally before remote environments:
 
 ```sh
-pnpm exec wrangler d1 migrations apply kenarhinlabs-public --local \
+pnpm dlx wrangler d1 migrations apply kenarhinlabs-public --local \
   --config apps/api/wrangler.jsonc
-pnpm exec wrangler d1 migrations apply kenarhinlabs-public --remote \
+pnpm dlx wrangler d1 migrations apply kenarhinlabs-public --remote \
   --config apps/api/wrangler.jsonc
 ```
 
 After every binding change:
 
 ```sh
-pnpm --filter @labs/api cf-typegen
-pnpm exec wrangler deploy --dry-run --config apps/api/wrangler.jsonc
+cd apps/api
+pnpm dlx wrangler types --env-interface CloudflareBindings --env-file .dev.vars.example
+cd ../..
+pnpm dlx wrangler deploy --dry-run --config apps/api/wrangler.jsonc
 ```
 
 The API entrypoint must wire queue names to `consumeProjectionBatch`, `consumeEmailBatch`, and

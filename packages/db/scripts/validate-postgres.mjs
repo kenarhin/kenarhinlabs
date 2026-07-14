@@ -18,7 +18,13 @@ const expectedTables = {
   ],
   crm: ["clients", "contacts", "leads", "projects", "project_milestones", "project_tasks"],
   commerce: ["vendors", "tools", "offers", "affiliate_links", "pricing_snapshots"],
-  comms: ["email_templates", "email_threads", "email_messages"],
+  comms: [
+    "email_templates",
+    "email_mailboxes",
+    "email_threads",
+    "email_messages",
+    "email_attachments",
+  ],
   sync: ["outbox_events", "projection_runs"],
   audit: ["audit_logs"],
   analytics: ["events_daily"],
@@ -47,9 +53,14 @@ const requiredIndexes = [
   "vendors_logo_asset_idx",
   "email_threads_client_idx",
   "email_threads_lead_idx",
+  "email_threads_mailbox_status_last_idx",
   "email_messages_job_id_unique",
   "email_messages_idempotency_key_unique",
   "email_messages_delivery_claim_idx",
+  "email_messages_created_by_idx",
+  "email_messages_rfc_message_id_unique",
+  "email_attachments_bucket_object_unique",
+  "email_attachments_message_idx",
   "content_categories_category_idx",
   "content_items_author_idx",
   "content_items_cover_asset_idx",
@@ -110,14 +121,14 @@ function validatePostgresMigrations() {
 
   for (const [schema, tables] of Object.entries(expectedTables)) {
     for (const table of tables) {
-      if (!tableSql.includes(`create table ${schema}.${table}`)) {
+      if (!migrationSql.includes(`create table ${schema}.${table}`)) {
         throw new Error(`Missing canonical table ${schema}.${table}`);
       }
     }
   }
 
   const expectedTableCount = Object.values(expectedTables).flat().length;
-  const createdTables = [...tableSql.matchAll(/create table\s+([a-z_]+\.[a-z_]+)/g)].map(
+  const createdTables = [...migrationSql.matchAll(/create table\s+([a-z_]+\.[a-z_]+)/g)].map(
     (match) => match[1],
   );
   if (createdTables.length !== expectedTableCount) {

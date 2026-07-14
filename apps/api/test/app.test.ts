@@ -4,7 +4,7 @@ import { dependencyUnavailable } from "@labs/core";
 import { describe, expect, it, vi } from "vitest";
 
 import { createApp } from "../src/app";
-import type { ApiServices } from "../src/services/contracts";
+import type { ApiServices, IntakeService } from "../src/services/contracts";
 import { createUnavailableServices } from "../src/services/unavailable";
 
 /** Creates the complete generated binding shape used by workerd route tests. */
@@ -13,8 +13,9 @@ function testBindings() {
     ALLOWED_ORIGINS: "https://kenarhinlabs.com,https://admin.kenarhinlabs.com",
     ADMIN_SITE_URL: "https://admin.kenarhinlabs.com",
     CLOUDFLARE_EMAIL_WEBHOOK_SECRET: "cloudflare-email-webhook-secret-value",
-    EMAIL_FROM_ADDRESS: "projects@kenarhinlabs.com",
+    EMAIL_ATTACHMENT_BUCKET_NAME: "kenarhinlabs-email-attachments",
     EMAIL_FROM_NAME: "Ken Arhin Labs",
+    EMAIL_REPLY_TOKEN_SECRET: "email-reply-token-secret-value-123456",
     ENVIRONMENT: "test",
     HEALTH_CHECK_TIMEOUT_MS: "2000",
     HYPERDRIVE: {
@@ -29,12 +30,24 @@ function testBindings() {
       user: "test",
     },
     INTERNAL_QUEUE_WEBHOOK_SECRET: "internal-queue-webhook-secret-value",
-    PROJECT_INTAKE_EMAIL: "projects@kenarhinlabs.com",
     PUBLIC_RATE_LIMITER: { limit: async () => ({ success: true }) },
     SUPABASE_JWT_AUDIENCE: "authenticated",
     SUPABASE_URL: "https://example.supabase.co",
     SUPABASE_WEBHOOK_SECRET: "supabase-webhook-secret-value-1234",
     WEBHOOK_RATE_LIMITER: { limit: async () => ({ success: true }) },
+  };
+}
+
+/** Creates complete intake ports so individual route tests override only their subject. */
+function testIntake(overrides: Partial<IntakeService> = {}): IntakeService {
+  const accepted = async () => ({ id: crypto.randomUUID(), status: "accepted" as const });
+  return {
+    createContact: accepted,
+    createInquiry: accepted,
+    createLead: accepted,
+    createProjectIntake: accepted,
+    createSupportRequest: accepted,
+    ...overrides,
   };
 }
 
@@ -49,10 +62,7 @@ function testServices(overrides: Partial<ApiServices> = {}): ApiServices {
       complete: async () => undefined,
       release: async () => undefined,
     },
-    intake: {
-      createContact: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
-      createLead: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
-    },
+    intake: testIntake(),
     publicRead: {
       getContent: async () => null,
       getHomepage: async () => ({ sections: [] }),
@@ -113,10 +123,7 @@ describe("API runtime", () => {
       status: "accepted" as const,
     }));
     const services = testServices({
-      intake: {
-        createContact: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
-        createLead,
-      },
+      intake: testIntake({ createLead }),
     });
     const response = await createApp(services).request(
       "/public/leads",
@@ -137,10 +144,7 @@ describe("API runtime", () => {
     const createContact = vi.fn(async () => ({ id: leadId, status: "accepted" as const }));
     const response = await createApp(
       testServices({
-        intake: {
-          createContact,
-          createLead: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
-        },
+        intake: testIntake({ createContact }),
       }),
     ).request(
       "/public/contact",
@@ -172,12 +176,11 @@ describe("API runtime", () => {
   it("preserves the structured 503 when Contact persistence is unavailable", async () => {
     const response = await createApp(
       testServices({
-        intake: {
+        intake: testIntake({
           createContact: async () => {
             throw dependencyUnavailable("Backend persistence");
           },
-          createLead: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
-        },
+        }),
       }),
     ).request(
       "/public/contact",
@@ -211,10 +214,7 @@ describe("API runtime", () => {
     };
     const response = await createApp(
       testServices({
-        intake: {
-          createContact,
-          createLead: async () => ({ id: crypto.randomUUID(), status: "accepted" }),
-        },
+        intake: testIntake({ createContact }),
       }),
     ).request(
       "/public/contact",

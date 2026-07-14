@@ -147,12 +147,12 @@ silently replace missing persistence or projection adapters.
 
 ## Backend handoffs
 
-| Contract                 | Current evidence                                         | Frontend behavior                                                           | Backend work still required                                   |
-| ------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `GET /public/navigation` | Live `200`; empty header/footer arrays                   | Use structural app navigation, replace with valid non-empty API navigation  | Publish navigation records when CMS ownership is ready        |
-| `GET /public/homepage`   | Live `503 DEPENDENCY_UNAVAILABLE`                        | Render approved brand-authored homepage content; do not label it CMS-backed | Implement homepage read adapter/projection                    |
-| `POST /public/contact`   | Route and validator exist; intake adapter is fail-closed | Submit real payload and show honest dependency error/request ID             | Implement contact persistence and notification adapter        |
-| Public content/tools     | Code contracts exist; projection path is incomplete      | Do not populate current foundation with fabricated entries                  | Complete public projection source adapter and publish records |
+| Contract                 | Current evidence                                          | Frontend behavior                                                                   | Backend work still required                                   |
+| ------------------------ | --------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| `GET /public/navigation` | Live `200`; empty header/footer arrays                    | Use structural app navigation, replace with valid non-empty API navigation          | Publish navigation records when CMS ownership is ready        |
+| `GET /public/homepage`   | Live `503 DEPENDENCY_UNAVAILABLE`                         | Render approved brand-authored homepage content; do not label it CMS-backed         | Implement homepage read adapter/projection                    |
+| Contact/project intake   | Deployed channel-aware backend; legacy route remains live | Move Contact to `/public/inquiries`; build project form on `/public/project-intake` | No communications blocker; follow the dedicated handoff       |
+| Public content/tools     | Code contracts exist; projection path is incomplete       | Do not populate current foundation with fabricated entries                          | Complete public projection source adapter and publish records |
 
 ## Verification gates
 

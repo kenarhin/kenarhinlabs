@@ -12,7 +12,7 @@ Do not edit frontend application code.
 
 ## Required research before implementation
 
-- Current Hono and relevant library documentation through Context7.
+- Current Hono and relevant library documentation through official documentation retrieval tools.
 - Current Supabase documentation MCP for JWT verification and Auth token claims.
 - Current Cloudflare documentation for Workers request handling, bindings, and production best
   practices.
@@ -80,20 +80,19 @@ by source and verified before JSON parsing or idempotency claims.
 | Command                               | Result                                                                                |
 | ------------------------------------- | ------------------------------------------------------------------------------------- |
 | `pnpm --filter @labs/api typecheck`   | Passed.                                                                               |
-| `pnpm --filter @labs/api test`        | Passed: 1 workerd test file, 6 tests.                                                 |
+| `pnpm --filter @labs/api test`        | Passed: 3 workerd test files, 19 tests after communications delivery.                 |
 | `pnpm --filter @labs/auth test`       | Passed: 1 source test file, 4 tests.                                                  |
 | `pnpm --filter @labs/validators test` | Passed: 1 source test file, 4 tests.                                                  |
 | `pnpm lint:backend`                   | Passed with zero warnings.                                                            |
-| `pnpm --filter @labs/api cf-typegen`  | Generated bindings for Hyperdrive, D1, R2, Email, Queues, Workflows, and rate limits. |
-| `pnpm --filter @labs/api build`       | Passed Wrangler 4.110.0 deployment dry-run.                                           |
+| `pnpm dlx wrangler types ...`         | Generated bindings for Hyperdrive, D1, both R2 buckets, Email, Queues, and Workflows. |
+| `pnpm dlx wrangler deploy --dry-run`  | Passed Wrangler 4.110.0 production deployment dry run.                                |
 
 ## Blockers or handoff notes
 
-- The route and authorization foundation is complete, but production persistence is intentionally
-  not claimed end to end. Lead/contact intake, admin mutations, webhook storage, media upload
-  issuance, email delivery state, and the outbox source adapter still use fail-closed ports until
-  their persistence contracts are implemented and integration-tested.
+- The route and authorization foundation is complete. Public communications intake, inbound email,
+  email delivery state, and permission-gated admin thread operations are now persisted and deployed.
+  Unrelated admin domain mutations, webhook/idempotency storage, media processing, homepage/tools
+  reads, and generic projection adapters remain fail-closed or incomplete.
 - The API Worker is now deployed at `https://api.kenarhinlabs.com`. Liveness and dependency
-  readiness pass against the live Supabase Auth, Hyperdrive/Postgres, and rate-limit bindings.
-  Persistence ports listed above remain intentionally fail-closed and are still implementation work;
-  deployment does not change their status.
+  readiness pass against the live Supabase Auth, Hyperdrive/Postgres, and rate-limit bindings. The
+  remaining fail-closed ports are tracked outside the communications handoff.

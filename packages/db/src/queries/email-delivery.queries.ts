@@ -61,7 +61,9 @@ export async function claimEmailDelivery(
 
   if (existing === undefined) throw new Error("Durable email message was not found");
   if (
-    existing.status === "sent" ||
+    existing.status === "provider_accepted" ||
+    existing.status === "delivered" ||
+    existing.status === "bounced" ||
     existing.status === "received" ||
     (existing.status === "failed" && !existing.retryable)
   ) {
@@ -70,7 +72,7 @@ export async function claimEmailDelivery(
   return "busy";
 }
 
-/** Persists a successful Cloudflare Email Service receipt for one claimed message. */
+/** Persists Cloudflare acceptance without claiming final SMTP delivery. */
 export async function markEmailDeliverySent(
   database: WorkerDatabase,
   input: {
@@ -81,6 +83,7 @@ export async function markEmailDeliverySent(
     sentAt?: Date;
   },
 ): Promise<void> {
+  const acceptedAt = input.sentAt ?? new Date();
   const [updated] = await database
     .update(emailMessages)
     .set({
@@ -89,9 +92,11 @@ export async function markEmailDeliverySent(
       nextAttemptAt: null,
       provider: input.provider,
       providerMessageId: input.providerMessageId,
+      rfcMessageId: input.providerMessageId,
       retryable: false,
-      sentAt: input.sentAt ?? new Date(),
-      status: "sent",
+      sentAt: acceptedAt,
+      providerAcceptedAt: acceptedAt,
+      status: "provider_accepted",
     })
     .where(
       and(
@@ -102,7 +107,9 @@ export async function markEmailDeliverySent(
     )
     .returning({ id: emailMessages.id });
 
-  if (updated === undefined) throw new Error("Claimed email message could not be marked sent");
+  if (updated === undefined) {
+    throw new Error("Claimed email message could not be marked provider accepted");
+  }
 }
 
 /** Persists a retryable or terminal provider failure for one claimed message. */

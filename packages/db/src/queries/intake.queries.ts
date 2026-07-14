@@ -6,10 +6,10 @@ import type { WorkerDatabase } from "../client/worker.js";
  * Queue publication is intentionally excluded because the transactional outbox owns recovery.
  */
 export interface IntakeTransactionPlan {
-  lead: typeof leads.$inferInsert;
-  thread: typeof emailThreads.$inferInsert;
-  messages: readonly (typeof emailMessages.$inferInsert)[];
-  outboxEvents: readonly (typeof outboxEvents.$inferInsert)[];
+  lead?: typeof leads.$inferInsert;
+  thread?: typeof emailThreads.$inferInsert;
+  messages?: readonly (typeof emailMessages.$inferInsert)[];
+  outboxEvents?: readonly (typeof outboxEvents.$inferInsert)[];
 }
 
 /**
@@ -24,9 +24,13 @@ export async function persistIntakeTransaction(
   plan: IntakeTransactionPlan,
 ): Promise<void> {
   await database.transaction(async (transaction) => {
-    await transaction.insert(leads).values(plan.lead);
-    await transaction.insert(emailThreads).values(plan.thread);
-    await transaction.insert(emailMessages).values([...plan.messages]);
-    await transaction.insert(outboxEvents).values([...plan.outboxEvents]);
+    if (plan.lead !== undefined) await transaction.insert(leads).values(plan.lead);
+    if (plan.thread !== undefined) await transaction.insert(emailThreads).values(plan.thread);
+    if (plan.messages !== undefined && plan.messages.length > 0) {
+      await transaction.insert(emailMessages).values([...plan.messages]);
+    }
+    if (plan.outboxEvents !== undefined && plan.outboxEvents.length > 0) {
+      await transaction.insert(outboxEvents).values([...plan.outboxEvents]);
+    }
   });
 }

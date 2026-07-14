@@ -216,24 +216,25 @@ The backend program is complete only when all applicable gates pass from the rep
 
 ### 2026-07-13 — Contact intake implementation and runtime completeness audit
 
-- Implemented the previously fail-closed Contact/lead persistence path using one canonical Postgres
-  transaction for the lead, communications thread, durable message records, and email outbox events.
-  Implemented the email consumer delivery repository and scheduled outbox recovery.
-- Applied `add_durable_email_delivery` through Supabase MCP to the verified project. Catalog checks
-  confirm ten new delivery columns, three indexes, and the updated-at trigger; the security advisor
-  reports no findings.
-- API tests (13), email tests (9), affected-package typechecks, migration validation, Drizzle check,
-  targeted lint/format checks, and the Wrangler 4.110.0 deployment dry run pass. The broad backend
-  lint command still reports the pre-existing `console.log` warning in
-  `packages/pwa/examples/web/register-pwa.example.ts`; this Contact slice did not change that file.
-- The Worker has not been redeployed for this slice. End-to-end completion is blocked on a preview
-  verification path, an approved synthetic recipient/cleanup run, and a Cloudflare Email Routing
-  rule for `projects@kenarhinlabs.com`.
-- The backend is not fully built. Production still inherits fail-closed adapters for every admin
-  business operation (including email listing/sending), webhook/idempotency processing, media job
-  processing, generic content outbox projection, homepage reads, and tools reads. The admin app is
-  also still a scaffold, so no admin inbox or reply interface exists yet.
-- Canonical leads and private communications remain in Supabase Postgres. D1 remains restricted to
-  public, non-sensitive read projections; a future admin inbox should access Postgres through
-  permission-gated API endpoints and use an inbound Email Routing Worker when mailbox replies need
-  to join stored threads.
+- Expanded the durable Contact implementation into four canonical channels: General (`hello@`),
+  Projects (`projects@`), Support (`support@`), and Privacy (`privacy@`). `contact@` is an inbound
+  General alias and `no-reply@` remains outbound-only.
+- Added `/public/inquiries`, `/public/project-intake`, and `/public/support`; retained the deployed
+  `/public/contact` contract as deprecated Projects intake. Only Projects creates a CRM lead.
+- Implemented the inbound Email Routing handler, signed plus-address thread tokens, participant-
+  constrained RFC matching, MIME parsing, duplicate safety, and private R2 attachment cleanup.
+- Implemented permission-gated thread list/detail/reply/update/attachment admin APIs. Sender and
+  recipient identities are derived from the stored thread, and reply/status changes are audited.
+- Applied `add_unified_email_inbox` and `add_email_message_actor_index` through Supabase MCP to the
+  verified project. The post-apply security advisor reports no findings.
+- Created and bound `kenarhinlabs-email-attachments`, installed the non-retrievable reply-token
+  secret, enabled subaddressing, and routed `hello@`, `contact@`, `projects@`, `support@`, and
+  `privacy@` to the API Worker while preserving the existing `admin@` forwarding rule and disabled
+  catch-all.
+- Deployed Worker version `ea569614-133b-46ef-9440-57843bf5bbd1`; live health and readiness both
+  returned HTTP 200 after deployment.
+- All backend workspaces typecheck and all backend suites pass. Targeted backend lint passes; the
+  broad command still reports the unrelated pre-existing PWA example `console.log` warning.
+- Communications is deployed, but the overall backend is not fully built. Unrelated admin domain
+  adapters, homepage/tools reads, generic webhook/idempotency persistence, media processing, and
+  public projection work remain incomplete or fail-closed.

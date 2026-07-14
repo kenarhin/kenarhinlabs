@@ -38,6 +38,13 @@ export function createUnavailableServices(): ApiServices {
     databaseProbe: {
       check: async () => ({ detail: "database adapter not wired", ok: false }),
     },
+    communications: {
+      getAttachment: async () => unavailable(),
+      getThread: async () => unavailable(),
+      listThreads: async () => unavailable(),
+      replyToThread: async () => unavailable(),
+      updateThread: async () => unavailable(),
+    },
     idempotency: {
       claim: async () => unavailable(),
       complete: async () => unavailable(),
@@ -45,7 +52,13 @@ export function createUnavailableServices(): ApiServices {
     },
     intake: {
       createContact: async () => unavailable(),
+      createInquiry: async () => unavailable(),
       createLead: async () => unavailable(),
+      createProjectIntake: async () => unavailable(),
+      createSupportRequest: async () => unavailable(),
+    },
+    inboundEmail: {
+      receive: async () => unavailable(),
     },
     platform: {
       emailDeliveryRepository: {

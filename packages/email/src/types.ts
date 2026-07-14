@@ -53,6 +53,13 @@ export type TransactionalTemplateRequest =
         status: "review" | "published" | "failed";
         adminUrl: string;
       };
+    }
+  | {
+      template: "thread-reply";
+      variables: {
+        subject: string;
+        body: string;
+      };
     };
 
 /**
@@ -66,6 +73,7 @@ export interface TransactionalEmailJobV1 {
   to: string | string[];
   from: TransactionalEmailAddress;
   replyTo?: string;
+  headers?: Readonly<Record<string, string>>;
   template: TransactionalTemplateRequest;
   enqueuedAt: string;
 }

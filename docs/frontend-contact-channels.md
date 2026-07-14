@@ -1,87 +1,87 @@
-# Ken Arhin Labs Public Contact Channels
+# Ken Arhin Labs Communication Channels
 
 _Last updated: 2026-07-13_
 
-## Purpose
+## Operating model
 
-Ken Arhin Labs uses separate email identities for general enquiries, project intake, support,
-legal correspondence, and automated delivery. Keeping these roles distinct helps visitors choose
-the correct route and prevents operational mail from being mixed with privacy or project requests.
+Ken Arhin Labs uses one administration inbox with separate channel identities. Every incoming
+message is stored in Supabase Postgres under its addressed mailbox. Replies are sent from that same
+mailbox, so a message to `hello@kenarhinlabs.com` receives a reply from `hello@kenarhinlabs.com`,
+while a project conversation remains under `projects@kenarhinlabs.com`.
 
-| Address                    | Responsibility                                         | Public or system surfaces                             | Outbound sender state          |
-| -------------------------- | ------------------------------------------------------ | ----------------------------------------------------- | ------------------------------ |
-| `hello@kenarhinlabs.com`   | General business and website enquiries                 | Site footer and ordinary manual correspondence        | Allowed by the API binding     |
-| `projects@kenarhinlabs.com` | New project enquiries and project-intake fallback      | Contact page, form-failure messages, lead confirmation | Allowed by the API binding     |
-| `support@kenarhinlabs.com` | Existing-client and technical support                  | Support correspondence when a support process exists  | Allowed by the API binding     |
-| `no-reply@kenarhinlabs.com` | Automated transactional delivery                       | Auth and system-generated messages                    | Allowed by the API binding     |
-| `contact@kenarhinlabs.com` | Privacy, legal, security, rights, and policy requests  | Privacy notice, website terms, legal-page actions      | Inbound only; not allowlisted  |
+The canonical backend definitions live in
+[`packages/email/src/channels.ts`](../packages/email/src/channels.ts). Frontend constants and copy
+must be aligned to that file when the frontend team takes the handoff.
 
-The web application's source of truth is
-[`apps/web/src/data/contact-channels.ts`](../apps/web/src/data/contact-channels.ts). Public web
-components and client-side failure messages must import these constants rather than repeat email
-address literals. The production outbound allowlist remains in
-[`apps/api/wrangler.jsonc`](../apps/api/wrangler.jsonc).
+| Address                     | Channel       | Intended use                                                | Inbound | Outbound |
+| --------------------------- | ------------- | ----------------------------------------------------------- | ------- | -------- |
+| `hello@kenarhinlabs.com`    | General       | Contact page, business and website enquiries                | Yes     | Yes      |
+| `projects@kenarhinlabs.com` | Projects      | Start-a-Project intake and project correspondence           | Yes     | Yes      |
+| `support@kenarhinlabs.com`  | Support       | Existing-client and technical support                       | Yes     | Yes      |
+| `privacy@kenarhinlabs.com`  | Privacy       | Privacy, legal, rights, security, and policy requests       | Yes     | Yes      |
+| `contact@kenarhinlabs.com`  | General alias | Compatibility address that enters the General channel       | Yes     | No       |
+| `no-reply@kenarhinlabs.com` | System only   | Automated delivery that intentionally has no reply workflow | No      | Yes      |
 
-## Usage rules
+`contact@` is no longer the legal/privacy identity. It is an inbound compatibility alias for
+General. New legal and privacy copy must use `privacy@kenarhinlabs.com`.
 
-### General enquiries
+## Public form mapping
 
-Use `hello@kenarhinlabs.com` when a visitor wants to:
+| Surface                                | API endpoint                  | Stored channel         | Creates a CRM lead       |
+| -------------------------------------- | ----------------------------- | ---------------------- | ------------------------ |
+| Contact                                | `POST /public/inquiries`      | General / `hello@`     | No                       |
+| Start a Project                        | `POST /public/project-intake` | Projects / `projects@` | Yes                      |
+| Support                                | `POST /public/support`        | Support / `support@`   | No automatic client link |
+| Currently deployed legacy Contact form | `POST /public/contact`        | Projects / `projects@` | Yes                      |
 
-- ask a general business question;
-- ask about the public website; or
-- reach the lab without starting a defined project enquiry.
+The legacy endpoint remains operational to avoid breaking the deployed web app. It returns
+`Deprecation: true` and a successor link. The frontend team should move the ordinary Contact page to
+`/public/inquiries` and reserve `/public/project-intake` for the dedicated Start-a-Project page.
 
-### Project enquiries
+## Reply and thread rules
 
-Use `projects@kenarhinlabs.com` when a visitor wants to:
+- Admin reply requests contain only a plain-text body. The API derives both `From` and `To` from the
+  stored thread; a browser cannot choose or spoof either identity.
+- Outbound conversation messages use a signed plus-address in `Reply-To`, for example
+  `support+<thread>.<signature>@kenarhinlabs.com`.
+- Cloudflare Email Routing preserves the plus tag and sends all five inbound addresses to the API
+  Worker. The Worker verifies the signature before using a thread hint.
+- RFC `Message-ID`, `In-Reply-To`, and `References` are secondary matching signals and are accepted
+  only when the envelope sender matches the stored participant.
+- `contact@` is normalized to the General mailbox, but replies are sent from `hello@`.
+- `no-reply@` has no inbound routing rule. The catch-all remains disabled.
 
-- discuss a possible project;
-- use email instead of the project-intake form;
-- recover from a contact-form service or network failure.
+## Storage and delivery meaning
 
-The backend handoff for `POST /public/contact` therefore keeps this address as the visitor-facing
-fallback until durable intake persistence and notification are operational.
+- Private threads, messages, workflow state, and attachment metadata live in Supabase Postgres.
+- Attachment bytes live in the private `kenarhinlabs-email-attachments` R2 bucket and are returned
+  only through an authenticated `email.read` API route.
+- Email bodies and private attachments never enter D1.
+- A website submission becomes an inbound inbox message. The unread inbox state replaces the old
+  self-addressed “internal notification” email.
+- `provider_accepted` means Cloudflare accepted the outbound send request. It does not claim final
+  SMTP delivery. `delivered` and `bounced` are reserved for evidence that proves those outcomes.
 
-### Existing-client support
+## Live Cloudflare state
 
-Use `support@kenarhinlabs.com` for an existing client's technical or operational support request.
-Do not publish response-time or availability promises merely because the mailbox exists; any
-support hours, service levels, and escalation paths belong in the applicable client agreement or
-support documentation.
+As verified on 2026-07-13:
 
-### Automated transactional delivery
+- Email Routing is enabled and subaddressing is enabled;
+- `hello@`, `contact@`, `projects@`, `support@`, and `privacy@` route to `kenarhinlabs-api`;
+- the catch-all rule is disabled;
+- the Worker may send from `hello@`, `projects@`, `support@`, `privacy@`, and `no-reply@`;
+- `EMAIL_REPLY_TOKEN_SECRET` is installed as a non-retrievable Worker secret; and
+- the dedicated private attachment R2 bucket exists and is bound to the API Worker.
 
-Use `no-reply@kenarhinlabs.com` for automated messages that do not require a direct response, such
-as authentication or system-generated notifications. When a useful reply path exists, the email
-job should provide a monitored `Reply-To` channel instead of inviting replies to the no-reply
-identity.
+## Public copy rules
 
-### Legal and privacy correspondence
+- Use `hello@` for ordinary contact and business correspondence.
+- Use `projects@` only when a visitor is starting or discussing a project.
+- Use `support@` for support; do not publish response-time promises unless a service agreement
+  establishes them.
+- Use `privacy@` on privacy, legal, rights, and policy surfaces.
+- Do not advertise `contact@` as the primary address; it exists for compatibility.
+- Use `no-reply@` only when no monitored reply path is appropriate.
 
-Use `contact@kenarhinlabs.com` when a visitor wants to:
-
-- ask about the privacy notice or website terms;
-- exercise an applicable privacy right;
-- request a correction or deletion;
-- report suspected misuse or exposure of information; or
-- raise another policy or legal question.
-
-This is currently an inbound contact route. It does not need to be added to Cloudflare Email
-Sending's allowed sender list unless the backend later sends mail with `contact@kenarhinlabs.com`
-in the `From` header.
-
-## Cloudflare configuration boundary
-
-The `allowed_sender_addresses` array restricts which `From` addresses the API Worker may use. It
-does not configure inbound Email Routing or prove which public addresses forward to a monitored
-destination. Inbound routing rules and destination verification must be managed separately.
-
-## Maintenance
-
-- Do not use the addresses interchangeably in public copy.
-- Do not route legal or privacy requests through the project form as the only option.
-- Keep every publicly advertised inbound mailbox monitored.
-- If an address changes, update the shared constants first, then review backend sender/recipient
-  configuration and operational forwarding separately.
-- Never publish a physical or postal address unless Ken Arhin Labs establishes and approves one.
+Frontend implementation details are in
+[`docs/tasks/frontend/email-channels-and-inbox-frontend-handoff.md`](tasks/frontend/email-channels-and-inbox-frontend-handoff.md).

@@ -8,17 +8,17 @@
   "vars": {
     "ADMIN_SITE_URL": "https://admin.kenarhinlabs.com",
     "ALLOWED_ORIGINS": "https://kenarhinlabs.com,https://admin.kenarhinlabs.com",
-    "EMAIL_FROM_ADDRESS": "projects@kenarhinlabs.com",
+    "EMAIL_ATTACHMENT_BUCKET_NAME": "kenarhinlabs-email-attachments",
     "EMAIL_FROM_NAME": "Ken Arhin Labs",
     "ENVIRONMENT": "production",
     "HEALTH_CHECK_TIMEOUT_MS": "2000",
-    "PROJECT_INTAKE_EMAIL": "projects@kenarhinlabs.com",
     "SUPABASE_JWT_AUDIENCE": "authenticated",
     "SUPABASE_URL": "https://mbscfzccmomwqdybnlbq.supabase.co",
   },
   "secrets": {
     "required": [
       "CLOUDFLARE_EMAIL_WEBHOOK_SECRET",
+      "EMAIL_REPLY_TOKEN_SECRET",
       "INTERNAL_QUEUE_WEBHOOK_SECRET",
       "SUPABASE_WEBHOOK_SECRET",
     ],
@@ -39,13 +39,20 @@
       "migrations_dir": "../../packages/db/d1/migrations",
     },
   ],
-  "r2_buckets": [{ "binding": "R2_MEDIA", "bucket_name": "kenarhinlabs-media" }],
+  "r2_buckets": [
+    { "binding": "R2_MEDIA", "bucket_name": "kenarhinlabs-media" },
+    {
+      "binding": "R2_EMAIL_ATTACHMENTS",
+      "bucket_name": "kenarhinlabs-email-attachments",
+    },
+  ],
   "send_email": [
     {
       "name": "EMAIL",
       "allowed_sender_addresses": [
         "no-reply@kenarhinlabs.com",
         "hello@kenarhinlabs.com",
+        "privacy@kenarhinlabs.com",
         "projects@kenarhinlabs.com",
         "support@kenarhinlabs.com",
       ],

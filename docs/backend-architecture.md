@@ -195,7 +195,10 @@ GET  /public/content/:type/:slug
 GET  /public/tools
 GET  /public/offers
 POST /public/leads
-POST /public/contact
+POST /public/inquiries
+POST /public/project-intake
+POST /public/support
+POST /public/contact              Legacy project-intake compatibility route
 ```
 
 Public routes should read from D1 where possible and fall back to Supabase through the API only when
@@ -222,6 +225,11 @@ GET    /admin/media
 POST   /admin/media/upload-url
 GET    /admin/emails
 POST   /admin/emails/send
+GET    /admin/email-threads
+GET    /admin/email-threads/:id
+PATCH  /admin/email-threads/:id
+POST   /admin/email-threads/:id/replies
+GET    /admin/email-attachments/:id
 ```
 
 Admin routes require Supabase Auth JWT verification and permission checks.
@@ -305,15 +313,15 @@ manual admin-sent emails
 Sender responsibilities:
 
 ```txt
-no-reply@kenarhinlabs.com   Supabase Auth and automated system delivery
-hello@kenarhinlabs.com      General business and website correspondence
-projects@kenarhinlabs.com   Contact confirmations, leads, and project correspondence
+no-reply@kenarhinlabs.com   Supabase Auth and non-conversational system delivery
+hello@kenarhinlabs.com      General form, business, and website correspondence
+projects@kenarhinlabs.com   Project intake, confirmations, and project correspondence
 support@kenarhinlabs.com    Existing-client and technical support
+privacy@kenarhinlabs.com    Privacy, legal, rights, security, and policy correspondence
 ```
 
-`contact@kenarhinlabs.com` remains the inbound privacy, legal, security, rights, and policy address.
-It is not an approved outbound API sender unless a future reviewed workflow requires it. The
-complete public channel rules live in
+`contact@kenarhinlabs.com` is an inbound-only compatibility alias normalized to the General `hello@`
+channel. The complete public channel rules live in
 [`docs/frontend-contact-channels.md`](frontend-contact-channels.md).
 
 ## Content Publishing Flow
@@ -403,7 +411,7 @@ This gives better retry behavior, traceability, and resilience.
 1. Domain action triggers email requirement.
 2. Hono writes comms.email_messages row with status queued.
 3. Queue/Workflow sends email through Cloudflare Email Service.
-4. Delivery result updates comms.email_messages.
+4. Binding success updates the row to `provider_accepted`, not final `delivered`.
 5. Audit log records the action.
 ```
 
@@ -411,10 +419,13 @@ This gives better retry behavior, traceability, and resilience.
 
 ```txt
 1. Email arrives through Cloudflare Email Routing/Email Service.
-2. Worker email handler parses message.
-3. Hono/comms module matches lead/client/thread.
-4. Message is stored in comms.email_messages.
-5. Admin notification is queued if needed.
+2. The API Worker's `email()` handler validates the envelope and bounded raw size.
+3. PostalMime parses the message; signed plus-addresses and participant-constrained RFC headers
+   match an existing thread or create a channel-aware new thread.
+4. Private attachment bytes are written to the dedicated R2 bucket with generated object keys.
+5. The message, attachment metadata, and unread thread state commit in Supabase Postgres.
+6. Admin users list and reply through permission-gated APIs. Replies derive `From` and `To` from
+   the thread and publish through the transactional outbox and Email Queue.
 ```
 
 ## Background Jobs

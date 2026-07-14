@@ -20,15 +20,19 @@ contact form states, and frontend documentation of missing backend adapters.
 
 ## Live contract evidence
 
-Checked 2026-07-12 without remote mutation:
+Backend refresh verified 2026-07-13:
 
 - `GET https://api.kenarhinlabs.com/public/navigation` returned `200` with empty `header` and
   `footer` arrays.
 - `GET https://api.kenarhinlabs.com/public/homepage` returned `503 DEPENDENCY_UNAVAILABLE`.
 - CORS preflight for `POST /public/contact` from `https://kenarhinlabs.com` returned `204` and
   allowed `POST` with `Content-Type`.
-- Repository inspection proves `POST /public/contact` validates `name`, `email`, `subject`, and
-  `message`, but the production `IntakeService.createContact` port is still fail-closed.
+- `POST /public/contact` is now durable, deployed legacy Projects intake and returns deprecation
+  headers pointing to `/public/project-intake`.
+- New Contact work must use `POST /public/inquiries`, which stores a General `hello@` inbox thread
+  without creating a CRM lead.
+- The new channel contracts and admin-inbox handoff are documented in
+  [`email-channels-and-inbox-frontend-handoff.md`](email-channels-and-inbox-frontend-handoff.md).
 
 ## Verification evidence
 
@@ -46,6 +50,6 @@ Checked 2026-07-12 without remote mutation:
 
 ## Blockers or handoff notes
 
-The frontend can integrate and display exact failure states, but successful contact intake requires
-backend persistence and notification adapters. This lane must not claim an end-to-end successful
-submission until live evidence proves it.
+The persistence and communications backend is deployed. This lane remains frontend-incomplete until
+the ordinary Contact page moves to `/public/inquiries`, the separate Start-a-Project surface uses
+`/public/project-intake`, and an authorized real submission is browser-tested.

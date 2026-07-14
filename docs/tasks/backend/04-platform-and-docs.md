@@ -104,6 +104,17 @@ foundations are not equivalent to an end-to-end publishing path.
 - Resolved the D1 Wrangler editor diagnostics by using the version-pinned SchemaStore URL and a
   targeted Prettier override that preserves strict JSONC without trailing commas.
 
+### 2026-07-13 — Unified email platform deployment
+
+- Created the dedicated private email-attachment R2 bucket through the Cloudflare API MCP and bound
+  it as `R2_EMAIL_ATTACHMENTS`.
+- Added the API Worker's inbound Email Routing handler, PostalMime parsing, signed plus-address
+  threading, and server-derived admin replies.
+- Installed the non-retrievable reply-token secret, enabled Email Routing subaddressing, and routed
+  all five channel/alias addresses to the Worker while preserving unrelated rules.
+- Deployed Worker version `ea569614-133b-46ef-9440-57843bf5bbd1`; health and readiness passed after
+  deployment.
+
 ## Documentation and decisions
 
 ### Current official sources
@@ -141,9 +152,8 @@ foundations are not equivalent to an end-to-end publishing path.
 - GitHub project/onboarding communication guidance:
   <https://docs.github.com/en/issues/tracking-your-work-with-issues/learning-about-issues/planning-and-tracking-work-for-your-team-or-project>
 
-Context7 resolution for Cloudflare Workers was attempted from `/tmp` as required by repository
-instructions, but it returned no documentation payload. The audit therefore used the official
-Cloudflare docs MCP plus Cloudflare's current first-party pages instead of relying on model memory.
+Current Cloudflare implementation work uses the Cloudflare docs/API MCP and current first-party
+pages rather than Context7 or model memory.
 
 ### Material conclusions
 
@@ -221,7 +231,7 @@ Commands were run from the repository root on 2026-07-11 unless noted otherwise.
 | `pnpm --filter @labs/storage typecheck`                                           | Passed                                                                                         |
 | `pnpm --filter @labs/storage test`                                                | Passed: 1 file, 8 tests                                                                        |
 | `pnpm --filter @labs/email typecheck`                                             | Passed                                                                                         |
-| `pnpm --filter @labs/email test`                                                  | Passed: 1 file, 6 tests                                                                        |
+| `pnpm --filter @labs/email test`                                                  | Passed: 1 file, 13 tests                                                                       |
 | `pnpm --filter @labs/sync typecheck`                                              | Passed                                                                                         |
 | `pnpm --filter @labs/sync test`                                                   | Passed: 1 file, 4 tests                                                                        |
 | `pnpm exec eslint packages/storage packages/email packages/sync --max-warnings=0` | Passed with zero warnings                                                                      |
@@ -246,6 +256,7 @@ applied remotely.
    the projector registry accepts explicit sanitized public events. An application-owned adapter
    must render safe HTML, resolve author/media data, map event names, and implement the
    `OutboxEventSource` lifecycle before the end-to-end projection checkbox can close.
-2. **Application adapters remain incomplete.** The live deployment is healthy, but lead/contact
-   intake, admin mutations, webhook persistence, email-delivery state, media processing, and the
-   outbox source still fail closed until the API persistence ports are implemented.
+2. **Some application adapters remain incomplete.** Communications intake, inbound routing, admin
+   thread operations, and email-delivery state are deployed. Unrelated admin domain mutations,
+   webhook persistence, media processing, homepage/tools reads, and the generic outbox source still
+   fail closed or remain incomplete.

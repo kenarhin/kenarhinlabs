@@ -1,291 +1,149 @@
-# Contact Intake Backend Handoff
+# Communications Backend Completion Record
 
-_Prepared: 2026-07-13_
+_Updated: 2026-07-13_
 
-## Purpose
+## Outcome
 
-This handoff documents why the public Contact page cannot currently accept project enquiries and
-defines the backend work required to make `POST /public/contact` production-ready.
+The contact-intake gap is resolved and expanded into a channel-aware unified inbox backend. Public
+forms and direct email now enter the same durable Postgres conversation model, admin replies are
+Queue-backed and server-addressed, and inbound attachments are private in R2.
 
-This is a backend persistence and notification gap. The public Astro form is already connected to
-the deployed Hono API and correctly displays the API's structured failure response.
+This record covers backend and live infrastructure only. No frontend implementation was performed.
+The frontend team handoff is
+[`../frontend/email-channels-and-inbox-frontend-handoff.md`](../frontend/email-channels-and-inbox-frontend-handoff.md).
 
-## Current status
+## Channel model
 
-```txt
-Frontend form submission:       Connected
-API route and validation:       Implemented
-CORS:                           Implemented
-Public rate limiting:           Implemented
-Production database readiness:  Healthy
-Contact persistence adapter:    Not implemented
-Contact email workflow:         Not wired end to end
-Current valid-submit result:     503 DEPENDENCY_UNAVAILABLE
-```
+| Channel  | Canonical mailbox           | Public form                   | CRM behavior             |
+| -------- | --------------------------- | ----------------------------- | ------------------------ |
+| General  | `hello@kenarhinlabs.com`    | `POST /public/inquiries`      | No lead                  |
+| Projects | `projects@kenarhinlabs.com` | `POST /public/project-intake` | Creates lead             |
+| Support  | `support@kenarhinlabs.com`  | `POST /public/support`        | No untrusted client link |
+| Privacy  | `privacy@kenarhinlabs.com`  | Direct email for now          | No lead                  |
 
-### Backend implementation update — 2026-07-13
+`contact@kenarhinlabs.com` is an inbound General alias. `no-reply@kenarhinlabs.com` is outbound
+only. The deployed legacy `POST /public/contact` contract remains available and maps to Projects so
+the current web app does not break before the frontend handoff is implemented.
 
-The repository and canonical database work described by this handoff has now been implemented and
-verified locally:
+## Implemented backend
 
-- production service construction now replaces the fail-closed intake and email-delivery ports;
-- one Postgres transaction creates the lead, communication thread, durable email messages, and
-  transactional-outbox events;
-- immediate Queue publication is best effort after the commit, with a one-minute scheduled publisher
-  recovering deferred outbox work;
-- Queue delivery claims and delivery outcomes are persisted with stable job and idempotency keys;
-- the migration `add_durable_email_delivery` is applied to the verified Supabase project, with all
-  ten columns, three indexes, and the update trigger confirmed live;
-- API tests pass (13), email delivery tests pass (9), the affected packages typecheck, migration and
-  Drizzle checks pass, changed files pass lint/format checks, and Wrangler 4.110.0 completes the
-  deployment dry run.
+### Durable public intake
 
-Production deployment and end-to-end delivery are deliberately still pending. There is no preview
-Worker environment configured, no approved synthetic recipient/cleanup run, and Cloudflare Email
-Routing currently has no rule that forwards `projects@kenarhinlabs.com` to the verified destination.
-The existing catch-all is disabled, so the internal notification must not be described as delivered
-until that rule exists and a smoke test proves it.
+- A form submission becomes an inbound `comms.email_messages` row and an unread
+  `comms.email_threads` conversation.
+- The original submission, visitor confirmation, and transactional outbox event commit together.
+- General and Support do not create speculative CRM leads. Projects creates one lead in the same
+  transaction.
+- The old internal email from `projects@` to `projects@` was removed. Inbox unread state is the
+  internal notification and does not depend on an inbound forwarding destination.
+- The `202 accepted` boundary is the successful Postgres commit. Immediate Queue publication is best
+  effort, with the scheduled publisher recovering deferred outbox work every minute.
 
-The canonical communications records live in Supabase Postgres, not D1. D1 remains the public,
-non-sensitive projection. Authenticated admin email-list/reply adapters and inbound Email Routing
-Worker ingestion are a separate future slice; the present admin email endpoints still fail closed.
+### Inbound Email Routing Worker
 
-User impact:
+- `email()` is implemented on `kenarhinlabs-api` and awaits the full ingestion operation.
+- PostalMime 2.7.5 parses a bounded raw message. The Worker rejects invalid senders, oversized
+  messages, unknown recipients, and forged reserved plus-addresses.
+- Signed HMAC plus-addresses are the primary reply-thread hint. RFC message identifiers are a
+  secondary match and require the same participant and mailbox.
+- Message retries deduplicate through a raw SHA-256 idempotency key plus provider/RFC identifiers.
+- Attachment bytes are written to the private `kenarhinlabs-email-attachments` R2 bucket. Object
+  keys contain only generated IDs; database failures and duplicate messages clean up uploaded
+  objects.
+- Raw MIME is not stored and private content is not written to logs or D1.
 
-- a visitor can complete and submit the Contact form;
-- the request reaches the production API and receives a request ID;
-- the enquiry is not stored;
-- no confirmation or internal notification email is queued;
-- the visitor is instructed to use `projects@kenarhinlabs.com` instead.
+### Authenticated administration API
 
-## Public email-channel responsibility
+| Route                                   | Permission     | Behavior                              |
+| --------------------------------------- | -------------- | ------------------------------------- |
+| `GET /admin/email-threads`              | `email.read`   | Filtered/paginated inbox              |
+| `GET /admin/email-threads/:id`          | `email.read`   | Thread, messages, attachment metadata |
+| `PATCH /admin/email-threads/:id`        | `email.manage` | Read state, priority, workflow status |
+| `POST /admin/email-threads/:id/replies` | `email.send`   | Audited durable reply                 |
+| `GET /admin/email-attachments/:id`      | `email.read`   | Authenticated private R2 stream       |
 
-The Contact form is a project-intake surface, so its direct-email fallback remains
-`projects@kenarhinlabs.com`. General business enquiries use `hello@kenarhinlabs.com`, while the
-separate `contact@kenarhinlabs.com` address is reserved for privacy, legal, security, rights, and
-policy correspondence and must not replace the project-intake fallback.
+Reply requests accept only plain text. The service loads the thread, chooses the stored mailbox as
+`From`, chooses the participant as `To`, generates a signed `Reply-To`, and preserves RFC threading
+headers. Every reply/status change has an append-only audit row.
 
-The web source of truth and complete usage rules are documented in
-[`docs/frontend-contact-channels.md`](../../frontend-contact-channels.md). If the backend later
-sends mail with an address in the `From` header, that address must remain in Cloudflare Email
-Sending's outbound sender allowlist separately from the public routing decision.
+The older generic `/admin/emails` scaffold remains fail-closed. New frontend work must use the
+thread routes above rather than revive arbitrary browser-controlled send fields.
 
-## Live evidence
+### Delivery state
 
-Read-only checks performed against `https://api.kenarhinlabs.com` on 2026-07-13:
+Cloudflare Email Sending binding success is stored as `provider_accepted`, not `delivered`. The
+schema reserves separate `delivered` and `bounced` timestamps/statuses for final outcome evidence.
+This prevents the dashboard failure shown for the former self-addressed internal notification from
+being confused with the visitor confirmation that Cloudflare accepted and delivered separately.
 
-| Check                                | Result                                                                    |
-| ------------------------------------ | ------------------------------------------------------------------------- |
-| `GET /health`                        | `200`; production API reports `status: ok`                                |
-| `GET /ready`                         | `200`; Auth, database, and rate limiting all report `ok: true`            |
-| `GET /public/navigation`             | `200`; route is operational and currently returns empty navigation arrays |
-| Valid browser `POST /public/contact` | `503 DEPENDENCY_UNAVAILABLE` with a public request reference              |
+## Database migrations
 
-Do not include the visitor's submitted name, email address, subject, or message in issue trackers,
-logs, screenshots, or test fixtures.
+Applied through the connected Supabase MCP to project `mbscfzccmomwqdybnlbq`:
 
-## Request path and confirmed root cause
+1. `add_unified_email_inbox`
+   - four canonical mailboxes;
+   - mailbox/participant/source/priority/unread/timeline fields on threads;
+   - RFC, reply, actor, receive, provider-acceptance, delivery, and bounce fields on messages;
+   - private attachment metadata and RLS policies;
+   - legacy `sent` rows migrated to `provider_accepted`.
+2. `add_email_message_actor_index`
+   - covering index for the admin-reply actor foreign key identified by the Supabase advisor.
 
-1. The browser submits `name`, `email`, `subject`, and `message` to the configured API origin in
-   [`apps/web/src/lib/forms/contact.ts`](../../../apps/web/src/lib/forms/contact.ts).
-2. The Hono route applies the public rate limiter, parses the JSON body with `contactInputSchema`,
-   and calls `services.intake.createContact(...)` in
-   [`apps/api/src/routes/public.routes.ts`](../../../apps/api/src/routes/public.routes.ts).
-3. Production creates its dependency graph through `createWorkerServices(...)` in
-   [`apps/api/src/services/postgres.ts`](../../../apps/api/src/services/postgres.ts).
-4. That graph starts with `createUnavailableServices()` and does not replace `intake` with a
-   Postgres implementation.
-5. `createContact` therefore throws `dependencyUnavailable("Backend persistence")` from
-   [`apps/api/src/services/unavailable.ts`](../../../apps/api/src/services/unavailable.ts).
-6. The global API error boundary serializes the expected failure as HTTP `503` with
-   `error.code = "DEPENDENCY_UNAVAILABLE"` and a request ID.
+Post-apply verification reported four mailboxes, zero threads without a mailbox, no security advisor
+findings, and no remaining unindexed foreign key introduced by this slice. Existing unused index
+notices are expected in a nearly empty production database and were not removed prematurely.
 
-The structured 503 and request reference prove that this is not a frontend networking failure.
+## Cloudflare production state
 
-## Existing foundations the implementation should reuse
+- Worker version: `ea569614-133b-46ef-9440-57843bf5bbd1`
+- Custom domain: `api.kenarhinlabs.com`
+- Private attachment binding: `R2_EMAIL_ATTACHMENTS`
+- Reply-token secret: installed as `EMAIL_REPLY_TOKEN_SECRET`; its value is non-retrievable.
+- Allowed outbound identities: `hello@`, `projects@`, `support@`, `privacy@`, `no-reply@`.
+- Routing rules to the Worker: `hello@`, `contact@`, `projects@`, `support@`, `privacy@`.
+- Subaddressing: enabled.
+- Catch-all: disabled.
+- Existing unrelated `admin@` forwarding rule: preserved.
 
-- `crm.leads` already supports public-enquiry fields in
-  [`packages/db/src/schema/crm.ts`](../../../packages/db/src/schema/crm.ts).
-- The validator contract is already defined in
-  [`packages/validators/src/public.ts`](../../../packages/validators/src/public.ts).
-- `EMAIL_QUEUE` and the `kenarhinlabs-email` producer/consumer are configured in
-  [`apps/api/wrangler.jsonc`](../../../apps/api/wrangler.jsonc).
-- `contact-confirmation` and `lead-received` templates already exist in
-  [`packages/email/src/templates.ts`](../../../packages/email/src/templates.ts).
-- Queue parsing, retry classification, acknowledgement, and delivery handling already exist in
-  [`packages/email/src/queue-consumer.ts`](../../../packages/email/src/queue-consumer.ts).
-- `comms.email_threads` and `comms.email_messages` provide durable communication records in
-  [`packages/db/src/schema/comms.ts`](../../../packages/db/src/schema/comms.ts).
-- `sync.outbox_events` provides a transactional outbox foundation in
-  [`packages/db/src/schema/sync.ts`](../../../packages/db/src/schema/sync.ts).
+Production HTTP verification after deployment:
 
-The Cloudflare bindings are provisioned. The missing work is application adapter wiring, not basic
-API, Hyperdrive, Queue, or email-binding provisioning.
+| Check                                     | Result                                                |
+| ----------------------------------------- | ----------------------------------------------------- |
+| `GET https://api.kenarhinlabs.com/health` | HTTP `200`, production `status: ok`                   |
+| `GET https://api.kenarhinlabs.com/ready`  | HTTP `200`; Auth, database, and rate limiting healthy |
 
-## Required implementation
+No synthetic production form or inbound-email message was sent because no test recipient/cleanup
+identity was authorized. The route, Queue, MIME, signed-thread, R2 cleanup, and server-addressing
+behavior are covered by automated tests; the next authorized real email can be used as the final
+human smoke test.
 
-### 1. Implement a Postgres-backed `IntakeService`
+## Verification gates completed
 
-Add a production implementation of both `createContact` and `createLead`, then replace the
-unavailable `intake` port inside `createWorkerServices()`.
+- Drizzle schema check and migration validator pass.
+- All backend workspaces typecheck.
+- Backend tests pass, including API (19), Email (13), PWA (13), Storage (8), Sync (4), Validators
+  (4), and Auth (4).
+- Targeted backend lint passes with zero warnings. The repository-wide backend lint command still
+  has the pre-existing `console.log` warning in `packages/pwa/examples/web/register-pwa.example.ts`,
+  which this backend slice did not alter.
+- Wrangler 4.110.0 production dry-run and deployment pass with the new Email/R2 bindings.
+- Live Cloudflare API re-read confirms the bucket, secret binding, privacy sender, subaddressing,
+  five routing rules, and disabled catch-all.
 
-For a Contact-form submission, persist a new `crm.leads` row rather than a `crm.contacts` row.
-`crm.contacts` requires an existing client, while an anonymous project enquiry is not yet a client.
+## Remaining backend status outside communications
 
-Recommended mapping:
+The communications backend described here is implemented and deployed. The entire platform backend
+is not yet complete: several unrelated admin domain adapters, homepage/tools reads, generic
+webhook/idempotency persistence, media processing, and public projection workflows remain
+fail-closed or incomplete. Those gaps should stay tracked independently and must not be hidden by
+the email-system completion.
 
-| Contact input       | Lead representation                                                        |
-| ------------------- | -------------------------------------------------------------------------- |
-| `name`              | `crm.leads.name`                                                           |
-| `email`             | `crm.leads.email`                                                          |
-| `message`           | `crm.leads.message`                                                        |
-| Contact-form origin | `source = "website_contact"`                                               |
-| Project subject     | Preserve in reviewed metadata or a dedicated future subject field          |
-| Lead category       | A stable value such as `project_enquiry`, not a silently truncated subject |
-| API request ID      | Reviewed metadata for support correlation                                  |
-| Initial state       | `status = "new"`                                                           |
+## Operational notes
 
-Do not store raw IP addresses indefinitely or place them in general-purpose metadata without a
-documented security purpose, retention period, and privacy review. Request bodies and email
-addresses must not be written to application logs.
-
-### 2. Make persistence the acceptance boundary
-
-Return HTTP `202` only after the lead has been committed successfully. The response contract is
-already defined by `IntakeService`:
-
-```json
-{
-  "data": {
-    "id": "<lead-uuid>",
-    "status": "accepted"
-  },
-  "ok": true,
-  "requestId": "<request-id>"
-}
-```
-
-Email delivery should be asynchronous. A temporary mail-provider failure must not discard or roll
-back an already accepted enquiry.
-
-### 3. Wire durable notification jobs
-
-After the lead is committed, create recoverable email work for:
-
-1. a `contact-confirmation` message to the visitor; and
-2. a `lead-received` notification to the approved internal project-intake address.
-
-Prefer a database transaction plus transactional-outbox event so that a Worker or Queue failure
-between persistence and enqueue does not lose notification work. The resulting jobs must satisfy
-`TransactionalEmailJobV1`, use stable idempotency keys, and reference durable email-message IDs.
-
-The email Queue consumer currently also depends on the fail-closed
-`platform.emailDeliveryRepository`. Implement and wire its `claim`, `markSent`, and `markFailed`
-methods against the communications schema before claiming end-to-end email delivery.
-
-### 4. Preserve existing public safeguards
-
-- keep the strict Zod body contract and `256 KiB` API body limit;
-- preserve `422` validation responses and `429` rate-limit responses;
-- preserve CORS restrictions to approved production origins;
-- keep request IDs in the response body and `X-Request-Id` header;
-- do not add the submitter to a marketing list;
-- do not expose database, Queue, provider, or internal error details publicly;
-- decide separately whether production Contact submissions require Turnstile. The validator permits
-  a token, but the current form does not send one.
-
-## Tests required
-
-### Service and database tests
-
-- valid contact input creates exactly one `crm.leads` record;
-- database failure does not return an accepted result;
-- subject and request correlation are preserved without leaking private data into logs;
-- a durable notification/outbox record is committed with the lead;
-- retries do not create duplicate email jobs or delivery records;
-- email status transitions cover queued, sent, retryable failure, and terminal failure.
-
-### API tests
-
-- valid Contact request returns `202`, lead ID, `status: accepted`, and request ID;
-- invalid input still returns `422` before persistence;
-- rate-limited input still returns `429`;
-- persistence unavailability still returns an exposed, structured `503`;
-- an email-provider failure after persistence does not turn an accepted lead into a failed Contact
-  response;
-- response and logs never echo the submitted message or email address.
-
-### Preview and production verification
-
-1. Apply and validate repository migrations through the approved Supabase MCP workflow; do not use
-   the Supabase CLI.
-2. Run API typecheck, lint, and tests.
-3. Run a Cloudflare deployment dry run using the repository's required Wrangler command prefix.
-4. Deploy to a preview environment and submit a synthetic enquiry.
-5. Confirm the lead, outbox/email records, Queue processing, and both expected deliveries.
-6. Deploy production only after preview evidence passes.
-7. Perform one authorized production smoke submission and retain only its request/lead IDs in the
-   verification log.
-
-Example request for preview or an explicitly authorized production smoke test:
-
-```bash
-curl --request POST "https://<api-origin>/public/contact" \
-  --header "Accept: application/json" \
-  --header "Content-Type: application/json" \
-  --data '{
-    "name": "Backend QA",
-    "email": "approved-test-address@example.com",
-    "subject": "Contact intake verification",
-    "message": "Synthetic verification submission; safe to remove after the test."
-  }'
-```
-
-Do not run this example against production until the test recipient and cleanup procedure are
-approved.
-
-## Acceptance criteria
-
-- [ ] A valid public Contact submission returns HTTP `202`.
-- [ ] The response includes a real lead UUID, `status: accepted`, and request ID.
-- [ ] The corresponding `crm.leads` record exists exactly once.
-- [ ] The enquiry remains stored if email delivery is delayed or fails.
-- [ ] Confirmation and internal-notification jobs are durably recorded and processed.
-- [ ] Email delivery outcomes are persisted and retry-safe.
-- [ ] Validation, rate limiting, CORS, body limits, and safe error envelopes still pass.
-- [ ] No submitted message, email address, or unnecessary IP data appears in logs.
-- [ ] The real Contact page shows its success state in desktop and mobile browser checks.
-- [ ] The direct-email fallback remains available for future dependency outages.
-- [ ] Task documentation records preview and production request/lead IDs without personal data.
-
-## Out of scope
-
-- redesigning the Contact page;
-- changing the frontend field contract without a coordinated API update;
-- building the full admin CRM interface;
-- treating a Queue send as a substitute for durable lead persistence;
-- weakening failure handling merely to return a successful status.
-
-## Definition of done
-
-This issue is complete only when a real browser submission is accepted by the deployed API, stored
-as a durable lead, and produces observable retry-safe notification work. A route-level unit test or
-a healthy `/ready` response alone is not sufficient.
-
-## Verification log
-
-### 2026-07-13 — Repository and database implementation
-
-- [x] Implemented Postgres-backed `createContact` and `createLead` adapters.
-- [x] Made the lead/message/outbox database transaction the `202` acceptance boundary.
-- [x] Implemented the durable Queue publisher and one-minute recovery trigger.
-- [x] Implemented idempotent email delivery claim, sent, retryable-failure, and terminal-failure
-      persistence.
-- [x] Applied and catalog-verified `add_durable_email_delivery` using Supabase MCP on the expected
-      `mbscfzccmomwqdybnlbq` project.
-- [x] Passed targeted typecheck, tests, schema validation, Drizzle check, lint, formatting, and
-      Wrangler dry-run gates.
-- [ ] Configure a `projects@kenarhinlabs.com` Email Routing destination rule.
-- [ ] Provision/use a preview Worker environment and complete the approved synthetic test.
-- [ ] Deploy the reviewed Worker to production.
-- [ ] Complete an authorized production browser smoke test and record only request/lead IDs.
+- Production secrets cannot be retrieved from Cloudflare. Local development must use a different 32+
+  character `EMAIL_REPLY_TOKEN_SECRET` in `.dev.vars`; never copy it into source control.
+- Rotating the production reply-token secret invalidates outstanding signed plus-addresses. RFC
+  threading may still match replies, but rotation should be scheduled and documented.
+- Do not delete the legacy `/public/contact` endpoint until the deployed Contact and Start-a-Project
+  surfaces have migrated.
+- Do not expose R2 publicly or copy email data into D1.

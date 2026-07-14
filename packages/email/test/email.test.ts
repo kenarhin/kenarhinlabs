@@ -2,8 +2,12 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   CloudflareEmailTransport,
+  canonicalMailboxForAddress,
   classifyEmailFailure,
   consumeEmailBatch,
+  createThreadReplyAddress,
+  mailboxForChannel,
+  parseThreadReplyAddress,
   parseTransactionalEmailJob,
   renderEmailJob,
   renderTemplate,
@@ -41,6 +45,38 @@ describe("transactional email", () => {
     expect(JSON.stringify(rendered)).not.toContain("token");
   });
 
+  it("creates and verifies a signed channel-preserving reply address", async () => {
+    const mailbox = mailboxForChannel("support");
+    const threadId = "10000000-0000-4000-8000-000000000001";
+    const secret = "synthetic-email-reply-token-secret-value";
+
+    const address = await createThreadReplyAddress(mailbox, threadId, secret);
+
+    expect(address).toContain(`support+${threadId}.`);
+    expect(address.split("@")[0]?.length).toBeLessThanOrEqual(64);
+    await expect(parseThreadReplyAddress(address, secret)).resolves.toEqual({ mailbox, threadId });
+  });
+
+  it("rejects a tampered signed reply address", async () => {
+    const mailbox = mailboxForChannel("general");
+    const address = await createThreadReplyAddress(
+      mailbox,
+      "10000000-0000-4000-8000-000000000001",
+      "synthetic-email-reply-token-secret-value",
+    );
+
+    await expect(
+      parseThreadReplyAddress(
+        `${address.slice(0, -1)}x`,
+        "synthetic-email-reply-token-secret-value",
+      ),
+    ).resolves.toBeNull();
+  });
+
+  it("normalizes the inbound contact alias to the General mailbox", () => {
+    expect(canonicalMailboxForAddress("contact@kenarhinlabs.com")?.channel).toBe("general");
+  });
+
   it("marks rate-limit failures as retryable", () => {
     const error = Object.assign(new Error("Slow down"), {
       code: "E_RATE_LIMIT_EXCEEDED",
@@ -65,6 +101,15 @@ describe("transactional email", () => {
       parseTransactionalEmailJob({
         ...job,
         to: Array.from({ length: 51 }, (_, index) => `recipient-${index}@example.com`),
+      }),
+    ).toThrow(TypeError);
+  });
+
+  it("rejects newline injection in queued threading headers", () => {
+    expect(() =>
+      parseTransactionalEmailJob({
+        ...job,
+        headers: { "In-Reply-To": "<safe@example.com>\r\nBcc: attacker@example.com" },
       }),
     ).toThrow(TypeError);
   });

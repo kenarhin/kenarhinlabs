@@ -291,7 +291,7 @@ Use Cloudflare Email Service for:
 2. Hono/Workers transactional emails
 3. Business emails triggered from the admin
 4. Contact form confirmations
-5. Internal notifications
+5. Channel-aware admin replies and confirmations
 
 Cloudflare SMTP settings:
 
@@ -310,20 +310,26 @@ no-reply@kenarhinlabs.com
 hello@kenarhinlabs.com
 projects@kenarhinlabs.com
 support@kenarhinlabs.com
+privacy@kenarhinlabs.com
 ```
 
 Use these responsibilities:
 
 ```txt
-no-reply@kenarhinlabs.com   Automated auth and system delivery
-hello@kenarhinlabs.com      General business and website correspondence
+no-reply@kenarhinlabs.com   Automated non-conversational system delivery
+hello@kenarhinlabs.com      General form, business, and website correspondence
 projects@kenarhinlabs.com   Project intake, confirmations, and project correspondence
 support@kenarhinlabs.com    Existing-client and technical support
+privacy@kenarhinlabs.com    Privacy, legal, rights, security, and policy correspondence
 ```
 
-`contact@kenarhinlabs.com` is the inbound privacy, legal, security, rights, and policy address. It
-is intentionally absent from the outbound sender allowlist until a real workflow needs to send from
-it. Use Cloudflare Email Routing separately for inbound routing and verified destinations.
+`contact@kenarhinlabs.com` is an inbound-only General compatibility alias. Cloudflare Email Routing
+sends `hello@`, `contact@`, `projects@`, `support@`, and `privacy@` to the API Worker's `email()`
+handler. The catch-all remains disabled, and subaddressing is enabled for signed thread replies.
+
+Private email data stays in Supabase Postgres and the dedicated private
+`kenarhinlabs-email-attachments` R2 bucket. D1 never stores email bodies or attachments. Binding
+success is recorded as `provider_accepted`, not final `delivered`.
 
 ## 8. Database architecture
 

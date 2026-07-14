@@ -24,6 +24,7 @@ export function parseTransactionalEmailJob(value: unknown): TransactionalEmailJo
     !isNonEmptyString(from.email) ||
     (from.name !== undefined && !isNonEmptyString(from.name)) ||
     (candidate.replyTo !== undefined && !isNonEmptyString(candidate.replyTo)) ||
+    (candidate.headers !== undefined && !isThreadingHeaders(candidate.headers)) ||
     !isTemplateRequest(candidate.template) ||
     !isNonEmptyString(candidate.enqueuedAt)
   ) {
@@ -31,6 +32,23 @@ export function parseTransactionalEmailJob(value: unknown): TransactionalEmailJo
   }
 
   return candidate as TransactionalEmailJobV1;
+}
+
+/** Restricts queued custom headers to standards-based conversation threading. */
+function isThreadingHeaders(value: unknown): value is Readonly<Record<string, string>> {
+  if (!isRecord(value)) return false;
+  const entries = Object.entries(value);
+  return (
+    entries.length <= 2 &&
+    entries.every(
+      ([name, headerValue]) =>
+        ["In-Reply-To", "References"].includes(name) &&
+        isNonEmptyString(headerValue) &&
+        headerValue.length <= 8_192 &&
+        !headerValue.includes("\r") &&
+        !headerValue.includes("\n"),
+    )
+  );
 }
 
 /**
@@ -123,6 +141,13 @@ function isTemplateRequest(value: unknown): value is TransactionalEmailJobV1["te
         isNonEmptyString(variables.contentTitle) &&
         ["review", "published", "failed"].includes(String(variables.status)) &&
         isHttpUrl(variables.adminUrl)
+      );
+    case "thread-reply":
+      return (
+        isNonEmptyString(variables.subject) &&
+        variables.subject.length <= 300 &&
+        isNonEmptyString(variables.body) &&
+        variables.body.length <= 500_000
       );
     default:
       return false;

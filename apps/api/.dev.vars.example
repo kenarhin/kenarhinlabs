@@ -2,12 +2,12 @@
 ADMIN_SITE_URL=https://admin.kenarhinlabs.com
 ALLOWED_ORIGINS=https://kenarhinlabs.com,https://admin.kenarhinlabs.com
 CLOUDFLARE_EMAIL_WEBHOOK_SECRET=replace-with-at-least-32-random-characters
-EMAIL_FROM_ADDRESS=projects@kenarhinlabs.com
+EMAIL_ATTACHMENT_BUCKET_NAME=kenarhinlabs-email-attachments
 EMAIL_FROM_NAME=Ken Arhin Labs
+EMAIL_REPLY_TOKEN_SECRET=replace-with-a-different-at-least-32-character-random-secret
 ENVIRONMENT=development
 HEALTH_CHECK_TIMEOUT_MS=2000
 INTERNAL_QUEUE_WEBHOOK_SECRET=replace-with-at-least-32-random-characters
-PROJECT_INTAKE_EMAIL=projects@kenarhinlabs.com
 SUPABASE_JWT_AUDIENCE=authenticated
 SUPABASE_URL=https://project-ref.supabase.co
 SUPABASE_WEBHOOK_SECRET=replace-with-at-least-32-random-characters

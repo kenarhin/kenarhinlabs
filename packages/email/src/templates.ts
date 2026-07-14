@@ -51,6 +51,14 @@ function emailShell(heading: string, bodyHtml: string): string {
   return `<!doctype html><html lang="en"><body style="margin:0;background:#f5f5f5;color:#171717;font-family:Arial,sans-serif"><table role="presentation" width="100%" cellspacing="0" cellpadding="0"><tr><td align="center" style="padding:32px 16px"><table role="presentation" width="100%" style="max-width:600px;background:#ffffff;border-radius:12px" cellspacing="0" cellpadding="0"><tr><td style="padding:32px"><p style="margin:0 0 24px;font-weight:700">${BRAND_NAME}</p><h1 style="font-size:24px;margin:0 0 16px">${heading}</h1>${bodyHtml}<p style="margin:32px 0 0;color:#666;font-size:13px">This is a transactional message from ${BRAND_NAME}.</p></td></tr></table></td></tr></table></body></html>`;
 }
 
+/** Escapes a plain-text reply and preserves paragraphs without accepting HTML. */
+function replyBodyHtml(value: string): string {
+  return escapeHtml(value)
+    .split(/\n{2,}/u)
+    .map((paragraph) => `<p>${paragraph.replaceAll("\n", "<br>")}</p>`)
+    .join("");
+}
+
 /**
  * Renders a supported first-party transactional template.
  *
@@ -113,6 +121,16 @@ export function renderTemplate(
         text: `Hello ${request.variables.recipientName},\n\n${request.variables.contentTitle} is now ${request.variables.status}.\nOpen: ${adminUrl}`,
       };
     }
+    case "thread-reply": {
+      const subject = request.variables.subject.toLowerCase().startsWith("re:")
+        ? request.variables.subject
+        : `Re: ${request.variables.subject}`;
+      return {
+        subject,
+        html: emailShell("Reply from Ken Arhin Labs", replyBodyHtml(request.variables.body)),
+        text: request.variables.body,
+      };
+    }
   }
 }
 
@@ -130,6 +148,7 @@ export function renderEmailJob(job: TransactionalEmailJobV1): RenderedTransactio
     ...(job.replyTo === undefined ? {} : { replyTo: job.replyTo }),
     ...rendered,
     headers: {
+      ...job.headers,
       "X-KenarhinLabs-Message-ID": job.messageId,
       "X-KenarhinLabs-Idempotency-Key": job.idempotencyKey,
     },

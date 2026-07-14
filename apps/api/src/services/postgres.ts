@@ -7,16 +7,28 @@ import {
   markEmailDeliveryFailed,
   markEmailDeliverySent,
 } from "@labs/db/queries/email-delivery.queries";
+import {
+  findInboundEmailThread,
+  getEmailAttachment,
+  getEmailThread,
+  listEmailThreads,
+  persistInboundEmail,
+  persistThreadReply,
+  updateEmailThread,
+} from "@labs/db/queries/email-inbox.queries";
 import { persistIntakeTransaction } from "@labs/db/queries/intake.queries";
 import { listCurrentOffers } from "@labs/db/queries/offers.queries";
 import { getUserAuthorization } from "@labs/db/queries/users.queries";
 import type { EmailDeliveryRepository } from "@labs/email";
 
+import { parseRuntimeEnv } from "../env";
 import { logError, logInfo } from "../middleware/logging";
 import type { JsonValue } from "../types/app";
 import type { ApiServices } from "./contracts";
+import { createCommunicationsService } from "./communications";
 import { publishPendingEmailOutbox } from "./email-outbox";
 import { createTransactionalIntakeService } from "./intake";
+import { createInboundEmailService } from "./inbound-email";
 import { createUnavailableServices } from "./unavailable";
 
 /** Narrows an unknown binding without duplicating Cloudflare's generated Env interface. */
@@ -151,22 +163,50 @@ export async function publishPendingEmailJobs(
  */
 export function createWorkerServices(bindings: CloudflareBindings): ApiServices {
   const unavailable = createUnavailableServices();
+  const runtime = parseRuntimeEnv(bindings);
   const intake = createTransactionalIntakeService({
     configuration: {
-      adminSiteUrl: bindings.ADMIN_SITE_URL,
-      fromEmail: bindings.EMAIL_FROM_ADDRESS,
-      fromName: bindings.EMAIL_FROM_NAME,
-      projectIntakeEmail: bindings.PROJECT_INTAKE_EMAIL,
+      fromName: runtime.EMAIL_FROM_NAME,
+      replyTokenSecret: runtime.EMAIL_REPLY_TOKEN_SECRET,
     },
-    onPublishFailure: (fields) => logError(fields.event, { leadId: fields.leadId }),
+    onPublishFailure: (fields) => logError(fields.event, { intakeId: fields.intakeId }),
     persist: (plan) =>
       withDatabase(bindings, (database) => persistIntakeTransaction(database, plan)),
     publishPending: () => publishPendingEmailJobs(bindings, 10),
+  });
+  const communications = createCommunicationsService({
+    attachmentBucketName: runtime.EMAIL_ATTACHMENT_BUCKET_NAME,
+    fromName: runtime.EMAIL_FROM_NAME,
+    getAttachment: (id) => withDatabase(bindings, (database) => getEmailAttachment(database, id)),
+    getObject: (key) => bindings.R2_EMAIL_ATTACHMENTS.get(key),
+    getThread: (id) => withDatabase(bindings, (database) => getEmailThread(database, id)),
+    listThreads: (query) => withDatabase(bindings, (database) => listEmailThreads(database, query)),
+    onPublishFailure: (fields) => logError(fields.event, { threadId: fields.threadId }),
+    persistReply: (plan) =>
+      withDatabase(bindings, (database) => persistThreadReply(database, plan)),
+    publishPending: () => publishPendingEmailJobs(bindings, 10),
+    replyTokenSecret: runtime.EMAIL_REPLY_TOKEN_SECRET,
+    serialize: jsonSafe,
+    updateThread: (plan) => withDatabase(bindings, (database) => updateEmailThread(database, plan)),
+  });
+  const inboundEmail = createInboundEmailService({
+    attachmentBucketName: runtime.EMAIL_ATTACHMENT_BUCKET_NAME,
+    deleteObject: (key) => bindings.R2_EMAIL_ATTACHMENTS.delete(key),
+    findThread: (input) =>
+      withDatabase(bindings, (database) => findInboundEmailThread(database, input)),
+    persist: (plan) => withDatabase(bindings, (database) => persistInboundEmail(database, plan)),
+    putObject: async ({ content, contentType, objectKey }) => {
+      await bindings.R2_EMAIL_ATTACHMENTS.put(objectKey, content, {
+        httpMetadata: { contentType },
+      });
+    },
+    replyTokenSecret: runtime.EMAIL_REPLY_TOKEN_SECRET,
   });
 
   return {
     ...unavailable,
     authorizationRepository: createAuthorizationRepository(bindings),
+    communications,
     databaseProbe: {
       check: async () => {
         try {
@@ -183,6 +223,7 @@ export function createWorkerServices(bindings: CloudflareBindings): ApiServices 
       },
     },
     intake,
+    inboundEmail,
     platform: {
       ...unavailable.platform,
       emailDeliveryRepository: createEmailDeliveryRepository(bindings),

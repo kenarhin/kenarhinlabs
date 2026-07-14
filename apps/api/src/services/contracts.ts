@@ -11,8 +11,14 @@ import type {
   CreateOfferInput,
   CreateProjectInput,
   LeadInput,
+  InquiryInput,
+  EmailThreadListQuery,
+  EmailThreadReplyInput,
   MediaUploadRequest,
   PublicListQuery,
+  ProjectIntakeInput,
+  SupportRequestInput,
+  UpdateEmailThreadInput,
   UpdateClientInput,
   UpdateContentInput,
   WebhookEnvelope,
@@ -44,6 +50,50 @@ export interface IntakeService {
     input: ContactInput,
     metadata: RequestMetadata,
   ): Promise<{ id: string; status: "accepted" }>;
+  createInquiry(
+    input: InquiryInput,
+    metadata: RequestMetadata,
+  ): Promise<{ id: string; status: "accepted" }>;
+  createProjectIntake(
+    input: ProjectIntakeInput,
+    metadata: RequestMetadata,
+  ): Promise<{ id: string; status: "accepted" }>;
+  createSupportRequest(
+    input: SupportRequestInput,
+    metadata: RequestMetadata,
+  ): Promise<{ id: string; status: "accepted" }>;
+}
+
+/** Private attachment payload returned only after admin authorization. */
+export interface EmailAttachmentDownload {
+  body: ReadableStream<Uint8Array>;
+  filename: string;
+  mimeType: string;
+  sizeBytes: number;
+}
+
+/** Unified inbox operations exposed to authenticated admin routes. */
+export interface CommunicationsService {
+  getAttachment(id: string): Promise<EmailAttachmentDownload | null>;
+  getThread(id: string): Promise<JsonValue | null>;
+  listThreads(query: EmailThreadListQuery): Promise<JsonValue>;
+  replyToThread(
+    id: string,
+    input: EmailThreadReplyInput,
+    actorId: string,
+    metadata: RequestMetadata,
+  ): Promise<{ id: string; status: "accepted" }>;
+  updateThread(
+    id: string,
+    input: UpdateEmailThreadInput,
+    actorId: string,
+    metadata: RequestMetadata,
+  ): Promise<JsonValue | null>;
+}
+
+/** Cloudflare Email Routing delivery boundary for inbound MIME messages. */
+export interface InboundEmailService {
+  receive(message: ForwardableEmailMessage): Promise<{ duplicate: boolean; threadId: string }>;
 }
 
 export interface AdminDomainService {
@@ -91,7 +141,9 @@ export interface ApiServices {
   admin: AdminDomainService;
   authorizationRepository: AuthorizationRepository;
   databaseProbe: DatabaseProbe;
+  communications: CommunicationsService;
   idempotency: IdempotencyStore;
+  inboundEmail: InboundEmailService;
   intake: IntakeService;
   platform: PlatformPorts;
   publicRead: PublicReadService;

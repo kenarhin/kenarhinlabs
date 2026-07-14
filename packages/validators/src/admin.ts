@@ -8,6 +8,31 @@ export const adminListQuerySchema = paginationSchema.extend({
   search: z.string().trim().min(2).max(120).optional(),
 });
 
+/** Channel-aware filters supported by the unified communications inbox. */
+export const emailThreadListQuerySchema = z.strictObject({
+  channel: z.enum(["general", "projects", "support", "privacy"]).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(25),
+  page: z.coerce.number().int().min(1).default(1),
+  search: z.string().trim().min(2).max(120).optional(),
+  status: z.enum(["open", "waiting", "closed", "archived"]).optional(),
+});
+
+/** Human-authored plain-text reply; sender and recipient are server-derived. */
+export const emailThreadReplySchema = z.strictObject({
+  body: z.string().trim().min(1).max(240_000),
+});
+
+/** Explicit workflow changes allowed on an existing communications thread. */
+export const updateEmailThreadSchema = z
+  .strictObject({
+    markRead: z.boolean().optional(),
+    priority: z.enum(["low", "normal", "high", "urgent"]).optional(),
+    status: z.enum(["open", "waiting", "closed", "archived"]).optional(),
+  })
+  .refine((value) => Object.values(value).some((item) => item !== undefined), {
+    message: "At least one thread field is required",
+  });
+
 const contentBodySchema = z
   .strictObject({
     bodyFormat: z.enum(["markdown", "blocks", "html_sanitized"]),
@@ -126,6 +151,9 @@ export type CreateContentInput = z.infer<typeof createContentSchema>;
 export type CreateEmailInput = z.infer<typeof createEmailSchema>;
 export type CreateOfferInput = z.infer<typeof createOfferSchema>;
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
+export type EmailThreadListQuery = z.infer<typeof emailThreadListQuerySchema>;
+export type EmailThreadReplyInput = z.infer<typeof emailThreadReplySchema>;
 export type MediaUploadRequest = z.infer<typeof mediaUploadRequestSchema>;
 export type UpdateContentInput = z.infer<typeof updateContentSchema>;
 export type UpdateClientInput = z.infer<typeof updateClientSchema>;
+export type UpdateEmailThreadInput = z.infer<typeof updateEmailThreadSchema>;

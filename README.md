@@ -49,7 +49,7 @@ packages/
   config/       Shared TypeScript, ESLint, and Prettier configuration
   core/         Framework-independent domain rules and errors
   db/           Drizzle schemas, Postgres/D1 clients, migrations, and queries
-  email/        Transactional templates, Email Service transport, queue consumer
+  email/        Channel identities, thread tokens, templates, Email transport/queue consumer
   storage/      Typed R2 helpers and media job contracts
   sync/         Transactional outbox to D1 projectors and consumers
   validators/   Shared Zod request/response contracts

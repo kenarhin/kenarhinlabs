@@ -1,12 +1,15 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { createTransactionalIntakeService, planContactIntake } from "../src/services/intake";
+import {
+  createTransactionalIntakeService,
+  planInquiryIntake,
+  planProjectIntake,
+  planSupportIntake,
+} from "../src/services/intake";
 
 const configuration = {
-  adminSiteUrl: "https://admin.kenarhinlabs.com",
-  fromEmail: "projects@kenarhinlabs.com",
   fromName: "Ken Arhin Labs",
-  projectIntakeEmail: "projects@kenarhinlabs.com",
+  replyTokenSecret: "synthetic-email-reply-token-secret-value",
 };
 
 const metadata = {
@@ -15,7 +18,7 @@ const metadata = {
   userAgent: "Synthetic browser details",
 };
 
-/** Returns stable UUIDs so the complete durable plan can be asserted without randomness. */
+/** Returns stable UUIDs so each durable plan can be asserted without randomness. */
 function stableUuidGenerator(): () => string {
   const ids = [
     "10000000-0000-4000-8000-000000000001",
@@ -32,15 +35,50 @@ function stableUuidGenerator(): () => string {
   };
 }
 
+const publicMessage = {
+  email: "visitor@example.com",
+  message: "A sufficiently detailed synthetic project request.",
+  name: "Contact Tester",
+  subject: "Synthetic project enquiry",
+};
+
 describe("transactional intake service", () => {
-  it("plans one lead and two durable notification jobs without retaining network metadata", () => {
-    const planned = planContactIntake(
-      {
-        email: "visitor@example.com",
-        message: "A sufficiently detailed synthetic project request.",
-        name: "Contact Tester",
-        subject: "Synthetic project enquiry",
-      },
+  it("stores a general inquiry in the hello inbox without creating a CRM lead", async () => {
+    const planned = await planInquiryIntake(
+      publicMessage,
+      metadata,
+      configuration,
+      stableUuidGenerator(),
+      new Date("2026-07-13T12:00:00.000Z"),
+    );
+
+    expect(planned.transaction.lead).toBeUndefined();
+    expect(planned.transaction.thread).toMatchObject({
+      mailboxId: "30000000-0000-4000-8000-000000000001",
+      source: "website_inquiry",
+      unreadCount: 1,
+    });
+    expect(planned.transaction.messages).toHaveLength(2);
+    expect(planned.transaction.messages?.[0]).toMatchObject({
+      direction: "inbound",
+      fromEmail: "visitor@example.com",
+      status: "received",
+      toEmails: ["hello@kenarhinlabs.com"],
+    });
+    expect(planned.transaction.messages?.[1]).toMatchObject({
+      direction: "outbound",
+      fromEmail: "hello@kenarhinlabs.com",
+      status: "queued",
+      toEmails: ["visitor@example.com"],
+    });
+    expect(planned.transaction.outboxEvents).toHaveLength(1);
+    expect(JSON.stringify(planned.transaction)).not.toContain(metadata.ipAddress);
+    expect(JSON.stringify(planned.transaction)).not.toContain(metadata.userAgent);
+  });
+
+  it("creates a CRM lead only for the Projects channel", async () => {
+    const planned = await planProjectIntake(
+      { ...publicMessage, company: "Example Co", services: ["Web platform"] },
       metadata,
       configuration,
       stableUuidGenerator(),
@@ -48,23 +86,38 @@ describe("transactional intake service", () => {
     );
 
     expect(planned.transaction.lead).toMatchObject({
+      company: "Example Co",
       email: "visitor@example.com",
       interest: "project_enquiry",
-      metadata: {
-        requestId: "request-contact-1",
-        subject: "Synthetic project enquiry",
-      },
-      source: "website_contact",
+      source: "website_project_intake",
       status: "new",
     });
-    expect(planned.transaction.messages).toHaveLength(2);
-    expect(planned.transaction.outboxEvents).toHaveLength(2);
-    expect(planned.transaction.outboxEvents.map((event) => event.eventType)).toEqual([
-      "email.transactional.requested.v1",
-      "email.transactional.requested.v1",
-    ]);
-    expect(JSON.stringify(planned.transaction)).not.toContain(metadata.ipAddress);
-    expect(JSON.stringify(planned.transaction)).not.toContain(metadata.userAgent);
+    expect(planned.transaction.thread).toMatchObject({
+      mailboxId: "30000000-0000-4000-8000-000000000002",
+      source: "website_project_intake",
+    });
+    expect(planned.transaction.messages?.[1]).toMatchObject({
+      fromEmail: "projects@kenarhinlabs.com",
+      toEmails: ["visitor@example.com"],
+    });
+    expect(JSON.stringify(planned.transaction)).not.toContain('"to":["projects@kenarhinlabs.com"]');
+  });
+
+  it("preserves an untrusted support reference without creating a client relation", async () => {
+    const planned = await planSupportIntake(
+      { ...publicMessage, clientReference: "CLIENT-REFERENCE" },
+      metadata,
+      configuration,
+      stableUuidGenerator(),
+      new Date("2026-07-13T12:00:00.000Z"),
+    );
+
+    expect(planned.transaction.lead).toBeUndefined();
+    expect(planned.transaction.thread?.clientId).toBeUndefined();
+    expect(planned.transaction.messages?.[0]?.metadata).toMatchObject({
+      clientReference: "CLIENT-REFERENCE",
+      source: "website_support",
+    });
   });
 
   it("does not accept or publish when the database transaction fails", async () => {
@@ -78,21 +131,13 @@ describe("transactional intake service", () => {
       publishPending,
     });
 
-    await expect(
-      service.createContact(
-        {
-          email: "visitor@example.com",
-          message: "A sufficiently detailed synthetic project request.",
-          name: "Contact Tester",
-          subject: "Synthetic project enquiry",
-        },
-        metadata,
-      ),
-    ).rejects.toThrow("Synthetic persistence failure");
+    await expect(service.createContact(publicMessage, metadata)).rejects.toThrow(
+      "Synthetic persistence failure",
+    );
     expect(publishPending).not.toHaveBeenCalled();
   });
 
-  it("keeps an accepted lead successful when immediate Queue publication is deferred", async () => {
+  it("keeps an accepted intake successful when immediate Queue publication is deferred", async () => {
     const onPublishFailure = vi.fn();
     const persist = vi.fn(async () => undefined);
     const service = createTransactionalIntakeService({
@@ -105,21 +150,13 @@ describe("transactional intake service", () => {
       },
     });
 
-    const result = await service.createContact(
-      {
-        email: "visitor@example.com",
-        message: "A sufficiently detailed synthetic project request.",
-        name: "Contact Tester",
-        subject: "Synthetic project enquiry",
-      },
-      metadata,
-    );
+    const result = await service.createContact(publicMessage, metadata);
 
     expect(result.status).toBe("accepted");
     expect(persist).toHaveBeenCalledOnce();
     expect(onPublishFailure).toHaveBeenCalledWith({
       event: "email_outbox_publish_deferred",
-      leadId: result.id,
+      intakeId: result.id,
     });
   });
 });

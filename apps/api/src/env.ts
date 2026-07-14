@@ -18,8 +18,9 @@ const runtimeEnvSchema = z.object({
     )
     .pipe(z.array(z.url()).min(1)),
   ENVIRONMENT: z.enum(["development", "preview", "production", "test"]),
-  EMAIL_FROM_ADDRESS: z.email(),
+  EMAIL_ATTACHMENT_BUCKET_NAME: z.string().trim().min(3).max(63),
   EMAIL_FROM_NAME: z.string().trim().min(1).max(120),
+  EMAIL_REPLY_TOKEN_SECRET: z.string().min(32).max(512),
   CLOUDFLARE_EMAIL_WEBHOOK_SECRET: z.string().min(32).max(512),
   HEALTH_CHECK_TIMEOUT_MS: z.coerce.number().int().min(100).max(10_000).default(2_000),
   SUPABASE_JWT_AUDIENCE: z.string().trim().min(1).max(120).default("authenticated"),
@@ -28,7 +29,6 @@ const runtimeEnvSchema = z.object({
     message: "SUPABASE_URL must use HTTPS",
   }),
   INTERNAL_QUEUE_WEBHOOK_SECRET: z.string().min(32).max(512),
-  PROJECT_INTAKE_EMAIL: z.email(),
 });
 
 export type RuntimeEnv = z.infer<typeof runtimeEnvSchema>;

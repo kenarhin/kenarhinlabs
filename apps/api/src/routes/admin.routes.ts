@@ -6,10 +6,13 @@ import {
   createEmailSchema,
   createOfferSchema,
   createProjectSchema,
+  emailThreadListQuerySchema,
+  emailThreadReplySchema,
   mediaUploadRequestSchema,
   scheduleContentSchema,
   updateClientSchema,
   updateContentSchema,
+  updateEmailThreadSchema,
   uuidSchema,
 } from "@labs/validators";
 import { Hono } from "hono";
@@ -28,6 +31,15 @@ function actorId(context: AppContext): string {
 /** Validates a UUID path parameter using the shared identifier contract. */
 function entityId(context: AppContext): string {
   return parseInput(context.req.param("id"), uuidSchema);
+}
+
+/** Extracts audit metadata without persisting an authenticated request body. */
+function requestMetadata(context: AppContext) {
+  return {
+    ipAddress: context.req.header("cf-connecting-ip") ?? null,
+    requestId: context.get("requestId"),
+    userAgent: context.req.header("user-agent")?.slice(0, 1_024) ?? null,
+  };
 }
 
 /** Creates permission-gated administration route foundations by backend domain. */
@@ -143,6 +155,97 @@ export function createAdminRoutes(services: ApiServices): Hono<AppEnv> {
     const input = await parseJsonBody(context.req.raw, createEmailSchema);
     return success(context, await services.admin.queueEmail(input, actorId(context)), 202);
   });
+
+  routes.get("/email-threads", requireRoutePermission(PERMISSIONS.EMAIL_READ), async (context) => {
+    const query = parseInput(queryObject(new URL(context.req.url)), emailThreadListQuerySchema);
+    return success(context, await services.communications.listThreads(query));
+  });
+  routes.get(
+    "/email-threads/:id",
+    requireRoutePermission(PERMISSIONS.EMAIL_READ),
+    async (context) => {
+      const thread = await services.communications.getThread(entityId(context));
+      if (thread === null) {
+        return context.json(
+          {
+            error: { code: "EMAIL_THREAD_NOT_FOUND", message: "Email thread not found" },
+            ok: false,
+            requestId: context.get("requestId"),
+          },
+          404,
+        );
+      }
+      return success(context, thread);
+    },
+  );
+  routes.patch(
+    "/email-threads/:id",
+    requireRoutePermission(PERMISSIONS.EMAIL_MANAGE),
+    async (context) => {
+      const input = await parseJsonBody(context.req.raw, updateEmailThreadSchema);
+      const updated = await services.communications.updateThread(
+        entityId(context),
+        input,
+        actorId(context),
+        requestMetadata(context),
+      );
+      if (updated === null) {
+        return context.json(
+          {
+            error: { code: "EMAIL_THREAD_NOT_FOUND", message: "Email thread not found" },
+            ok: false,
+            requestId: context.get("requestId"),
+          },
+          404,
+        );
+      }
+      return success(context, updated);
+    },
+  );
+  routes.post(
+    "/email-threads/:id/replies",
+    requireRoutePermission(PERMISSIONS.EMAIL_SEND),
+    async (context) => {
+      const input = await parseJsonBody(context.req.raw, emailThreadReplySchema);
+      return success(
+        context,
+        await services.communications.replyToThread(
+          entityId(context),
+          input,
+          actorId(context),
+          requestMetadata(context),
+        ),
+        202,
+      );
+    },
+  );
+  routes.get(
+    "/email-attachments/:id",
+    requireRoutePermission(PERMISSIONS.EMAIL_READ),
+    async (context) => {
+      const attachment = await services.communications.getAttachment(entityId(context));
+      if (attachment === null) {
+        return context.json(
+          {
+            error: { code: "EMAIL_ATTACHMENT_NOT_FOUND", message: "Attachment not found" },
+            ok: false,
+            requestId: context.get("requestId"),
+          },
+          404,
+        );
+      }
+      return new Response(attachment.body, {
+        headers: {
+          "Cache-Control": "private, no-store",
+          "Content-Disposition": `attachment; filename="${attachment.filename}"`,
+          "Content-Length": String(attachment.sizeBytes),
+          "Content-Type": attachment.mimeType,
+          "X-Content-Type-Options": "nosniff",
+          "X-Request-Id": context.get("requestId"),
+        },
+      });
+    },
+  );
 
   return routes;
 }

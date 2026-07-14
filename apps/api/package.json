@@ -22,6 +22,7 @@
     "@labs/sync": "workspace:^",
     "@labs/validators": "workspace:^",
     "hono": "catalog:",
+    "postal-mime": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

@@ -1,9 +1,12 @@
 import { AppError } from "@labs/core";
 import {
   contactInputSchema,
+  inquiryInputSchema,
   leadInputSchema,
+  projectIntakeInputSchema,
   publicContentParamsSchema,
   publicListQuerySchema,
+  supportRequestInputSchema,
 } from "@labs/validators";
 import { Hono } from "hono";
 
@@ -76,7 +79,57 @@ export function createPublicRoutes(services: ApiServices): Hono<AppEnv> {
       input,
       requestMetadata(context.req.raw, context.get("requestId")),
     );
+    context.header("Deprecation", "true");
+    context.header("Link", '</public/project-intake>; rel="successor-version"');
     return success(context, result, 202);
+  });
+
+  routes.post("/inquiries", async (context) => {
+    await enforceRateLimit(
+      context.env.PUBLIC_RATE_LIMITER,
+      publicRateLimitKey(context.req.raw, "inquiry"),
+    );
+    const input = await parseJsonBody(context.req.raw, inquiryInputSchema);
+    return success(
+      context,
+      await services.intake.createInquiry(
+        input,
+        requestMetadata(context.req.raw, context.get("requestId")),
+      ),
+      202,
+    );
+  });
+
+  routes.post("/project-intake", async (context) => {
+    await enforceRateLimit(
+      context.env.PUBLIC_RATE_LIMITER,
+      publicRateLimitKey(context.req.raw, "project-intake"),
+    );
+    const input = await parseJsonBody(context.req.raw, projectIntakeInputSchema);
+    return success(
+      context,
+      await services.intake.createProjectIntake(
+        input,
+        requestMetadata(context.req.raw, context.get("requestId")),
+      ),
+      202,
+    );
+  });
+
+  routes.post("/support", async (context) => {
+    await enforceRateLimit(
+      context.env.PUBLIC_RATE_LIMITER,
+      publicRateLimitKey(context.req.raw, "support"),
+    );
+    const input = await parseJsonBody(context.req.raw, supportRequestInputSchema);
+    return success(
+      context,
+      await services.intake.createSupportRequest(
+        input,
+        requestMetadata(context.req.raw, context.get("requestId")),
+      ),
+      202,
+    );
   });
 
   return routes;

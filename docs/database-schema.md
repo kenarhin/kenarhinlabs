@@ -500,6 +500,21 @@ Tracks where assets are used.
 
 ## Schema: `comms`
 
+### `comms.email_mailboxes`
+
+Canonical operational identities used by the unified inbox.
+
+| Column           | Type    | Notes                                               |
+| ---------------- | ------- | --------------------------------------------------- |
+| `id`             | uuid    | Stable primary key                                  |
+| `channel`        | text    | Unique: `general`, `projects`, `support`, `privacy` |
+| `address`        | text    | Unique canonical mailbox address                    |
+| `display_name`   | text    | Outbound display identity                           |
+| `is_public`      | boolean | May be advertised publicly                          |
+| `receives_email` | boolean | Inbound routing allowed                             |
+| `sends_email`    | boolean | Outbound replies allowed                            |
+| `status`         | text    | `active`, `paused`, `retired`                       |
+
 ### `comms.email_templates`
 
 | Column       | Type        | Notes                               |
@@ -517,35 +532,65 @@ Tracks where assets are used.
 
 ### `comms.email_threads`
 
-| Column       | Type        | Notes                                   |
-| ------------ | ----------- | --------------------------------------- |
-| `id`         | uuid        | Primary key                             |
-| `client_id`  | uuid        | Nullable; references `crm.clients(id)`  |
-| `lead_id`    | uuid        | Nullable; references `crm.leads(id)`    |
-| `subject`    | text        | Required                                |
-| `status`     | text        | `open`, `waiting`, `closed`, `archived` |
-| `created_at` | timestamptz | Required                                |
-| `updated_at` | timestamptz | Required                                |
+| Column              | Type        | Notes                                                             |
+| ------------------- | ----------- | ----------------------------------------------------------------- |
+| `id`                | uuid        | Primary key                                                       |
+| `mailbox_id`        | uuid        | Required; references `comms.email_mailboxes(id)`                  |
+| `client_id`         | uuid        | Nullable; references `crm.clients(id)`                            |
+| `lead_id`           | uuid        | Nullable; references `crm.leads(id)`                              |
+| `participant_email` | text        | Required external participant; never an outbound sender authority |
+| `participant_name`  | text        | Nullable untrusted display name                                   |
+| `subject`           | text        | Required                                                          |
+| `status`            | text        | `open`, `waiting`, `closed`, `archived`                           |
+| `source`            | text        | `website_inquiry`, `direct_email`, `contact_alias`, etc.          |
+| `priority`          | text        | `low`, `normal`, `high`, `urgent`                                 |
+| `assigned_to`       | uuid        | Nullable admin actor                                              |
+| `unread_count`      | integer     | Required, non-negative                                            |
+| `last_message_at`   | timestamptz | Required sorting timestamp                                        |
+| `last_inbound_at`   | timestamptz | Nullable                                                          |
+| `last_outbound_at`  | timestamptz | Nullable                                                          |
+| `created_at`        | timestamptz | Required                                                          |
+| `updated_at`        | timestamptz | Required                                                          |
 
 ### `comms.email_messages`
 
-| Column                | Type        | Notes                                  |
-| --------------------- | ----------- | -------------------------------------- |
-| `id`                  | uuid        | Primary key                            |
-| `thread_id`           | uuid        | References `comms.email_threads(id)`   |
-| `direction`           | text        | `inbound`, `outbound`                  |
-| `from_email`          | text        | Required                               |
-| `to_emails`           | jsonb       | Array of recipients                    |
-| `cc_emails`           | jsonb       | Nullable                               |
-| `bcc_emails`          | jsonb       | Nullable                               |
-| `subject`             | text        | Required                               |
-| `html_body`           | text        | Nullable                               |
-| `text_body`           | text        | Nullable                               |
-| `provider`            | text        | `cloudflare_email`, `smtp`, etc.       |
-| `provider_message_id` | text        | Nullable                               |
-| `status`              | text        | `queued`, `sent`, `failed`, `received` |
-| `metadata`            | jsonb       | Delivery data                          |
-| `created_at`          | timestamptz | Required                               |
+| Column                                 | Type        | Notes                                                                                     |
+| -------------------------------------- | ----------- | ----------------------------------------------------------------------------------------- |
+| `id`                                   | uuid        | Primary key                                                                               |
+| `thread_id`                            | uuid        | References `comms.email_threads(id)`                                                      |
+| `direction`                            | text        | `inbound`, `outbound`                                                                     |
+| `from_email`                           | text        | Required                                                                                  |
+| `to_emails`, `cc_emails`, `bcc_emails` | jsonb       | Recipient arrays                                                                          |
+| `subject`                              | text        | Required                                                                                  |
+| `html_body`, `text_body`               | text        | At least one body is required                                                             |
+| `provider`                             | text        | `cloudflare_email`, `cloudflare_email_routing`, `website_form`, etc.                      |
+| `provider_message_id`                  | text        | Provider-level idempotency and diagnostics                                                |
+| `reply_to_email`                       | text        | Signed conversation reply address when outbound                                           |
+| `rfc_message_id`, `in_reply_to`        | text        | Standards-based threading fields                                                          |
+| `references`                           | jsonb       | Bounded RFC ancestor list                                                                 |
+| `created_by`                           | uuid        | Nullable admin actor for manual replies                                                   |
+| `job_id`, `idempotency_key`            | uuid/text   | Unique Queue and retry identities                                                         |
+| `status`                               | text        | `queued`, `processing`, `provider_accepted`, `delivered`, `bounced`, `failed`, `received` |
+| `received_at`                          | timestamptz | Inbound receipt time                                                                      |
+| `provider_accepted_at`                 | timestamptz | Provider accepted send; not final delivery                                                |
+| `delivered_at`, `bounced_at`           | timestamptz | Final outcome evidence when available                                                     |
+| `metadata`                             | jsonb       | Bounded operational metadata; no raw MIME                                                 |
+| `created_at`, `updated_at`             | timestamptz | Required                                                                                  |
+
+### `comms.email_attachments`
+
+Private metadata only; bytes remain in the dedicated non-public R2 bucket.
+
+| Column                  | Type        | Notes                                                     |
+| ----------------------- | ----------- | --------------------------------------------------------- |
+| `id`                    | uuid        | Primary key                                               |
+| `message_id`            | uuid        | References `comms.email_messages(id)` with cascade delete |
+| `bucket`, `object_key`  | text        | Unique private R2 location                                |
+| `filename`, `mime_type` | text        | Untrusted display metadata                                |
+| `size_bytes`            | bigint      | Non-negative                                              |
+| `content_id`            | text        | Nullable inline MIME content ID                           |
+| `disposition`           | text        | `attachment` or `inline`                                  |
+| `created_at`            | timestamptz | Required                                                  |
 
 ## Schema: `sync`
 

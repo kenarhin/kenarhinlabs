@@ -15,6 +15,7 @@ export const PERMISSIONS = {
   MEDIA_DELETE: "media.delete",
   EMAIL_READ: "email.read",
   EMAIL_SEND: "email.send",
+  EMAIL_MANAGE: "email.manage",
   ANALYTICS_READ: "analytics.read",
   SYSTEM_MANAGE: "system.manage",
 } as const;
