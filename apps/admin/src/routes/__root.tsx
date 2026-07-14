@@ -59,7 +59,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
          * palette immediately. Runs before any React hydration.
          */}
         <script
-          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
             __html: `(function(){
   var stored;

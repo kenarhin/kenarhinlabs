@@ -15,6 +15,14 @@ export default [
     },
   },
   {
+    files: ['src/components/ui/**/*.tsx', 'src/components/ui/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-unnecessary-condition': 'off',
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      'no-shadow': 'off',
+    },
+  },
+  {
     ignores: ['eslint.config.js', 'prettier.config.js'],
   },
 ]

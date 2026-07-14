@@ -22,9 +22,9 @@
  *   The ThemeProvider in apps/admin should set html.setAttribute("data-theme", value).
  */
 
-@import "tailwindcss";
-@import "@labs/design/styles.css";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import '@labs/design/styles.css';
+@import 'tw-animate-css';
 
 /*
  * Dark mode variant — aligned with @labs/design's data-theme attribute strategy.
@@ -39,7 +39,7 @@
  * variable names that shadcn components expect but @labs/design does not define.
  */
 :root,
-[data-theme="light"] {
+[data-theme='light'] {
   /*
    * shadcn uses --card as a separate surface distinct from --surface.
    * Map it to the same clean-paper value as --surface for consistency.
@@ -84,7 +84,7 @@
   --radius: 0.25rem;
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   /* Card and popover dark-mode surfaces — raised above the lab-ink background. */
   --card: var(--surface);
   --card-foreground: var(--surface-foreground);
