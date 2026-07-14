@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { createOfferSchema, leadInputSchema, publicContentParamsSchema } from "./index";
+import {
+  contactInputSchema,
+  createOfferSchema,
+  inquiryInputSchema,
+  leadInputSchema,
+  projectIntakeInputSchema,
+  publicContentParamsSchema,
+  supportRequestInputSchema,
+} from "./index";
 
 describe("shared validators", () => {
   it("normalizes lead email addresses and applies the website source", () => {
@@ -15,6 +23,26 @@ describe("shared validators", () => {
 
   it("rejects a lead without a contact method", () => {
     expect(() => leadInputSchema.parse({ name: "Ada Lovelace" })).toThrow();
+  });
+
+  it("requires a Turnstile token on every public message contract", () => {
+    const message = {
+      email: "visitor@example.com",
+      message: "A sufficiently detailed public enquiry.",
+      name: "Ada Lovelace",
+      subject: "General enquiry",
+    };
+
+    const schemas = [
+      contactInputSchema,
+      inquiryInputSchema,
+      projectIntakeInputSchema,
+      supportRequestInputSchema,
+    ];
+    for (const schema of schemas) {
+      expect(schema.safeParse(message).success).toBe(false);
+      expect(schema.safeParse({ ...message, turnstileToken: "verified-token" }).success).toBe(true);
+    }
   });
 
   it("accepts every documented long-term public content type", () => {

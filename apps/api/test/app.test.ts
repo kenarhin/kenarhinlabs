@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 
-import { dependencyUnavailable } from "@labs/core";
+import { AppError, dependencyUnavailable } from "@labs/core";
 import { describe, expect, it, vi } from "vitest";
 
 import { createApp } from "../src/app";
@@ -34,6 +34,8 @@ function testBindings() {
     SUPABASE_JWT_AUDIENCE: "authenticated",
     SUPABASE_URL: "https://example.supabase.co",
     SUPABASE_WEBHOOK_SECRET: "supabase-webhook-secret-value-1234",
+    TURNSTILE_ALLOWED_HOSTNAMES: "kenarhinlabs.com",
+    TURNSTILE_SECRET_KEY: "turnstile-test-secret",
     WEBHOOK_RATE_LIMITER: { limit: async () => ({ success: true }) },
   };
 }
@@ -56,6 +58,9 @@ function testServices(overrides: Partial<ApiServices> = {}): ApiServices {
   const unavailable = createUnavailableServices();
   return {
     ...unavailable,
+    abuseProtection: {
+      verifyTurnstile: async () => undefined,
+    },
     databaseProbe: { check: async () => ({ ok: true }) },
     idempotency: {
       claim: async () => "claimed",
@@ -139,6 +144,50 @@ describe("API runtime", () => {
     expect(createLead).toHaveBeenCalledOnce();
   });
 
+  it("rejects an unverified public message before invoking intake persistence", async () => {
+    const createInquiry = vi.fn(async () => ({
+      id: crypto.randomUUID(),
+      status: "accepted" as const,
+    }));
+    const verifyTurnstile = vi.fn(async () => {
+      throw new AppError({
+        code: "TURNSTILE_VERIFICATION_FAILED",
+        message: "Please complete the security check and try again",
+        status: 403,
+      });
+    });
+    const response = await createApp(
+      testServices({
+        abuseProtection: { verifyTurnstile },
+        intake: testIntake({ createInquiry }),
+      }),
+    ).request(
+      "/public/inquiries",
+      {
+        body: JSON.stringify({
+          email: "visitor@example.com",
+          message: "A sufficiently detailed general enquiry.",
+          name: "Inquiry Tester",
+          subject: "General enquiry",
+          turnstileToken: "unverified-token",
+        }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      },
+      testBindings(),
+    );
+    const body = await response.json<{ error: { code: string } }>();
+
+    expect(response.status).toBe(403);
+    expect(body.error.code).toBe("TURNSTILE_VERIFICATION_FAILED");
+    expect(verifyTurnstile).toHaveBeenCalledWith({
+      action: "contact",
+      remoteIp: null,
+      token: "unverified-token",
+    });
+    expect(createInquiry).not.toHaveBeenCalled();
+  });
+
   it("accepts a valid Contact request with its lead and request identities", async () => {
     const leadId = "10000000-0000-4000-8000-000000000001";
     const createContact = vi.fn(async () => ({ id: leadId, status: "accepted" as const }));
@@ -154,6 +203,7 @@ describe("API runtime", () => {
           message: "A sufficiently detailed synthetic project request.",
           name: "Contact Tester",
           subject: "Synthetic project enquiry",
+          turnstileToken: "verified-token",
         }),
         headers: { "content-type": "application/json" },
         method: "POST",
@@ -170,7 +220,15 @@ describe("API runtime", () => {
     expect(body).toMatchObject({ data: { id: leadId, status: "accepted" }, ok: true });
     expect(body.requestId).toBeTruthy();
     expect(response.headers.get("x-request-id")).toBe(body.requestId);
-    expect(createContact).toHaveBeenCalledOnce();
+    expect(createContact).toHaveBeenCalledWith(
+      {
+        email: "visitor@example.com",
+        message: "A sufficiently detailed synthetic project request.",
+        name: "Contact Tester",
+        subject: "Synthetic project enquiry",
+      },
+      expect.objectContaining({ requestId: body.requestId }),
+    );
   });
 
   it("preserves the structured 503 when Contact persistence is unavailable", async () => {
@@ -190,6 +248,7 @@ describe("API runtime", () => {
           message: "A sufficiently detailed synthetic project request.",
           name: "Contact Tester",
           subject: "Synthetic project enquiry",
+          turnstileToken: "verified-token",
         }),
         headers: { "content-type": "application/json" },
         method: "POST",
@@ -224,6 +283,7 @@ describe("API runtime", () => {
           message: "A sufficiently detailed synthetic project request.",
           name: "Contact Tester",
           subject: "Synthetic project enquiry",
+          turnstileToken: "verified-token",
         }),
         headers: { "content-type": "application/json" },
         method: "POST",
@@ -252,6 +312,7 @@ describe("API runtime", () => {
             message: privateMessage,
             name: "Logging Tester",
             subject: "Private logging assertion",
+            turnstileToken: "verified-token",
           }),
           headers: { "content-type": "application/json" },
           method: "POST",

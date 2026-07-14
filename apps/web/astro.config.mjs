@@ -70,7 +70,7 @@ const publicPwaOptions = createPublicPwaOptions({
           name: "Start a project",
           short_name: "Start",
           description: "Begin a project request with Ken Arhin Labs.",
-          url: "/contact",
+          url: "/start-a-project",
         },
         {
           name: "Explore capabilities",

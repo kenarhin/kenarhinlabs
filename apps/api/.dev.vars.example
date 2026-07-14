@@ -11,3 +11,6 @@ INTERNAL_QUEUE_WEBHOOK_SECRET=replace-with-at-least-32-random-characters
 SUPABASE_JWT_AUDIENCE=authenticated
 SUPABASE_URL=https://project-ref.supabase.co
 SUPABASE_WEBHOOK_SECRET=replace-with-at-least-32-random-characters
+TURNSTILE_ALLOWED_HOSTNAMES=localhost,127.0.0.1
+# Cloudflare's documented always-pass test secret; replace it outside local development.
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA

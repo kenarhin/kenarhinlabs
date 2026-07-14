@@ -1,6 +1,6 @@
 # Ken Arhin Labs Communication Channels
 
-_Last updated: 2026-07-13_
+_Last updated: 2026-07-14_
 
 ## Operating model
 
@@ -27,16 +27,35 @@ General. New legal and privacy copy must use `privacy@kenarhinlabs.com`.
 
 ## Public form mapping
 
-| Surface                                | API endpoint                  | Stored channel         | Creates a CRM lead       |
-| -------------------------------------- | ----------------------------- | ---------------------- | ------------------------ |
-| Contact                                | `POST /public/inquiries`      | General / `hello@`     | No                       |
-| Start a Project                        | `POST /public/project-intake` | Projects / `projects@` | Yes                      |
-| Support                                | `POST /public/support`        | Support / `support@`   | No automatic client link |
-| Currently deployed legacy Contact form | `POST /public/contact`        | Projects / `projects@` | Yes                      |
+| Surface                                  | API endpoint                  | Stored channel         | Creates a CRM lead       |
+| ---------------------------------------- | ----------------------------- | ---------------------- | ------------------------ |
+| Contact — General choice                 | `POST /public/inquiries`      | General / `hello@`     | No                       |
+| Contact — Support choice                 | `POST /public/support`        | Support / `support@`   | No automatic client link |
+| Start a Project                          | `POST /public/project-intake` | Projects / `projects@` | Yes                      |
+| Deprecated compatibility intake contract | `POST /public/contact`        | Projects / `projects@` | Yes                      |
 
-The legacy endpoint remains operational to avoid breaking the deployed web app. It returns
-`Deprecation: true` and a successor link. The frontend team should move the ordinary Contact page to
-`/public/inquiries` and reserve `/public/project-intake` for the dedicated Start-a-Project page.
+The Contact UI intentionally keeps General and Support in one visible form with a fixed route
+choice. The browser maps that choice to one of the two endpoints above; it never submits a mailbox
+address or asks the backend to infer routing from a subject line. The legacy endpoint remains
+operational during deployment transition, returns `Deprecation: true`, and identifies project
+intake as its successor.
+
+## Public-form abuse protection
+
+All three current public message contracts require `turnstileToken`. Astro obtains the token from a
+managed Cloudflare Turnstile widget. The API is the security boundary: after its rate limiter runs,
+it validates the token with Cloudflare Siteverify, checks the expected action (`contact` or
+`project-intake`) and an allowed hostname, and only then calls intake persistence.
+
+- The public site receives only `PUBLIC_TURNSTILE_SITEKEY`; it never receives the secret.
+- The API Worker receives `TURNSTILE_SECRET_KEY` as a secret and
+  `TURNSTILE_ALLOWED_HOSTNAMES` as non-secret configuration.
+- Tokens expire after five minutes and are single-use. The form resets the widget after every
+  submission attempt so a fresh token is required.
+- Local development uses Cloudflare's published test key pair. Production must use a dedicated
+  managed widget restricted to the production hostnames.
+- Turnstile failures are not persisted. The API returns `TURNSTILE_VERIFICATION_FAILED`; provider
+  outages fail closed as `DEPENDENCY_UNAVAILABLE`.
 
 ## Reply and thread rules
 
@@ -83,5 +102,5 @@ As verified on 2026-07-13:
 - Do not advertise `contact@` as the primary address; it exists for compatibility.
 - Use `no-reply@` only when no monitored reply path is appropriate.
 
-Frontend implementation details are in
+Frontend and deployment details are in
 [`docs/tasks/frontend/email-channels-and-inbox-frontend-handoff.md`](tasks/frontend/email-channels-and-inbox-frontend-handoff.md).

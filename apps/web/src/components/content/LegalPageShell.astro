@@ -12,7 +12,7 @@
  * @param visualStages Three plain-language stages shown in the document map.
  * @param reviewNote Optional publication-review note for unresolved business facts.
  */
-import { LEGAL_CONTACT_EMAIL } from "../../data/contact-channels";
+import { PRIVACY_CONTACT_EMAIL } from "../../data/contact-channels";
 import Layout from "../../layouts/Layout.astro";
 import LegalDocumentMap from "./LegalDocumentMap.astro";
 
@@ -149,9 +149,9 @@ const {
       <div class="lg:col-span-4 lg:col-start-9">
         <a
           class="inline-flex min-h-12 items-center gap-4 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground"
-          href={`mailto:${LEGAL_CONTACT_EMAIL}`}
+          href={`mailto:${PRIVACY_CONTACT_EMAIL}`}
         >
-          {LEGAL_CONTACT_EMAIL}
+          {PRIVACY_CONTACT_EMAIL}
           <span aria-hidden="true">↗</span>
         </a>
         <p class="mt-5 text-body-sm opacity-65">

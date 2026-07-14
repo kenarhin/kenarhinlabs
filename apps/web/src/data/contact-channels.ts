@@ -9,7 +9,7 @@ export const GENERAL_CONTACT_EMAIL = "hello@kenarhinlabs.com";
 /**
  * Public inbox for new project enquiries and project-intake fallbacks.
  *
- * Use this address on the Contact page and when the public intake API cannot
+ * Use this address on the Start-a-Project page and when project intake cannot
  * accept a submission. Existing-client support belongs to the support channel.
  */
 export const PROJECT_CONTACT_EMAIL = "projects@kenarhinlabs.com";
@@ -36,4 +36,12 @@ export const TRANSACTIONAL_SENDER_EMAIL = "no-reply@kenarhinlabs.com";
  * Use this address on legal pages and for rights, correction, or incident
  * requests. It is an inbound contact route, not the project-intake fallback.
  */
-export const LEGAL_CONTACT_EMAIL = "contact@kenarhinlabs.com";
+export const PRIVACY_CONTACT_EMAIL = "privacy@kenarhinlabs.com";
+
+/**
+ * Compatibility alias that enters the General channel.
+ *
+ * Do not advertise this address as a primary route. New ordinary enquiries
+ * use hello@ and legal or rights requests use privacy@.
+ */
+export const GENERAL_CONTACT_ALIAS_EMAIL = "contact@kenarhinlabs.com";

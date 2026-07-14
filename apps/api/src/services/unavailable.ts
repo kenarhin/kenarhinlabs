@@ -13,6 +13,9 @@ function unavailable(): never {
  */
 export function createUnavailableServices(): ApiServices {
   return {
+    abuseProtection: {
+      verifyTurnstile: async () => unavailable(),
+    },
     admin: {
       createClient: async () => unavailable(),
       createContent: async () => unavailable(),

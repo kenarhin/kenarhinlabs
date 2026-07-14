@@ -1,20 +1,22 @@
 ---
 /**
- * Static privacy notice for the current public website and contact workflow.
+ * Static privacy notice for the public website and channel-aware intake flows.
  *
  * The document describes repository-evidenced processing only. It must be
- * reviewed before enabling persistent contact intake or adding new analytics,
- * marketing, payment, account, or client-portal features.
+ * reviewed before publication and whenever analytics, marketing, payment,
+ * account, client-portal, or attachment-upload features materially change.
  */
 import LegalPageShell from "../../components/content/LegalPageShell.astro";
 import {
-  LEGAL_CONTACT_EMAIL,
+  GENERAL_CONTACT_EMAIL,
+  PRIVACY_CONTACT_EMAIL,
   PROJECT_CONTACT_EMAIL,
+  SUPPORT_CONTACT_EMAIL,
 } from "../../data/contact-channels";
 
 export const prerender = true;
 
-const lastUpdated = "13 July 2026";
+const lastUpdated = "14 July 2026";
 const toc = [
   { id: "scope", label: "Who this notice covers" },
   { id: "information", label: "Information we handle" },
@@ -31,22 +33,23 @@ const toc = [
 
 <LegalPageShell
   title="Privacy notice"
-  description="How Ken Arhin Labs handles project enquiries, necessary technical data, theme preferences, and public PWA storage."
+  description="How Ken Arhin Labs handles general enquiries, support requests, project briefs, necessary technical data, and public PWA storage."
   documentCode="PRV-01"
   documentLabel="Privacy"
   lastUpdated={lastUpdated}
-  summary="This notice explains what information the Ken Arhin Labs public website handles, why it is needed, where browser storage is used, and how to ask questions or exercise applicable privacy rights."
-  reviewNote="Obtain qualified legal review before publication. Review this notice again before the contact API begins persistent storage or the site adds analytics, marketing, payments, accounts, or a client portal."
+  summary="This notice explains what information the Ken Arhin Labs public website and communication channels handle, why it is needed, where it is stored, and how to ask questions or exercise applicable privacy rights."
+  reviewNote="Obtain qualified legal review before treating this implementation draft as final. Review it again before adding analytics, marketing, payments, accounts, a client portal, or public attachment uploads."
   toc={toc}
   visualStages={["Visit the site", "Share information", "Use your rights"]}
 >
   <h2 id="scope" tabindex="-1">1. Who this notice covers</h2>
   <p>
     This notice applies when you visit <strong>kenarhinlabs.com</strong>, use its public
-    progressive web app features, send a project enquiry through the contact form, or email{" "}
-    <a href={`mailto:${PROJECT_CONTACT_EMAIL}`}>{PROJECT_CONTACT_EMAIL}</a>{" "}about the website or a
-    possible project. Privacy and legal requests may instead be sent to{" "}
-    <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>.
+    progressive web app features, send a general enquiry or support request through the{" "}
+    <a href="/contact">Contact page</a>, send a project brief through{" "}
+    <a href="/start-a-project">Start a Project</a>, or email one of the public addresses described
+    below. Privacy, rights, security, and policy requests should be sent to{" "}
+    <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>.
   </p>
   <p>
     Ken Arhin Labs is the business responsible for deciding how information submitted through
@@ -56,38 +59,49 @@ const toc = [
 
   <h2 id="information" tabindex="-1">2. Information we handle</h2>
   <h3>Information you choose to provide</h3>
-  <p>The current contact form asks for:</p>
+  <p>Every public message form asks for:</p>
   <ul>
     <li>your name;</li>
     <li>your email address;</li>
-    <li>the subject of your enquiry; and</li>
-    <li>the message and project context you choose to include.</li>
+    <li>the subject of your message;</li>
+    <li>the message and context you choose to include; and</li>
+    <li>a short-lived Cloudflare Turnstile verification token.</li>
   </ul>
   <p>
-    If you contact us by email, the information includes your email address and the contents and
-    metadata of that correspondence. Please do not send passwords, payment-card details, health
-    information, government identifiers, or other sensitive information through either channel.
+    The Contact page also records whether you chose General or Support. Support may include an
+    optional client or project reference. Start a Project may include an organisation, planning
+    range, timeframe, and up to eight selected service areas. Project briefs create a project lead;
+    General and Support messages do not. A browser-supplied support reference is not treated as
+    proof that you own or may access a client account.
+  </p>
+  <p>
+    If you contact us by email, the information includes your email address, message content,
+    routing and message metadata, and any attachments you choose to send. Please do not send
+    passwords, payment-card details, health information, government identifiers, production
+    credentials, or other sensitive information through a public form or an initial email.
   </p>
 
   <h3>Limited technical information</h3>
   <p>
-    When a contact request reaches the public API, it attaches a request reference and may process
-    the connecting IP address and a shortened browser user-agent string for rate limiting,
-    security, and diagnostics. Like most web infrastructure, the delivery provider also
-    necessarily receives request information such as IP address, requested URL, headers, and
-    timing in order to deliver and protect the service.
+    When a form request reaches the public API, it receives a request reference and processes the
+    connecting IP address and a shortened browser user-agent string for rate limiting, security,
+    abuse prevention, and diagnostics. Cloudflare Turnstile processes browser and network signals
+    to issue a verification token. The API sends that token, the expected form action, and where
+    available the connecting IP address to Cloudflare for server-side verification before the
+    message is accepted.
   </p>
   <p>
-    The website does not currently provide customer accounts, accept payments, or intentionally
-    run advertising or marketing analytics. The contact API's production persistence and
-    notification adapter is not enabled at the date above; an unsuccessful submission is not
-    represented as accepted or stored.
+    Accepted form submissions are stored as inbox threads and messages in Supabase Postgres. A
+    project brief also creates a CRM lead. Confirmation email work is queued after the same durable
+    transaction, but form acceptance does not claim that an email has reached its destination. The
+    website does not currently provide customer accounts, accept payments, or intentionally run
+    advertising or marketing analytics.
   </p>
 
   <h2 id="use" tabindex="-1">3. Why we use information</h2>
   <p>We use the information described above only as needed to:</p>
   <ul>
-    <li>read, assess, and respond to a question or project enquiry;</li>
+    <li>read, route, assess, and respond to a general enquiry, support request, or project brief;</li>
     <li>take requested steps toward a possible proposal or client engagement;</li>
     <li>operate, secure, troubleshoot, and prevent abuse of the website and public API;</li>
     <li>maintain correspondence and project records where a relationship develops; and</li>
@@ -121,9 +135,20 @@ const toc = [
 
   <h2 id="sharing" tabindex="-1">5. Providers, disclosures, and international handling</h2>
   <p>
-    The public website and API are delivered through Cloudflare infrastructure. Cloudflare acts as
-    a technical service provider when it routes, secures, caches, and serves requests. Email is
-    handled by the relevant email-service infrastructure when you choose the direct email route.
+    The public website, API, Turnstile challenge, Email Routing, and transactional email delivery
+    use Cloudflare infrastructure. Cloudflare processes the request and challenge information
+    needed to route, secure, validate, and deliver those services. More information about
+    Turnstile signal processing is available in Cloudflare's{" "}
+    <a href="https://www.cloudflare.com/en-au/turnstile-privacy-policy/" rel="noopener noreferrer">
+      Turnstile Privacy Addendum
+    </a>.
+  </p>
+  <p>
+    Communication threads, messages, workflow state, project leads, and attachment metadata are
+    stored in Supabase Postgres. Attachments received by direct email are stored in a private
+    Cloudflare R2 bucket and are available only through an authenticated administration route. Raw
+    email source is not intentionally stored. The public website forms do not currently accept
+    file uploads.
   </p>
   <p>
     We may also disclose information where required by law, necessary to protect people or the
@@ -159,13 +184,14 @@ const toc = [
   <h2 id="security" tabindex="-1">7. Security</h2>
   <p>
     We use proportionate technical and organisational safeguards appropriate to a public website,
-    including HTTPS in production, input validation, request-rate controls, restricted service
-    boundaries, and cache rules that keep sensitive request types out of public runtime caches.
-    No online service can promise absolute security.
+    including HTTPS in production, input validation, Cloudflare Turnstile, request-rate controls,
+    restricted service boundaries, private attachment storage, authenticated administration
+    routes, and cache rules that keep message submissions and private inbox data out of public
+    runtime caches. No online service can promise absolute security.
   </p>
   <p>
     If you believe information sent through the site has been misused or exposed, contact us at{" "}
-    <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>{" "}with enough detail to
+    <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>{" "}with enough detail to
     investigate, but do not include additional sensitive information in the first message.
   </p>
 
@@ -177,7 +203,7 @@ const toc = [
     duties, or a lawful retention requirement applies.
   </p>
   <p>
-    Send requests to <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. We will
+    Send requests to <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>. We will
     respond within the period and in the manner required by applicable law. Where applicable, you
     may also raise a concern with the data-protection or privacy regulator available where you
     live.
@@ -200,7 +226,10 @@ const toc = [
   </p>
   <p>
     Privacy questions, corrections, and rights requests can be sent to{" "}
-    <a href={`mailto:${LEGAL_CONTACT_EMAIL}`}>{LEGAL_CONTACT_EMAIL}</a>. General project
-    enquiries can be raised through the <a href="/contact">contact page</a>.
+    <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>. Ordinary business
+    enquiries use <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}>{GENERAL_CONTACT_EMAIL}</a>, existing
+    project support uses <a href={`mailto:${SUPPORT_CONTACT_EMAIL}`}>{SUPPORT_CONTACT_EMAIL}</a>,
+    and new project briefs use <a href={`mailto:${PROJECT_CONTACT_EMAIL}`}>{PROJECT_CONTACT_EMAIL}</a>
+    or the <a href="/start-a-project">Start-a-Project page</a>.
   </p>
 </LegalPageShell>

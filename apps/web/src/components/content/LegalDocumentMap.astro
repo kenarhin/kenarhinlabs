@@ -6,7 +6,7 @@
  * @param documentLabel Human-readable name of the current legal document.
  * @param stages Three plain-language stages that explain the document's scope.
  */
-import { LEGAL_CONTACT_EMAIL } from "../../data/contact-channels";
+import { PRIVACY_CONTACT_EMAIL } from "../../data/contact-channels";
 
 interface Props {
   documentCode: string;
@@ -71,9 +71,9 @@ const nodeClasses = [
     </p>
     <a
       class="mt-2 inline-flex text-body-sm font-medium text-foreground underline decoration-signal underline-offset-4 hover:text-signal"
-      href={`mailto:${LEGAL_CONTACT_EMAIL}`}
+      href={`mailto:${PRIVACY_CONTACT_EMAIL}`}
     >
-      {LEGAL_CONTACT_EMAIL}
+      {PRIVACY_CONTACT_EMAIL}
     </a>
   </div>
 </aside>

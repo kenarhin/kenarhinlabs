@@ -2,6 +2,11 @@
 
 _Updated: 2026-07-13_
 
+> Public-site follow-up (2026-07-14): the frontend handoff is implemented locally, and the API now
+> verifies required Cloudflare Turnstile tokens before public message persistence. See
+> [`../frontend/public-contact-and-turnstile-implementation.md`](../frontend/public-contact-and-turnstile-implementation.md)
+> for verification and the remaining production provisioning gate.
+
 ## Outcome
 
 The contact-intake gap is resolved and expanded into a channel-aware unified inbox backend. Public

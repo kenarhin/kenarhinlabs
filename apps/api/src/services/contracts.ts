@@ -27,10 +27,24 @@ import type {
 
 import type { JsonValue } from "../types/app";
 
+export type VerifiedContactInput = Omit<ContactInput, "turnstileToken">;
+export type VerifiedInquiryInput = Omit<InquiryInput, "turnstileToken">;
+export type VerifiedProjectIntakeInput = Omit<ProjectIntakeInput, "turnstileToken">;
+export type VerifiedSupportRequestInput = Omit<SupportRequestInput, "turnstileToken">;
+
 export interface RequestMetadata {
   ipAddress: string | null;
   requestId: string;
   userAgent: string | null;
+}
+
+/** Server-side abuse check required before a public message reaches persistence. */
+export interface AbuseProtectionService {
+  verifyTurnstile(input: {
+    action: "contact" | "project-intake";
+    remoteIp: string | null;
+    token: string;
+  }): Promise<void>;
 }
 
 export interface PublicReadService {
@@ -47,19 +61,19 @@ export interface IntakeService {
     metadata: RequestMetadata,
   ): Promise<{ id: string; status: "accepted" }>;
   createContact(
-    input: ContactInput,
+    input: VerifiedContactInput,
     metadata: RequestMetadata,
   ): Promise<{ id: string; status: "accepted" }>;
   createInquiry(
-    input: InquiryInput,
+    input: VerifiedInquiryInput,
     metadata: RequestMetadata,
   ): Promise<{ id: string; status: "accepted" }>;
   createProjectIntake(
-    input: ProjectIntakeInput,
+    input: VerifiedProjectIntakeInput,
     metadata: RequestMetadata,
   ): Promise<{ id: string; status: "accepted" }>;
   createSupportRequest(
-    input: SupportRequestInput,
+    input: VerifiedSupportRequestInput,
     metadata: RequestMetadata,
   ): Promise<{ id: string; status: "accepted" }>;
 }
@@ -138,6 +152,7 @@ export interface PlatformPorts {
 }
 
 export interface ApiServices {
+  abuseProtection: AbuseProtectionService;
   admin: AdminDomainService;
   authorizationRepository: AuthorizationRepository;
   databaseProbe: DatabaseProbe;

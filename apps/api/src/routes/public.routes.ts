@@ -25,6 +25,29 @@ function requestMetadata(request: Request, requestId: string): RequestMetadata {
   };
 }
 
+/** Verifies a public message token before the request can cross into intake persistence. */
+async function verifyPublicMessage(
+  services: ApiServices,
+  input: { turnstileToken: string },
+  metadata: RequestMetadata,
+  action: "contact" | "project-intake",
+): Promise<void> {
+  await services.abuseProtection.verifyTurnstile({
+    action,
+    remoteIp: metadata.ipAddress,
+    token: input.turnstileToken,
+  });
+}
+
+/** Removes a verified challenge token before data crosses into the intake domain. */
+function verifiedIntakeInput<T extends { turnstileToken: string }>(
+  input: T,
+): Omit<T, "turnstileToken"> {
+  const { turnstileToken, ...message } = input;
+  void turnstileToken;
+  return message;
+}
+
 /** Creates public read and intake contracts backed by injected domain ports. */
 export function createPublicRoutes(services: ApiServices): Hono<AppEnv> {
   const routes = new Hono<AppEnv>();
@@ -75,10 +98,9 @@ export function createPublicRoutes(services: ApiServices): Hono<AppEnv> {
       publicRateLimitKey(context.req.raw, "contact"),
     );
     const input = await parseJsonBody(context.req.raw, contactInputSchema);
-    const result = await services.intake.createContact(
-      input,
-      requestMetadata(context.req.raw, context.get("requestId")),
-    );
+    const metadata = requestMetadata(context.req.raw, context.get("requestId"));
+    await verifyPublicMessage(services, input, metadata, "project-intake");
+    const result = await services.intake.createContact(verifiedIntakeInput(input), metadata);
     context.header("Deprecation", "true");
     context.header("Link", '</public/project-intake>; rel="successor-version"');
     return success(context, result, 202);
@@ -90,12 +112,11 @@ export function createPublicRoutes(services: ApiServices): Hono<AppEnv> {
       publicRateLimitKey(context.req.raw, "inquiry"),
     );
     const input = await parseJsonBody(context.req.raw, inquiryInputSchema);
+    const metadata = requestMetadata(context.req.raw, context.get("requestId"));
+    await verifyPublicMessage(services, input, metadata, "contact");
     return success(
       context,
-      await services.intake.createInquiry(
-        input,
-        requestMetadata(context.req.raw, context.get("requestId")),
-      ),
+      await services.intake.createInquiry(verifiedIntakeInput(input), metadata),
       202,
     );
   });
@@ -106,12 +127,11 @@ export function createPublicRoutes(services: ApiServices): Hono<AppEnv> {
       publicRateLimitKey(context.req.raw, "project-intake"),
     );
     const input = await parseJsonBody(context.req.raw, projectIntakeInputSchema);
+    const metadata = requestMetadata(context.req.raw, context.get("requestId"));
+    await verifyPublicMessage(services, input, metadata, "project-intake");
     return success(
       context,
-      await services.intake.createProjectIntake(
-        input,
-        requestMetadata(context.req.raw, context.get("requestId")),
-      ),
+      await services.intake.createProjectIntake(verifiedIntakeInput(input), metadata),
       202,
     );
   });
@@ -122,12 +142,11 @@ export function createPublicRoutes(services: ApiServices): Hono<AppEnv> {
       publicRateLimitKey(context.req.raw, "support"),
     );
     const input = await parseJsonBody(context.req.raw, supportRequestInputSchema);
+    const metadata = requestMetadata(context.req.raw, context.get("requestId"));
+    await verifyPublicMessage(services, input, metadata, "contact");
     return success(
       context,
-      await services.intake.createSupportRequest(
-        input,
-        requestMetadata(context.req.raw, context.get("requestId")),
-      ),
+      await services.intake.createSupportRequest(verifiedIntakeInput(input), metadata),
       202,
     );
   });

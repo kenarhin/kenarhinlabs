@@ -22,9 +22,9 @@ async function setupPage(): Promise<Cleanup> {
     cleanups.push(await setupTechnologyRailMotion());
   }
 
-  if (document.querySelector("[data-contact-form]")) {
-    const { setupContactForm } = await import("../forms/contact");
-    cleanups.push(setupContactForm());
+  if (document.querySelector("[data-public-form]")) {
+    const { setupPublicIntakeForms } = await import("../forms/contact");
+    cleanups.push(await setupPublicIntakeForms());
   }
 
   if (document.querySelector("[data-legal-document-map]")) {

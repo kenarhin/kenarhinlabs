@@ -1,0 +1,44 @@
+---
+/**
+ * Static container for a Cloudflare Turnstile challenge.
+ *
+ * @param action Form-specific analytics and server-validation action.
+ * @param label Accessible description of the protected submission.
+ */
+interface Props {
+  action: "contact" | "project-intake";
+  label: string;
+}
+
+const ALWAYS_PASS_TEST_SITEKEY = "1x00000000000000000000AA";
+const { action, label } = Astro.props;
+// Local development uses Cloudflare's documented test key. Production must
+// provide the real public sitekey at build time; the secret remains API-only.
+const sitekey =
+  import.meta.env.PUBLIC_TURNSTILE_SITEKEY ??
+  (import.meta.env.DEV ? ALWAYS_PASS_TEST_SITEKEY : "");
+---
+
+<div class="mt-6 border-t border-border pt-6">
+  <div
+    class="min-h-16 w-full"
+    data-turnstile-widget
+    data-turnstile-sitekey={sitekey}
+    data-turnstile-action={action}
+    aria-label={label}
+  >
+    {
+      !sitekey && (
+        <p class="border-l-2 border-destructive bg-destructive/8 px-4 py-3 text-body-sm">
+          Secure form verification is not configured. Please use the direct email option.
+        </p>
+      )
+    }
+  </div>
+  <p class="mt-3 text-body-sm text-muted-foreground">
+    Protected by Cloudflare Turnstile to reduce automated abuse. See our{" "}
+    <a class="underline decoration-border underline-offset-4 hover:decoration-signal" href="/legal/privacy">
+      privacy notice
+    </a>.
+  </p>
+</div>

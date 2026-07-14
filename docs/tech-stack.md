@@ -737,6 +737,7 @@ Public site:
 ```txt
 PUBLIC_SITE_URL
 API_BASE_URL
+PUBLIC_TURNSTILE_SITEKEY
 SUPABASE_URL
 SUPABASE_PUBLISHABLE_KEY
 R2_PUBLIC_BASE_URL
@@ -763,6 +764,7 @@ D1_DATABASE binding
 QUEUE bindings
 WORKFLOW bindings
 TURNSTILE_SECRET_KEY
+TURNSTILE_ALLOWED_HOSTNAMES
 ```
 
 Use current `sb_publishable_...` keys in public clients and separately rotatable `sb_secret_...`

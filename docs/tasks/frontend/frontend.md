@@ -1,4 +1,4 @@
-https://127.0.0.1:4321/# Frontend Implementation Plan
+# Frontend Implementation Plan
 
 _Replanned: 2026-07-12_
 
@@ -31,9 +31,9 @@ built in parallel.
 - Homepage copy comes from approved brand documentation while `/public/homepage` remains
   unavailable. No invented case studies, testimonials, metrics, prices, offers, or CMS entries will
   be presented as backend data.
-- The contact form will use the real `/public/contact` contract and render honest submission errors.
-  The current backend persistence port returns `503`; that gap is documented and is not patched from
-  the frontend lane.
+- The Contact page uses `/public/inquiries` or `/public/support` from an explicit visitor choice;
+  the separate Start-a-Project page uses `/public/project-intake`. All three are durable backend
+  contracts and require server-verified Turnstile before intake persistence.
 - Motion starts from a complete static state, respects reduced motion, uses native scrolling, and is
   cleaned up across Astro client navigation.
 

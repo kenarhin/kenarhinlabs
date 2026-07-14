@@ -17,8 +17,8 @@ const config = {
   endOfLine: "lf",
   overrides: [
     {
-      // This editor validates the standalone D1 config as strict JSONC and flags trailing commas.
-      files: "packages/db/wrangler.d1.jsonc",
+      // The editor validates Wrangler configs as strict JSONC and flags trailing commas.
+      files: ["apps/api/wrangler.jsonc", "packages/db/wrangler.d1.jsonc"],
       options: { trailingComma: "none" },
     },
   ],

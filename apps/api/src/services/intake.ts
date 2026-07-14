@@ -7,15 +7,16 @@ import {
   type EmailChannel,
   type TransactionalEmailJobV1,
 } from "@labs/email";
-import type {
-  ContactInput,
-  InquiryInput,
-  LeadInput,
-  ProjectIntakeInput,
-  SupportRequestInput,
-} from "@labs/validators";
+import type { LeadInput } from "@labs/validators";
 
-import type { IntakeService, RequestMetadata } from "./contracts";
+import type {
+  IntakeService,
+  RequestMetadata,
+  VerifiedContactInput,
+  VerifiedInquiryInput,
+  VerifiedProjectIntakeInput,
+  VerifiedSupportRequestInput,
+} from "./contracts";
 
 /** Non-secret display data plus the secret used to authenticate reply aliases. */
 export interface IntakeEmailConfiguration {
@@ -226,7 +227,7 @@ async function planPublicMessageIntake(
 
 /** Plans a general Contact-page inquiry without prematurely creating a CRM lead. */
 export function planInquiryIntake(
-  input: InquiryInput,
+  input: VerifiedInquiryInput,
   metadata: RequestMetadata,
   configuration: IntakeEmailConfiguration,
   generateId: () => string = () => crypto.randomUUID(),
@@ -244,14 +245,14 @@ export function planInquiryIntake(
 
 /** Plans a project inquiry as both a CRM lead and a Projects mailbox thread. */
 export function planProjectIntake(
-  input: ProjectIntakeInput | ContactInput,
+  input: VerifiedProjectIntakeInput | VerifiedContactInput,
   metadata: RequestMetadata,
   configuration: IntakeEmailConfiguration,
   generateId: () => string = () => crypto.randomUUID(),
   now = new Date(),
   source = "website_project_intake",
 ): Promise<PlannedIntake> {
-  const project = input as ProjectIntakeInput;
+  const project = input as VerifiedProjectIntakeInput;
   return planPublicMessageIntake(
     input,
     metadata,
@@ -283,7 +284,7 @@ export function planProjectIntake(
 
 /** Plans an existing-client support request without fabricating a client relation. */
 export function planSupportIntake(
-  input: SupportRequestInput,
+  input: VerifiedSupportRequestInput,
   metadata: RequestMetadata,
   configuration: IntakeEmailConfiguration,
   generateId: () => string = () => crypto.randomUUID(),

@@ -48,8 +48,13 @@ Backend refresh verified 2026-07-13:
 - The contact page passed Astro diagnostics with no warnings and had no horizontal overflow or
   duplicate IDs in the 1440×1000 light-theme check.
 
-## Blockers or handoff notes
+## Current implementation and production gate
 
-The persistence and communications backend is deployed. This lane remains frontend-incomplete until
-the ordinary Contact page moves to `/public/inquiries`, the separate Start-a-Project surface uses
-`/public/project-intake`, and an authorized real submission is browser-tested.
+The Contact page now routes General and Support messages to their dedicated durable contracts, and
+the separate Start-a-Project surface uses `/public/project-intake`. Each form requires a Turnstile
+token that the API verifies before persistence. Repository checks are complete; production still
+requires the real widget sitekey and matching Worker secret, deployment, and an authorized human
+submission test.
+
+The full route, security, legal-copy, and deployment record is in
+[`public-contact-and-turnstile-implementation.md`](public-contact-and-turnstile-implementation.md).

@@ -29,6 +29,7 @@ import { createCommunicationsService } from "./communications";
 import { publishPendingEmailOutbox } from "./email-outbox";
 import { createTransactionalIntakeService } from "./intake";
 import { createInboundEmailService } from "./inbound-email";
+import { createTurnstileService } from "./turnstile";
 import { createUnavailableServices } from "./unavailable";
 
 /** Narrows an unknown binding without duplicating Cloudflare's generated Env interface. */
@@ -205,6 +206,10 @@ export function createWorkerServices(bindings: CloudflareBindings): ApiServices 
 
   return {
     ...unavailable,
+    abuseProtection: createTurnstileService({
+      allowedHostnames: runtime.TURNSTILE_ALLOWED_HOSTNAMES,
+      secretKey: runtime.TURNSTILE_SECRET_KEY,
+    }),
     authorizationRepository: createAuthorizationRepository(bindings),
     communications,
     databaseProbe: {

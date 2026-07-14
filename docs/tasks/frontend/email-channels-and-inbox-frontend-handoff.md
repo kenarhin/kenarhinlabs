@@ -2,6 +2,14 @@
 
 _Prepared: 2026-07-13_
 
+_Public-site implementation updated: 2026-07-14_
+
+The Astro public-site portion of this handoff is now implemented in the repository. Contact combines
+General and Support as an explicit route choice, Start a Project is a dedicated page, and all
+current public message forms require server-verified Cloudflare Turnstile tokens. Production
+provisioning and deployment remain separate operational gates; the administration inbox work below
+is still pending.
+
 ## Scope boundary
 
 The backend and live Cloudflare/Supabase infrastructure are implemented. No `apps/web` or
@@ -19,6 +27,9 @@ frontend team to implement later.
   API Worker. Plus-addressing is enabled and the catch-all is disabled.
 
 ## Public form work
+
+Implementation record:
+[`public-contact-and-turnstile-implementation.md`](public-contact-and-turnstile-implementation.md).
 
 ### 1. Ordinary Contact page
 
@@ -231,12 +242,15 @@ response to a `Blob`, and initiate the download without persisting the bearer to
 
 ## Frontend acceptance checklist
 
-- [ ] Contact uses `/public/inquiries` and advertises `hello@`.
-- [ ] Start-a-Project uses `/public/project-intake` and advertises `projects@`.
-- [ ] Support uses `/public/support` and advertises `support@`.
-- [ ] Privacy/legal surfaces advertise `privacy@`, not `contact@`.
+- [x] Contact maps General to `/public/inquiries` and advertises `hello@`.
+- [x] Contact maps Support to `/public/support` and advertises `support@`.
+- [x] Start-a-Project uses `/public/project-intake` and advertises `projects@`.
+- [x] Privacy/legal surfaces advertise `privacy@`, not `contact@`.
+- [x] All current public message forms submit Turnstile tokens that the API verifies before
+      persistence.
 - [ ] Admin list/detail/reply/update/attachment flows use the routes and permissions above.
 - [ ] Provider acceptance is not mislabeled as final delivery.
 - [ ] Stored HTML and filenames are handled as untrusted.
 - [ ] No private inbox data is cached by the PWA.
-- [ ] Mobile, keyboard, screen-reader, logout, empty, and failure states are tested.
+- [ ] Mobile, keyboard, screen-reader, logout, empty, and failure states are tested across public
+      and admin surfaces.

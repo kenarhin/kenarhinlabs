@@ -251,11 +251,14 @@ Safe public configuration may include:
 ```txt
 PUBLIC_SITE_URL
 PUBLIC_API_BASE_URL
+PUBLIC_TURNSTILE_SITEKEY
 PUBLIC_R2_BASE_URL
 PUBLIC_ENVIRONMENT
 ```
 
-Server-only public-site secrets belong in the Worker environment and must not use public exposure prefixes.
+Server-only public-site secrets belong in the Worker environment and must not use public exposure
+prefixes. `PUBLIC_TURNSTILE_SITEKEY` is intentionally browser-visible; its matching
+`TURNSTILE_SECRET_KEY` belongs only to the API Worker.
 
 ### Admin
 

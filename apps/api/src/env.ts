@@ -29,6 +29,16 @@ const runtimeEnvSchema = z.object({
     message: "SUPABASE_URL must use HTTPS",
   }),
   INTERNAL_QUEUE_WEBHOOK_SECRET: z.string().min(32).max(512),
+  TURNSTILE_ALLOWED_HOSTNAMES: z
+    .string()
+    .transform((value) =>
+      value
+        .split(",")
+        .map((hostname) => hostname.trim().toLowerCase())
+        .filter(Boolean),
+    )
+    .pipe(z.array(z.string().min(1).max(253)).min(1)),
+  TURNSTILE_SECRET_KEY: z.string().trim().min(1).max(512),
 });
 
 export type RuntimeEnv = z.infer<typeof runtimeEnvSchema>;

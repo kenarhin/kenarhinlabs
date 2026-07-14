@@ -54,13 +54,15 @@ const messageInputFields = {
       message: "Subject must be a single line",
     }),
   message: z.string().trim().min(10).max(10_000),
-  turnstileToken: z.string().trim().min(1).max(2_048).optional(),
+  // Public message endpoints require a short-lived browser challenge token;
+  // the API verifies it server-side before any intake record is persisted.
+  turnstileToken: z.string().trim().min(1).max(2_048),
 } as const;
 
-/** General business and website inquiry submitted by the future Contact page. */
+/** General business and website inquiry submitted by the Contact page. */
 export const inquiryInputSchema = z.strictObject(messageInputFields);
 
-/** Structured new-project intake submitted by the future Start-a-Project page. */
+/** Structured new-project intake submitted by the Start-a-Project page. */
 export const projectIntakeInputSchema = z.strictObject({
   ...messageInputFields,
   company: z.string().trim().min(2).max(200).optional(),
@@ -69,7 +71,7 @@ export const projectIntakeInputSchema = z.strictObject({
   services: z.array(z.string().trim().min(2).max(80)).max(8).optional(),
 });
 
-/** Existing-client support request submitted by a future Support surface. */
+/** Existing-client support request submitted by the Contact page's Support route. */
 export const supportRequestInputSchema = z.strictObject({
   ...messageInputFields,
   clientReference: z.string().trim().min(2).max(160).optional(),

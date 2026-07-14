@@ -1,0 +1,262 @@
+---
+/** Dedicated project-intake route that creates a Projects thread and CRM lead. */
+import TurnstileWidget from "../components/forms/TurnstileWidget.astro";
+import { PROJECT_CONTACT_EMAIL } from "../data/contact-channels";
+import Layout from "../layouts/Layout.astro";
+
+const services = [
+  "Strategy",
+  "Website",
+  "Web application",
+  "Mobile application",
+  "AI and automation",
+  "Infrastructure",
+  "Managed hosting and operations",
+  "Existing system improvement",
+] as const;
+---
+
+<Layout
+  title="Start a Project"
+  description="Share the current shape of a website, application, AI, infrastructure, or managed hosting project with Ken Arhin Labs."
+>
+  <section class="px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop lg:py-section">
+    <div class="mx-auto w-full max-w-wide">
+      <div class="grid gap-14 border-t border-border pt-6 lg:grid-cols-12">
+        <div class="lg:col-span-5">
+          <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+            Start a project / Shape the brief
+          </p>
+          <h1 class="mt-8 max-w-3xl text-display-lg text-foreground">
+            Bring us the messy version.
+          </h1>
+          <p class="mt-8 max-w-xl text-lead text-muted-foreground">
+            Share what you are trying to change, what already exists, and where the system has
+            become difficult to manage. A polished specification is not required.
+          </p>
+
+          <div class="mt-12 border-t border-border pt-6">
+            <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+              Prefer direct project email?
+            </p>
+            <a
+              class="mt-3 inline-flex text-body font-medium text-foreground underline decoration-signal decoration-2 underline-offset-4"
+              href={`mailto:${PROJECT_CONTACT_EMAIL}`}
+            >
+              {PROJECT_CONTACT_EMAIL}
+            </a>
+          </div>
+
+          <dl class="mt-10 grid border-t border-border text-body-sm">
+            <div class="grid grid-cols-[3rem_1fr] gap-4 border-b border-border py-4">
+              <dt class="font-mono text-label text-signal">01</dt>
+              <dd><strong class="block text-foreground">Context first</strong><span class="mt-1 block text-muted-foreground">We read the problem before prescribing a deliverable.</span></dd>
+            </div>
+            <div class="grid grid-cols-[3rem_1fr] gap-4 border-b border-border py-4">
+              <dt class="font-mono text-label text-signal">02</dt>
+              <dd><strong class="block text-foreground">No automatic engagement</strong><span class="mt-1 block text-muted-foreground">Submitting a brief starts a conversation, not a contract.</span></dd>
+            </div>
+            <div class="grid grid-cols-[3rem_1fr] gap-4 border-b border-border py-4">
+              <dt class="font-mono text-label text-signal">03</dt>
+              <dd><strong class="block text-foreground">One useful next step</strong><span class="mt-1 block text-muted-foreground">If there is a fit, we clarify scope, constraints, and timing.</span></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="lg:col-span-6 lg:col-start-7">
+          <form
+            class="border border-border bg-surface p-6 sm:p-8 lg:p-10"
+            data-public-form="project"
+          >
+            <div class="flex items-center justify-between gap-6 border-b border-border pb-5">
+              <div>
+                <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">Project intake</p>
+                <h2 class="mt-2 text-heading-sm text-foreground">Map the current shape</h2>
+              </div>
+              <span class="font-mono text-label text-field">PRJ / 01</span>
+            </div>
+
+            <fieldset class="mt-8">
+              <legend class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+                01 / About you
+              </legend>
+              <div class="mt-4 grid gap-6 sm:grid-cols-2">
+                <div>
+                  <label class="text-body-sm font-medium" for="project-name">Name</label>
+                  <input
+                    class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                    id="project-name"
+                    name="name"
+                    type="text"
+                    autocomplete="name"
+                    minlength="2"
+                    maxlength="160"
+                    required
+                  />
+                </div>
+                <div>
+                  <label class="text-body-sm font-medium" for="project-email">Email</label>
+                  <input
+                    class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                    id="project-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    maxlength="320"
+                    required
+                  />
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="text-body-sm font-medium" for="project-company">
+                    Organisation <span class="font-normal text-muted-foreground">(optional)</span>
+                  </label>
+                  <input
+                    class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                    id="project-company"
+                    name="company"
+                    type="text"
+                    autocomplete="organization"
+                    minlength="2"
+                    maxlength="200"
+                  />
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-10 border-t border-border pt-8">
+              <legend class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+                02 / What are you working on?
+              </legend>
+              <p class="mt-3 text-body-sm text-muted-foreground">Choose any that help describe the system. Leave this open if you are not sure yet.</p>
+              <div class="mt-4 grid gap-2 sm:grid-cols-2">
+                {
+                  services.map((service) => (
+                    <label class="cursor-pointer">
+                      <input class="peer sr-only" type="checkbox" name="services" value={service} />
+                      <span class="flex min-h-12 items-center justify-between gap-3 rounded-sm border border-input bg-background px-4 text-body-sm transition-colors peer-checked:border-system peer-checked:bg-system/6 peer-focus-visible:ring-2 peer-focus-visible:ring-ring/30">
+                        {service}
+                        <span class="font-mono text-label text-muted-foreground peer-checked:text-system" aria-hidden="true">+</span>
+                      </span>
+                    </label>
+                  ))
+                }
+              </div>
+            </fieldset>
+
+            <fieldset class="mt-10 border-t border-border pt-8">
+              <legend class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+                03 / Shape of the project
+              </legend>
+              <div class="mt-4">
+                <label class="text-body-sm font-medium" for="project-subject">Working title or subject</label>
+                <input
+                  class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                  id="project-subject"
+                  name="subject"
+                  type="text"
+                  minlength="3"
+                  maxlength="200"
+                  placeholder="A new platform, workflow, or infrastructure change"
+                  required
+                />
+              </div>
+
+              <div class="mt-6 grid gap-6 sm:grid-cols-2">
+                <div>
+                  <label class="text-body-sm font-medium" for="project-budget">
+                    Planning range <span class="font-normal text-muted-foreground">(optional)</span>
+                  </label>
+                  <select
+                    class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                    id="project-budget"
+                    name="budgetRange"
+                    aria-describedby="project-budget-help"
+                  >
+                    <option value="">Choose a range</option>
+                    <option value="under_5k">Under 5,000</option>
+                    <option value="5k_15k">5,000–15,000</option>
+                    <option value="15k_50k">15,000–50,000</option>
+                    <option value="50k_plus">50,000+</option>
+                    <option value="not_sure">Not sure yet</option>
+                  </select>
+                  <p id="project-budget-help" class="mt-2 text-body-sm text-muted-foreground">
+                    Use your organisation's planning currency and name it in the brief.
+                  </p>
+                </div>
+                <div>
+                  <label class="text-body-sm font-medium" for="project-timeframe">
+                    Timeframe <span class="font-normal text-muted-foreground">(optional)</span>
+                  </label>
+                  <input
+                    class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                    id="project-timeframe"
+                    name="timeframe"
+                    type="text"
+                    minlength="2"
+                    maxlength="120"
+                    placeholder="A target date, quarter, or open window"
+                  />
+                </div>
+              </div>
+
+              <div class="mt-6">
+                <label class="text-body-sm font-medium" for="project-message">Current situation and desired change</label>
+                <p id="project-message-help" class="mt-1 text-body-sm text-muted-foreground">
+                  Useful context includes the problem, people affected, current tools, constraints, and what a useful outcome would change.
+                </p>
+                <textarea
+                  class="mt-2 min-h-56 w-full resize-y rounded-sm border border-input bg-background px-4 py-3 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                  id="project-message"
+                  name="message"
+                  minlength="10"
+                  maxlength="10000"
+                  aria-describedby="project-message-help"
+                  required
+                ></textarea>
+              </div>
+            </fieldset>
+
+            <TurnstileWidget action="project-intake" label="Security check for project intake" />
+
+            <div
+              class="mt-6 hidden border-l-2 border-info bg-info/8 px-4 py-3 text-body-sm"
+              role="status"
+              aria-live="polite"
+              data-public-form-status
+            ></div>
+
+            <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <p class="max-w-sm text-body-sm text-muted-foreground">
+                An accepted brief creates a Projects inbox thread and a project lead. It does not
+                create a contract or add you to a marketing list.
+              </p>
+              <button
+                type="submit"
+                class="inline-flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground disabled:cursor-wait disabled:opacity-60"
+                data-public-form-submit
+                disabled
+              >
+                <span data-submit-label>Send project brief</span>
+                <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-border bg-surface-strong px-page-mobile py-section-sm text-surface-strong-foreground sm:px-page-tablet lg:px-page-desktop">
+    <div class="mx-auto grid w-full max-w-wide gap-10 lg:grid-cols-12">
+      <div class="lg:col-span-4">
+        <p class="font-mono text-label uppercase tracking-widest opacity-60">After the brief</p>
+        <h2 class="mt-6 text-heading-md">A practical route forward.</h2>
+      </div>
+      <ol class="grid gap-8 sm:grid-cols-3 lg:col-span-7 lg:col-start-6">
+        <li><span class="font-mono text-label text-signal">01</span><p class="mt-4 font-medium">We read the system</p><p class="mt-2 text-body-sm opacity-65">The brief is reviewed as context, not reduced to a shopping list of features.</p></li>
+        <li><span class="font-mono text-label text-signal">02</span><p class="mt-4 font-medium">We clarify fit</p><p class="mt-2 text-body-sm opacity-65">If the work fits, we ask focused questions about evidence, scope, ownership, and timing.</p></li>
+        <li><span class="font-mono text-label text-signal">03</span><p class="mt-4 font-medium">We define the next step</p><p class="mt-2 text-body-sm opacity-65">A proposal or scoped discovery follows only when it is useful and separately agreed.</p></li>
+      </ol>
+    </div>
+  </section>
+</Layout>

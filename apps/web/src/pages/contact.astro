@@ -1,44 +1,67 @@
 ---
-/**
- * Contact and project-intake foundation route.
- *
- * The form posts to the real Hono public contact contract. The backend intake
- * adapter is currently fail-closed, so the page also provides a direct email
- * path and displays the API request ID when submission cannot be accepted.
- */
-import { PROJECT_CONTACT_EMAIL } from "../data/contact-channels";
+/** Unified General and Support contact route backed by channel-aware API intake. */
+import TurnstileWidget from "../components/forms/TurnstileWidget.astro";
 import SocialChannels from "../components/social/SocialChannels.astro";
+import {
+  GENERAL_CONTACT_EMAIL,
+  SUPPORT_CONTACT_EMAIL,
+} from "../data/contact-channels";
 import Layout from "../layouts/Layout.astro";
 ---
 
 <Layout
   title="Contact"
-  description="Start a project or contact Ken Arhin Labs about a website, application, AI workflow, or digital infrastructure."
+  description="Send a general enquiry or request support from Ken Arhin Labs through the right communication channel."
 >
   <section class="px-page-mobile py-section-sm sm:px-page-tablet lg:px-page-desktop lg:py-section">
     <div class="mx-auto w-full max-w-wide">
       <div class="grid gap-14 border-t border-border pt-6 lg:grid-cols-12">
         <div class="lg:col-span-5">
           <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
-            Contact / Start a project
+            Contact / Choose a route
           </p>
           <h1 class="mt-8 max-w-3xl text-display-lg text-foreground">
-            Bring us the messy version.
+            Start with the right conversation.
           </h1>
           <p class="mt-8 max-w-xl text-lead text-muted-foreground">
-            Tell us what is not working, what you are trying to build, or where
-            the moving parts have become difficult to manage.
+            Ask a general question or request help with an existing system. We route the message to
+            the right inbox without asking you to manage our internal email structure.
           </p>
 
-          <div class="mt-12 border-t border-border pt-6">
+          <div class="mt-12 grid gap-5 border-t border-border pt-6 sm:grid-cols-2 lg:grid-cols-1">
+            <div>
+              <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+                General enquiries
+              </p>
+              <a
+                class="mt-3 inline-flex text-body font-medium text-foreground underline decoration-signal decoration-2 underline-offset-4"
+                href={`mailto:${GENERAL_CONTACT_EMAIL}`}
+              >
+                {GENERAL_CONTACT_EMAIL}
+              </a>
+            </div>
+            <div>
+              <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
+                Existing project support
+              </p>
+              <a
+                class="mt-3 inline-flex text-body font-medium text-foreground underline decoration-field decoration-2 underline-offset-4"
+                href={`mailto:${SUPPORT_CONTACT_EMAIL}`}
+              >
+                {SUPPORT_CONTACT_EMAIL}
+              </a>
+            </div>
+          </div>
+
+          <div class="mt-10 border-l-2 border-signal bg-signal/6 p-5">
             <p class="font-mono text-label uppercase tracking-widest text-muted-foreground">
-              Prefer direct email?
+              Have a new project?
             </p>
-            <a
-              class="mt-3 inline-flex text-body font-medium text-foreground underline decoration-signal decoration-2 underline-offset-4"
-              href={`mailto:${PROJECT_CONTACT_EMAIL}`}
-            >
-              {PROJECT_CONTACT_EMAIL}
+            <p class="mt-3 text-body text-muted-foreground">
+              A project brief has different questions and creates a dedicated project lead.
+            </p>
+            <a class="mt-4 inline-flex items-center gap-3 font-medium text-foreground hover:text-signal" href="/start-a-project">
+              Go to Start a Project <span aria-hidden="true">↗</span>
             </a>
           </div>
         </div>
@@ -46,9 +69,29 @@ import Layout from "../layouts/Layout.astro";
         <div class="lg:col-span-6 lg:col-start-7">
           <form
             class="border border-border bg-surface p-6 sm:p-8 lg:p-10"
-            data-contact-form
+            data-public-form="contact"
           >
-            <div class="grid gap-6 sm:grid-cols-2">
+            <fieldset>
+              <legend class="text-body-sm font-medium">What kind of conversation is this?</legend>
+              <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                <label class="group cursor-pointer">
+                  <input class="peer sr-only" type="radio" name="contactType" value="general" checked />
+                  <span class="flex min-h-28 flex-col justify-between rounded-sm border border-input bg-background p-4 transition-colors peer-checked:border-signal peer-checked:bg-signal/6 peer-focus-visible:ring-2 peer-focus-visible:ring-ring/30">
+                    <span class="font-mono text-label text-signal">01 / GENERAL</span>
+                    <span class="text-body-sm font-medium">A question, introduction, or business enquiry</span>
+                  </span>
+                </label>
+                <label class="group cursor-pointer">
+                  <input class="peer sr-only" type="radio" name="contactType" value="support" />
+                  <span class="flex min-h-28 flex-col justify-between rounded-sm border border-input bg-background p-4 transition-colors peer-checked:border-field peer-checked:bg-field/6 peer-focus-visible:ring-2 peer-focus-visible:ring-ring/30">
+                    <span class="font-mono text-label text-field">02 / SUPPORT</span>
+                    <span class="text-body-sm font-medium">Help with an existing project or system</span>
+                  </span>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="mt-7 grid gap-6 sm:grid-cols-2">
               <div>
                 <label class="text-body-sm font-medium" for="contact-name">Name</label>
                 <input
@@ -76,10 +119,26 @@ import Layout from "../layouts/Layout.astro";
               </div>
             </div>
 
-            <div class="mt-6">
-              <label class="text-body-sm font-medium" for="contact-subject">
-                What would you like to work on?
+            <div class="mt-6 hidden" data-support-fields>
+              <label class="text-body-sm font-medium" for="contact-reference">
+                Client or project reference <span class="font-normal text-muted-foreground">(optional)</span>
               </label>
+              <p id="contact-reference-help" class="mt-1 text-body-sm text-muted-foreground">
+                A project name or reference helps us find context. It is not treated as proof of account ownership.
+              </p>
+              <input
+                class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
+                id="contact-reference"
+                name="clientReference"
+                type="text"
+                minlength="2"
+                maxlength="160"
+                aria-describedby="contact-reference-help"
+              />
+            </div>
+
+            <div class="mt-6">
+              <label class="text-body-sm font-medium" for="contact-subject">Subject</label>
               <input
                 class="mt-2 min-h-12 w-full rounded-sm border border-input bg-background px-4 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
                 id="contact-subject"
@@ -87,17 +146,17 @@ import Layout from "../layouts/Layout.astro";
                 type="text"
                 minlength="3"
                 maxlength="200"
-                placeholder="A website, application, AI workflow, or infrastructure problem"
+                placeholder="What would you like to ask or discuss?"
                 required
               />
             </div>
 
             <div class="mt-6">
-              <label class="text-body-sm font-medium" for="contact-message">
-                Tell us about the current situation
+              <label class="text-body-sm font-medium" for="contact-message" data-message-label>
+                Your message
               </label>
               <p id="contact-message-help" class="mt-1 text-body-sm text-muted-foreground">
-                Useful context includes the problem, people affected, current tools, timing, and constraints.
+                Include enough context for us to understand the request. Do not send passwords, credentials, or sensitive personal data.
               </p>
               <textarea
                 class="mt-2 min-h-48 w-full resize-y rounded-sm border border-input bg-background px-4 py-3 text-body outline-none transition-shadow focus:border-ring focus:ring-2 focus:ring-ring/25"
@@ -110,24 +169,27 @@ import Layout from "../layouts/Layout.astro";
               ></textarea>
             </div>
 
+            <TurnstileWidget action="contact" label="Security check for the contact form" />
+
             <div
               class="mt-6 hidden border-l-2 border-info bg-info/8 px-4 py-3 text-body-sm"
               role="status"
               aria-live="polite"
-              data-contact-status
+              data-public-form-status
             ></div>
 
             <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <p class="max-w-sm text-body-sm text-muted-foreground">
-                Your message is sent to the Ken Arhin Labs API. We do not add
-                you to a marketing list from this form.
+                General and support messages are stored in separate inbox channels. Neither creates
+                a marketing subscription or a speculative project lead.
               </p>
               <button
                 type="submit"
                 class="inline-flex min-h-12 shrink-0 items-center justify-center gap-3 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground disabled:cursor-wait disabled:opacity-60"
-                data-contact-submit
+                data-public-form-submit
+                disabled
               >
-                <span data-submit-label>Send project note</span>
+                <span data-submit-label>Send enquiry</span>
                 <span aria-hidden="true">↗</span>
               </button>
             </div>
@@ -145,18 +207,18 @@ import Layout from "../layouts/Layout.astro";
       <ol class="grid gap-8 sm:grid-cols-3 lg:col-span-7 lg:col-start-6">
         <li>
           <span class="font-mono text-label text-signal">01</span>
-          <p class="mt-4 font-medium">We read the context</p>
-          <p class="mt-2 text-body-sm text-muted-foreground">We look for the actual system problem before prescribing a deliverable.</p>
+          <p class="mt-4 font-medium">The route stays clear</p>
+          <p class="mt-2 text-body-sm text-muted-foreground">Your selection sends the message to General or Support without duplicating it.</p>
         </li>
         <li>
           <span class="font-mono text-label text-signal">02</span>
-          <p class="mt-4 font-medium">We clarify the shape</p>
-          <p class="mt-2 text-body-sm text-muted-foreground">If there is a fit, we ask focused questions about scope, constraints, and timing.</p>
+          <p class="mt-4 font-medium">We read the context</p>
+          <p class="mt-2 text-body-sm text-muted-foreground">We review what you shared and locate relevant project context when available.</p>
         </li>
         <li>
           <span class="font-mono text-label text-signal">03</span>
-          <p class="mt-4 font-medium">We propose a next step</p>
-          <p class="mt-2 text-body-sm text-muted-foreground">You receive a practical route forward, not a vague discovery performance.</p>
+          <p class="mt-4 font-medium">We reply from that channel</p>
+          <p class="mt-2 text-body-sm text-muted-foreground">The conversation continues from the mailbox that owns the request, without an invented response-time promise.</p>
         </li>
       </ol>
     </div>
