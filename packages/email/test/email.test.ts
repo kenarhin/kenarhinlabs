@@ -39,6 +39,26 @@ describe("transactional email", () => {
     expect(rendered.text).toContain("<Ada>");
   });
 
+  it("renders a channel-aware branded receipt without a response-time promise", () => {
+    const rendered = renderEmailJob(job);
+
+    expect(rendered.subject).toBe("Project brief received · Ken Arhin Labs");
+    expect(rendered.subject).not.toContain("LEAD-100");
+    expect(rendered.html).toContain("PROJECTS / BRIEF RECEIVED");
+    expect(rendered.html).toContain('src="cid:ken-arhin-labs-mark"');
+    expect(rendered.html).not.toContain("as soon as possible");
+    expect(rendered.text).toContain("Conversation reference: LEAD-100");
+    expect(rendered.attachments).toEqual([
+      expect.objectContaining({
+        contentId: "ken-arhin-labs-mark",
+        disposition: "inline",
+        filename: "ken-arhin-labs-mark.png",
+        type: "image/png",
+      }),
+    ]);
+    expect(rendered.attachments?.[0]?.content.byteLength).toBeGreaterThan(1_000);
+  });
+
   it("adds internal trace headers without exposing provider credentials", () => {
     const rendered = renderEmailJob(job);
     expect(rendered.headers?.["X-KenarhinLabs-Message-ID"]).toBe("message-1");
@@ -146,6 +166,17 @@ describe("transactional email", () => {
     });
 
     expect(send).toHaveBeenCalledOnce();
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: [
+          expect.objectContaining({
+            contentId: "ken-arhin-labs-mark",
+            disposition: "inline",
+            type: "image/png",
+          }),
+        ],
+      }),
+    );
     expect(repository.markSent).toHaveBeenCalledOnce();
     expect(ack).toHaveBeenCalledOnce();
     expect(retry).not.toHaveBeenCalled();

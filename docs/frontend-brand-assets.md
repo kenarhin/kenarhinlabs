@@ -1,6 +1,6 @@
 # Ken Arhin Labs Frontend Brand Assets
 
-_Last updated: 2026-07-13_
+_Last updated: 2026-07-14_
 
 This document defines the approved working direction for the Ken Arhin Labs logo system, brand icons, application icons, social assets, document assets, and motion identity. It complements:
 
@@ -117,6 +117,8 @@ Store the source SVG assets at:
 
 ```txt
 packages/design/src/assets/logo/
+├── logo.png
+├── email-mark.png
 ├── mark.svg
 ├── wordmark.svg
 ├── lockup-horizontal.svg
@@ -128,6 +130,8 @@ packages/design/src/assets/logo/
 
 | File | Purpose | Typical use |
 |---|---|---|
+| `logo.png` | High-resolution square raster presentation of the System K | Source for profile and fixed-size raster derivatives |
+| `email-mark.png` | Optimized 144px derivative of `logo.png` | Inline transactional-email brand mark |
 | `mark.svg` | Full System K symbol | Medium and large symbol-only placements |
 | `wordmark.svg` | Vector wordmark | Editorial and horizontal placements |
 | `lockup-horizontal.svg` | Primary combination lockup | Header, proposals, documents, signatures |
@@ -135,6 +139,8 @@ packages/design/src/assets/logo/
 | `mark-micro.svg` | Optically simplified small mark | Favicons, small navigation, compact UI branding |
 
 Do not mechanically shrink `lockup-horizontal.svg` into favicon or app-icon contexts.
+
+`email-mark.png` is generated with ImageMagick from `logo.png`, stripped of non-essential metadata, reduced to 96 indexed colours, and kept at 144×144px for a crisp 72px email presentation. The email package embeds those bytes as a Content-ID attachment; it does not load the logo from a remote URL.
 
 ## 5. Logo colour system
 

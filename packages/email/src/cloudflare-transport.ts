@@ -36,6 +36,14 @@ export class CloudflareEmailTransport {
       text: message.text,
       ...(message.replyTo === undefined ? {} : { replyTo: message.replyTo }),
       ...(message.headers === undefined ? {} : { headers: { ...message.headers } }),
+      ...(message.attachments === undefined
+        ? {}
+        : {
+            attachments: message.attachments.map((attachment) => ({
+              ...attachment,
+              content: attachment.content,
+            })),
+          }),
     });
 
     return {

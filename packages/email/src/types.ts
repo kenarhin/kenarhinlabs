@@ -6,6 +6,15 @@ export interface TransactionalEmailAddress {
   name?: string;
 }
 
+/** Provider-independent inline asset attached to a rendered email. */
+export interface TransactionalEmailAttachment {
+  content: Uint8Array;
+  contentId: string;
+  disposition: "inline";
+  filename: string;
+  type: string;
+}
+
 /**
  * Represents a rendered, provider-independent transactional email.
  */
@@ -17,6 +26,7 @@ export interface RenderedTransactionalEmail {
   html: string;
   text: string;
   headers?: Readonly<Record<string, string>>;
+  attachments?: readonly TransactionalEmailAttachment[];
 }
 
 /**
