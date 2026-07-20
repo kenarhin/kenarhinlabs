@@ -48,6 +48,7 @@ built in parallel.
 | 05 — Public PWA and quality         | `@labs/pwa` diagnostics, Astro integration, offline/update UI, accessibility, performance, browser QA | `05-public-pwa-and-quality.md`      |
 | 06 — Remaining public page families | Services, Work, Stacks, Field Notes, Labs, Start, legal, content detail routes                        | `06-remaining-public-pages.md`      |
 | 07 — Admin application              | TanStack Start operating system after the public foundation is accepted                               | `07-admin-application-later.md`     |
+| 08 — Lucide icons integration       | `@lucide/astro` package setup, replacing literal text glyphs (`↗`, `×`, `Ⅱ`, `●`, `+`) with vector icons | `08-lucide-icons-integration.md`    |
 
 Each lane owns only its listed scope. Backend gaps are recorded as handoffs; frontend work must not
 silently replace missing persistence or projection adapters.
