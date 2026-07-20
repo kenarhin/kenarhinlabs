@@ -1,5 +1,36 @@
+import fs from "node:fs/promises";
+import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateSW } from "workbox-build";
+
+/**
+ * Strips deprecated legacy_env field from adapter-generated wrangler.json files
+ * so Wrangler 4.112+ deploys smoothly without throwing configuration errors.
+ *
+ * @param {string} clientDirectory Client output path.
+ * @param {import("astro").AstroIntegrationLogger} logger Astro logger.
+ */
+async function cleanGeneratedWranglerConfigs(clientDirectory, logger) {
+  const serverDirectory = path.resolve(clientDirectory, "../server");
+  const candidates = [
+    path.join(serverDirectory, "wrangler.json"),
+    path.join(serverDirectory, ".prerender", "wrangler.json"),
+  ];
+
+  for (const configFile of candidates) {
+    try {
+      const raw = await fs.readFile(configFile, "utf-8");
+      const data = JSON.parse(raw);
+      if ("legacy_env" in data) {
+        delete data.legacy_env;
+        await fs.writeFile(configFile, JSON.stringify(data, null, 2), "utf-8");
+        logger.info(`Cleaned deprecated legacy_env from ${path.basename(configFile)}`);
+      }
+    } catch {
+      // Configuration file does not exist in this target directory; skip.
+    }
+  }
+}
 
 /**
  * Generates the public service worker after Astro has finished its SSR build.
@@ -44,6 +75,8 @@ export function createPublicPwaBuildIntegration(options) {
         const serviceWorkerPath = fileURLToPath(new URL("./sw.js", dir));
         const includeAssets = options.includeAssets ?? [];
         const workbox = options.workbox ?? {};
+
+        await cleanGeneratedWranglerConfigs(clientDirectory, logger);
 
         const result = await generateSW({
           ...workbox,
