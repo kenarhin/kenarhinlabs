@@ -6,6 +6,7 @@
  * The site-shell client module applies light, dark, or system preferences and
  * updates the accessible current-value label.
  */
+import { Check } from "@lucide/astro";
 ---
 
 <details class="relative" data-theme-menu>
@@ -32,7 +33,7 @@
         >
           {theme}
           <span aria-hidden="true" class="text-signal opacity-0" data-theme-check>
-            ●
+            <Check class="size-3.5" />
           </span>
         </button>
       ))

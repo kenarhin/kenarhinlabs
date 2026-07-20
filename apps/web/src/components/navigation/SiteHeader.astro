@@ -6,6 +6,7 @@
  * @param currentPath Current pathname used to expose aria-current.
  */
 import type { NavigationItem } from "../../lib/api/public-api";
+import { X } from "@lucide/astro";
 import SiteLogo from "../common/SiteLogo.astro";
 import ThemeMenu from "../common/ThemeMenu.astro";
 
@@ -95,7 +96,7 @@ function isCurrent(item: NavigationItem): boolean {
           aria-label="Close navigation"
           data-menu-close
         >
-          <span aria-hidden="true" class="text-2xl leading-none">×</span>
+          <X class="size-5" aria-hidden="true" />
         </button>
       </div>
 

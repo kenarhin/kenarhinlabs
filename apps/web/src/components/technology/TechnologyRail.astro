@@ -7,6 +7,7 @@
  * loop; reduced-motion and no-JavaScript states keep one complete scrollable
  * or wrapped list.
  */
+import { Pause } from "@lucide/astro";
 import { HOMEPAGE_TECHNOLOGIES } from "../../data/technology-stack";
 
 const groups = [
@@ -51,7 +52,9 @@ const groups = [
         >
           <span data-technology-toggle-label>Pause motion</span>
           <span class="sr-only"> technology rail</span>
-          <span class="text-signal" aria-hidden="true" data-technology-toggle-icon>Ⅱ</span>
+          <span class="text-signal" aria-hidden="true" data-technology-toggle-icon>
+            <Pause class="size-3.5 fill-current" />
+          </span>
         </button>
       </div>
     </div>

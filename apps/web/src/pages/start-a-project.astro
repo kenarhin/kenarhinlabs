@@ -1,5 +1,6 @@
 ---
 /** Dedicated project-intake route that creates a Projects thread and CRM lead. */
+import { ArrowUpRight, Plus } from "@lucide/astro";
 import TurnstileWidget from "../components/forms/TurnstileWidget.astro";
 import { PROJECT_CONTACT_EMAIL } from "../data/contact-channels";
 import Layout from "../layouts/Layout.astro";
@@ -135,7 +136,7 @@ const services = [
                       <input class="peer sr-only" type="checkbox" name="services" value={service} />
                       <span class="flex min-h-12 items-center justify-between gap-3 rounded-sm border border-input bg-background px-4 text-body-sm transition-colors peer-checked:border-system peer-checked:bg-system/6 peer-focus-visible:ring-2 peer-focus-visible:ring-ring/30">
                         {service}
-                        <span class="font-mono text-label text-muted-foreground peer-checked:text-system" aria-hidden="true">+</span>
+                        <Plus class="size-3.5 text-muted-foreground peer-checked:text-system" aria-hidden="true" />
                       </span>
                     </label>
                   ))
@@ -237,7 +238,7 @@ const services = [
                 disabled
               >
                 <span data-submit-label>Send project brief</span>
-                <span aria-hidden="true">↗</span>
+                <ArrowUpRight class="size-4" aria-hidden="true" />
               </button>
             </div>
           </form>

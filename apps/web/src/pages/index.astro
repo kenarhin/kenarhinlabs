@@ -6,6 +6,7 @@
  * backend homepage projection remains unavailable. It does not fabricate CMS
  * records, metrics, testimonials, or case-study outcomes.
  */
+import { ArrowUpRight } from "@lucide/astro";
 import LivingSystemHero from "../components/marketing/LivingSystemHero.astro";
 import TechnologyRail from "../components/technology/TechnologyRail.astro";
 import SelectedWork from "../components/work/SelectedWork.astro";
@@ -214,7 +215,7 @@ const capabilities = [
             class="mt-10 inline-flex min-h-12 items-center gap-5 rounded-sm bg-primary px-6 text-body-sm font-medium text-primary-foreground transition-transform duration-(--motion-duration-control) hover:-translate-y-1"
           >
             Start a project
-            <span aria-hidden="true">↗</span>
+            <ArrowUpRight class="size-4" aria-hidden="true" />
           </a>
         </div>
       </div>

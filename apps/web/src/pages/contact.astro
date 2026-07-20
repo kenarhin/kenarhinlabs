@@ -1,5 +1,5 @@
 ---
-/** Unified General and Support contact route backed by channel-aware API intake. */
+import { ArrowUpRight } from "@lucide/astro";
 import TurnstileWidget from "../components/forms/TurnstileWidget.astro";
 import SocialChannels from "../components/social/SocialChannels.astro";
 import {
@@ -61,7 +61,7 @@ import Layout from "../layouts/Layout.astro";
               A project brief has different questions and creates a dedicated project lead.
             </p>
             <a class="mt-4 inline-flex items-center gap-3 font-medium text-foreground hover:text-signal" href="/start-a-project">
-              Go to Start a Project <span aria-hidden="true">↗</span>
+              Go to Start a Project <ArrowUpRight class="size-4" aria-hidden="true" />
             </a>
           </div>
         </div>
@@ -190,7 +190,7 @@ import Layout from "../layouts/Layout.astro";
                 disabled
               >
                 <span data-submit-label>Send enquiry</span>
-                <span aria-hidden="true">↗</span>
+                <ArrowUpRight class="size-4" aria-hidden="true" />
               </button>
             </div>
           </form>

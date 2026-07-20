@@ -12,6 +12,7 @@
  * @param visualStages Three plain-language stages shown in the document map.
  * @param reviewNote Optional publication-review note for unresolved business facts.
  */
+import { ArrowUpRight } from "@lucide/astro";
 import { PRIVACY_CONTACT_EMAIL } from "../../data/contact-channels";
 import Layout from "../../layouts/Layout.astro";
 import LegalDocumentMap from "./LegalDocumentMap.astro";
@@ -152,7 +153,7 @@ const {
           href={`mailto:${PRIVACY_CONTACT_EMAIL}`}
         >
           {PRIVACY_CONTACT_EMAIL}
-          <span aria-hidden="true">↗</span>
+          <ArrowUpRight class="size-4" aria-hidden="true" />
         </a>
         <p class="mt-5 text-body-sm opacity-65">
           These pages are implementation drafts and do not replace advice from a qualified legal professional.
